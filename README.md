@@ -73,6 +73,15 @@ export default buildConfig({
           label: { en: 'Content', uk: 'Контент' },
           collections: ['posts', 'pages', 'categories'],
         },
+        // Link to external documentation
+        {
+          id: 'docs',
+          type: 'link',
+          href: 'https://payloadcms.com/',
+          icon: 'BookOpen',
+          isExternal: true,
+          label: { en: 'Documentation', uk: 'Документація' },
+        },
         // E-commerce tab with custom items
         {
           id: 'ecommerce',
@@ -104,6 +113,12 @@ export default buildConfig({
               label: { en: 'API Keys', uk: 'API Ключі' },
               // No group - will appear at the bottom
             },
+            {
+              slug:'external-link',
+              href: 'https://example.com',
+              isExternal: true,
+              label: { en: 'External Link', uk: 'Зовнішнє Посилання'}
+            }
           ],
         },
       ],
@@ -146,7 +161,8 @@ Array of tabs and links to show in the sidebar.
 | `type` | `'link'` | Yes | Link type |
 | `icon` | `string` | Yes | Lucide icon name |
 | `label` | `LocalizedString` | Yes | Link tooltip/label |
-| `href` | `string` | Yes | URL (relative to admin route) |
+| `href` | `string` | Yes | URL |
+| `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
 
 ### `customItems`
 
@@ -155,7 +171,7 @@ Custom items can be added to any tab:
 ```typescript
 {
   slug: 'unique-slug',           // Required: unique identifier
-  href: '/path',                 // Required: URL (relative to admin route)
+  href: '/path',                 // Required: URL
   label: { en: 'Label' },        // Required: display label
   group: { en: 'Group Name' },   // Optional: merge into existing group or create new
   isExternal: true,              // Optional: if true, href is absolute URL
