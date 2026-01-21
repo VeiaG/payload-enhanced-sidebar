@@ -1,0 +1,63 @@
+@import '~@payloadcms/ui/scss';
+
+@layer payload-default {
+  .enhanced-sidebar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    flex-shrink: 0;
+    height: 100vh;
+    width: var(--nav-width);
+    border-right: 1px solid var(--theme-elevation-100);
+    opacity: 0;
+
+    [dir='rtl'] & {
+      border-right: none;
+      border-left: 1px solid var(--theme-elevation-100);
+    }
+
+    &--nav-animate {
+      transition: opacity var(--nav-trans-time) ease-in-out;
+    }
+
+    &--nav-open {
+      opacity: 1;
+    }
+
+    &__header {
+      position: absolute;
+      top: 0;
+      width: 100vw;
+      height: var(--app-header-height);
+      z-index: 1;
+    }
+
+    &__mobile-close {
+      display: none;
+      background: none;
+      border: 0;
+      outline: 0;
+      padding: base(0.8) 0;
+      cursor: pointer;
+    }
+
+    &__scroll {
+      height: 100%;
+      display: flex;
+      flex-direction: row;
+    }
+
+    @include small-break {
+      &__mobile-close {
+        display: flex;
+        align-items: center;
+        padding-left: var(--gutter-h);
+
+        [dir='rtl'] & {
+          padding-left: 0;
+          padding-right: var(--gutter-h);
+        }
+      }
+    }
+  }
+}

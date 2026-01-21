@@ -1,0 +1,108 @@
+@import '~@payloadcms/ui/scss';
+
+@layer payload-default {
+  .tabs-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 48px;
+    min-width: 48px;
+    padding: base(0.5) 0;
+    border-right: 1px solid var(--theme-elevation-100);
+    background: var(--theme-elevation-50);
+
+    [dir='rtl'] & {
+      border-right: none;
+      border-left: 1px solid var(--theme-elevation-100);
+    }
+
+    &__tabs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: base(0.25);
+      padding-top: var(--app-header-height);
+    }
+
+    &__tab,
+    &__link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: base(0.25);
+      background: transparent;
+      color: var(--theme-elevation-500);
+      cursor: pointer;
+      transition: all 150ms ease;
+      text-decoration: none;
+
+      &:hover {
+        background: var(--theme-elevation-100);
+        color: var(--theme-text);
+      }
+    }
+
+    &__tab--active {
+      background: var(--theme-elevation-150);
+      color: var(--theme-text);
+    }
+
+    &__link {
+      position: relative;
+
+      &--active {
+        color: var(--theme-text);
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: -6px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 3px;
+          height: 20px;
+          background: var(--theme-text);
+          border-radius: 0 2px 2px 0;
+
+          [dir='rtl'] & {
+            left: auto;
+            right: -6px;
+            border-radius: 2px 0 0 2px;
+          }
+        }
+      }
+    }
+
+    &__actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: base(0.25);
+      padding-bottom: base(0.5);
+    }
+
+    &__action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: base(0.25);
+      background: transparent;
+      color: var(--theme-elevation-500);
+      cursor: pointer;
+      transition: all 150ms ease;
+      text-decoration: none;
+
+      &:hover {
+        background: var(--theme-elevation-100);
+        color: var(--theme-text);
+      }
+    }
+  }
+}

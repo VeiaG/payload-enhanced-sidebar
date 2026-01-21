@@ -1,0 +1,101 @@
+@import '~@payloadcms/ui/scss';
+
+@layer payload-default {
+  .enhanced-sidebar {
+    &__content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    &__content-scroll {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: var(--app-header-height) base(1) base(2) base(1);
+      overflow-y: auto;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    &__link {
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-block: base(0.125);
+      padding-inline-start: 0;
+      padding-inline-end: base(1.5);
+      text-decoration: none;
+
+      &:focus:not(:focus-visible) {
+        box-shadow: none;
+        font-weight: 600;
+      }
+
+      &.active {
+        font-weight: 600;
+      }
+    }
+
+    a.enhanced-sidebar__link {
+      &:hover,
+      &:focus-visible {
+        text-decoration: underline;
+      }
+    }
+
+    &__link:has(.enhanced-sidebar__link-indicator) {
+      font-weight: 600;
+    }
+
+    &__link-indicator {
+      position: absolute;
+      display: block;
+      inset-inline-start: base(-1);
+      width: 2px;
+      height: 16px;
+      border-start-end-radius: 2px;
+      border-end-end-radius: 2px;
+      background: var(--theme-text);
+    }
+
+    // &__link-label {
+    //   // inherit styles
+    // }
+
+    &__link-icon {
+      margin-right: base(0.5);
+      flex-shrink: 0;
+    }
+
+    &__link--active {
+      font-weight: 600;
+    }
+
+    &__custom-items {
+      display: flex;
+      flex-direction: column;
+      gap: base(0.25);
+    }
+
+    @include mid-break {
+      &__content-scroll {
+        padding-inline: base(0.5);
+      }
+    }
+
+    @include small-break {
+      &__content-scroll {
+        padding-inline: var(--gutter-h);
+      }
+
+      &__link {
+        font-size: base(0.875);
+        line-height: base(1.5);
+      }
+    }
+  }
+}
