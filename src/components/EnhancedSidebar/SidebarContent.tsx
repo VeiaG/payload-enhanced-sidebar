@@ -2,7 +2,7 @@
 import type { NavPreferences } from 'payload'
 
 import { useTranslation } from '@payloadcms/ui'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import type {
   EnhancedSidebarConfig,
@@ -23,16 +23,22 @@ export type SidebarContentProps = {
   afterNavLinks?: React.ReactNode
   beforeNavLinks?: React.ReactNode
   groups: ExtendedGroup[]
+  initialActiveTabId: string
   navPreferences: NavPreferences | null
   sidebarConfig: EnhancedSidebarConfig
 }
 
-const STORAGE_KEY = 'payload-enhanced-sidebar-active-tab'
+const COOKIE_KEY = 'payload-enhanced-sidebar-active-tab'
+
+const setTabCookie = (tabId: string) => {
+  document.cookie = `${COOKIE_KEY}=${tabId}; path=/; max-age=31536000; SameSite=Lax`
+}
 
 export const SidebarContent: React.FC<SidebarContentProps> = ({
   afterNavLinks,
   beforeNavLinks,
   groups,
+  initialActiveTabId,
   navPreferences,
   sidebarConfig,
 }) => {
@@ -40,23 +46,13 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   const currentLang = i18n.language
 
   const tabs = sidebarConfig.tabs?.filter((t): t is SidebarTabContentType => t.type === 'tab') ?? []
-  const defaultTabId = tabs[0]?.id ?? 'default'
 
-  // Always start with default to match server render
-  const [activeTabId, setActiveTabId] = useState(defaultTabId)
+  const [activeTabId, setActiveTabId] = useState(initialActiveTabId)
 
-  // Read from localStorage only after hydration
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored && tabs.some((t) => t.id === stored)) {
-      setActiveTabId(stored)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Persist to localStorage on change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, activeTabId)
-  }, [activeTabId])
+  const handleTabChange = (tabId: string) => {
+    setActiveTabId(tabId)
+    setTabCookie(tabId)
+  }
 
   const activeTab = tabs.find((tab) => tab.id === activeTabId)
 
@@ -150,7 +146,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
     <SidebarWrapper baseClass={baseClass}>
       <TabsBar
         activeTabId={activeTabId}
-        onTabChange={setActiveTabId}
+        onTabChange={handleTabChange}
         sidebarConfig={sidebarConfig}
       />
       <nav className={`${baseClass}__content`}>

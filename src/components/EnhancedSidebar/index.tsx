@@ -3,7 +3,10 @@ import type { PayloadRequest, ServerProps } from 'payload'
 
 import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
 import { EntityType, groupNavItems } from '@payloadcms/ui/shared'
+import { cookies } from 'next/headers'
 import React from 'react'
+
+const COOKIE_KEY = 'payload-enhanced-sidebar-active-tab'
 
 import type { EnhancedSidebarConfig, ExtendedGroup } from '../../types'
 
@@ -103,11 +106,20 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     ],
   }
 
+  // Read active tab from cookie
+  const cookieStore = await cookies()
+  const storedTabId = cookieStore.get(COOKIE_KEY)?.value
+  const tabs = config.tabs?.filter((t) => t.type === 'tab') ?? []
+  const defaultTabId = tabs[0]?.id ?? 'default'
+  const initialActiveTabId =
+    storedTabId && tabs.some((t) => t.id === storedTabId) ? storedTabId : defaultTabId
+
   return (
     <SidebarContent
       afterNavLinks={afterNavLinksRendered}
       beforeNavLinks={beforeNavLinksRendered}
       groups={groups}
+      initialActiveTabId={initialActiveTabId}
       navPreferences={navPreferences}
       sidebarConfig={config}
     />
