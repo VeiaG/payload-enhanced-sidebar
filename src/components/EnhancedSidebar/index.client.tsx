@@ -4,6 +4,7 @@ import type { ExtendedGroup } from 'src/types'
 
 import { getTranslation } from '@payloadcms/translations'
 import { Link, NavGroup, useConfig, useTranslation } from '@payloadcms/ui'
+import { EntityType } from '@payloadcms/ui/shared'
 import { usePathname } from 'next/navigation.js'
 import { formatAdminURL } from 'payload/shared'
 import React, { Fragment } from 'react'
@@ -37,18 +38,23 @@ export const EnhancedSidebarClient: React.FC<{
           let href: string
           let id: string
 
-          // Check for collection (Will break if EntityType enum changes)
-          if (entityType === 'collection') {
+          // Check for collection
+          //@ts-expect-error Idk why typescript is complaining here
+          if (entityType === EntityType.collection) {
             href = formatAdminURL({ adminRoute, path: `/collections/${slug}` })
             id = `nav-${slug}`
-          } else if (entityType === 'global') {
+            //@ts-expect-error Idk why typescript is complaining here
+          } else if (entityType === EntityType.global) {
             href = formatAdminURL({ adminRoute, path: `/globals/${slug}` })
             id = `nav-global-${slug}`
           } else if (entityType === 'custom' && entity.href) {
             // Custom item with href
-            const customHref = entity.href
-            href = formatAdminURL({ adminRoute, path: customHref as `/${string}` })
             id = `nav-custom-${slug}`
+            if (entity.isExternal) {
+              href = entity.href
+            } else {
+              href = formatAdminURL({ adminRoute, path: entity.href })
+            }
           } else {
             return null
           }

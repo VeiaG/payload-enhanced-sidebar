@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 import type {
   EnhancedSidebarConfig,
+  ExtendedEntity,
   ExtendedGroup,
   SidebarTabContent as SidebarTabContentType,
   SidebarTabItem,
@@ -104,8 +105,9 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
               slug: item.slug,
               type: 'custom',
               href: item.href,
+              isExternal: item.isExternal,
               label: item.label,
-            })
+            } as ExtendedEntity)
           } else {
             // Create new group
             result.push({
@@ -114,8 +116,9 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                   slug: item.slug,
                   type: 'custom',
                   href: item.href,
+                  isExternal: item.isExternal,
                   label: item.label,
-                },
+                } as ExtendedEntity,
               ],
               label: item.group,
             })
@@ -132,8 +135,9 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
             slug: item.slug,
             type: 'custom',
             href: item.href,
+            isExternal: item.isExternal,
             label: item.label,
-          })),
+          })) as ExtendedEntity[],
           label: '',
         })
       }

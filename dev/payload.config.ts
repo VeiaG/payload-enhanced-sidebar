@@ -357,6 +357,14 @@ const buildConfigWithMemoryDB = async () => {
             label: { en: 'Dashboard', uk: 'Головна' },
           },
           {
+            id: 'docs',
+            type: 'link',
+            href: 'https://payloadcms.com/',
+            icon: 'BookOpen',
+            isExternal: true,
+            label: { en: 'Documentation', uk: 'Документація' },
+          },
+          {
             id: 'content',
             type: 'tab',
             collections: ['posts', 'pages', 'categories', 'articles', 'authors', 'tags'],

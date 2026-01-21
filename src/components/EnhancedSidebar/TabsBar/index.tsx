@@ -53,7 +53,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({ activeTabId, onTabChange, side
 
   const renderLink = (link: SidebarTabLink) => {
     const label = getTranslation(link.label, i18n)
-    const href = formatAdminURL({ adminRoute, path: link.href as `/${string}` })
+    const href = link.isExternal ? link.href : formatAdminURL({ adminRoute, path: link.href })
 
     // Check if this link is active
     const isActive = pathname === href || (link.href === '/' && pathname === adminRoute)
@@ -63,6 +63,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({ activeTabId, onTabChange, side
         className={`${tabsBaseClass}__link ${isActive ? `${tabsBaseClass}__link--active` : ''}`}
         href={href}
         key={link.id}
+        target={link.isExternal ? '_blank' : undefined}
         title={label}
       >
         <Icon name={link.icon} size={20} />

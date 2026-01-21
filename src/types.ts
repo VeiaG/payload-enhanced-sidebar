@@ -42,12 +42,7 @@ export interface SidebarTabContent {
   type: 'tab'
 }
 
-/**
- * Sidebar link that navigates to a URL (not a tab)
- */
-export interface SidebarTabLink {
-  /** Link href (relative to admin route) */
-  href: string
+interface SidebarTabLinkBase {
   /** Icon name from lucide-react */
   icon: IconName
   /** Unique identifier */
@@ -56,7 +51,20 @@ export interface SidebarTabLink {
   label: LocalizedString
   type: 'link'
 }
-
+interface SidebarTabLinkExternal extends SidebarTabLinkBase {
+  /** Link href (absolute URL) */
+  href: string
+  isExternal: true
+}
+interface SidebarTabLinkInternal extends SidebarTabLinkBase {
+  /** Link href (relative to admin route) */
+  href: '' | `/${string}`
+  isExternal?: false
+}
+/**
+ * Sidebar link that navigates to a URL (not a tab)
+ */
+export type SidebarTabLink = SidebarTabLinkExternal | SidebarTabLinkInternal
 /**
  * A tab or link in the sidebar tabs bar
  */
@@ -135,12 +143,23 @@ export type GenericCollectionDocument = {
   id: string
 }
 
-export type ExtendedEntity = {
-  href?: string
+interface BaseExtendedEntity {
   label: Record<string, string> | string
   slug: string
   type: 'collection' | 'custom' | 'global'
 }
+
+interface InternalExtendedEntity extends BaseExtendedEntity {
+  href?: '' | `/${string}`
+  isExternal?: false
+}
+
+interface ExternalExtendedEntity extends BaseExtendedEntity {
+  href: string
+  isExternal: true
+}
+
+export type ExtendedEntity = ExternalExtendedEntity | InternalExtendedEntity
 
 export type ExtendedGroup = {
   entities: ExtendedEntity[]
