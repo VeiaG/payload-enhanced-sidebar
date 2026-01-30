@@ -1,0 +1,65 @@
+@import '~@payloadcms/ui/scss';
+
+@layer payload-default {
+  .sidebar-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 base(0.25);
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+
+    // Color variants - using fixed colors for consistent contrast in both themes
+    &--default {
+      background: var(--theme-elevation-200);
+      color: var(--theme-elevation-800);
+    }
+
+    &--primary {
+      background: #3b82f6; // Blue
+      color: #fff;
+    }
+
+    &--success {
+      background: #22c55e; // Green
+      color: #fff;
+    }
+
+    &--warning {
+      background: #f59e0b; // Amber
+      color: #000;
+    }
+
+    &--error {
+      background: #ef4444; // Red
+      color: #fff;
+    }
+
+    // Position modifier for absolute positioning (used on icons)
+    &--absolute {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+
+      [dir='rtl'] & {
+        right: auto;
+        left: -4px;
+      }
+    }
+
+    // Inline modifier (used in nav items)
+    &--inline {
+      margin-left: base(0.5);
+
+      [dir='rtl'] & {
+        margin-left: 0;
+        margin-right: base(0.5);
+      }
+    }
+  }
+}

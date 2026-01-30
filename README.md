@@ -10,8 +10,11 @@ An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a
 - **Vertical Tab Bar** - Icon-based tabs on the left side of the sidebar
 - **Link Support** - Add navigation links (like Dashboard) alongside tabs
 - **Custom Items** - Add custom navigation items that can be merged into existing groups
+- **Badges** - Show notification badges on tabs and navigation items (API-based or reactive provider)
 - **i18n Support** - Full localization support for labels and groups
 - **Lucide Icons** - Use any [Lucide icon](https://lucide.dev/icons) for tabs and links
+
+![Showcase](docs/showcase.gif)
 
 ## Installation
 
@@ -43,6 +46,8 @@ This will add:
 - A Dashboard link at the top
 - A default tab showing all collections and globals
 - A logout button at the bottom
+
+![Default Config](docs/default-config.png)
 
 ## Configuration
 
@@ -150,8 +155,10 @@ Array of tabs and links to show in the sidebar.
 | `collections` | `CollectionSlug[]` | No | Collections to show in this tab |
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
 | `customItems` | `SidebarTabItem[]` | No | Custom navigation items |
+| `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
 
 > If neither `collections` nor `globals` are specified, the tab shows all collections and globals.
+
 
 **Link (`type: 'link'`)**
 
@@ -163,6 +170,10 @@ Array of tabs and links to show in the sidebar.
 | `label` | `LocalizedString` | Yes | Link tooltip/label |
 | `href` | `string` | Yes | URL |
 | `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
+| `badge` | `BadgeConfig` | No | Badge configuration for the link icon |
+
+
+![Tab and Link active difference](docs/tab-link-active.png)
 
 ### `customItems`
 
@@ -182,6 +193,174 @@ Custom items can be added to any tab:
 - If `group` matches an existing collection group label, the item is added to that group
 - If `group` doesn't match any existing group, a new group is created
 - If `group` is not specified, the item appears at the bottom as ungrouped
+
+
+## Badges
+
+Badges allow you to show notification counts on tabs and navigation items. There are three ways to configure badges:
+
+<!-- [screenshot - Badges showcase: show sidebar with multiple badges - on tab icon (red "5"), on nav item (blue "12"), maybe one with "99+". Show different colors: error (red), primary (blue), warning (yellow)] -->
+
+### Badge on Tabs/Links
+
+Add a `badge` property to any tab or link in the `tabs` array:
+
+```typescript
+tabs: [
+  {
+    id: 'orders',
+    type: 'tab',
+    icon: 'ShoppingCart',
+    label: 'Orders',
+    collections: ['orders'],
+    // Badge on the tab icon
+    badge: {
+      type: 'collection-count',
+      collectionSlug: 'orders',
+      color: 'error',
+    },
+  },
+]
+```
+
+### Badges on Navigation Items
+
+Use the `badges` configuration to add badges to any sidebar item (collections, globals, or custom items):
+
+```typescript
+payloadEnhancedSidebar({
+  badges: {
+    // Show document count for posts collection
+    posts: { type: 'collection-count', color: 'primary' },
+    // Custom API endpoint
+    orders: {
+      type: 'api',
+      endpoint: '/api/orders/pending',
+      responseKey: 'count',
+      color: 'error',
+    },
+    // Provider-based (reactive)
+    notifications: { type: 'provider', color: 'warning' },
+  },
+})
+```
+
+### Badge Types
+
+#### `collection-count`
+
+Automatically fetches document count from a collection.
+
+```typescript
+{
+  type: 'collection-count',
+  collectionSlug?: string,  // Defaults to item's slug
+  color?: BadgeColor,       // 'default' | 'primary' | 'success' | 'warning' | 'error'
+  where?: object,           // Optional filter query
+}
+```
+
+#### `api`
+
+Fetches badge value from a custom API endpoint.
+
+```typescript
+{
+  type: 'api',
+  endpoint: string,         // API URL (relative or absolute)
+  method?: 'GET' | 'POST',  // Default: 'GET'
+  responseKey?: string,     // Key to extract from response. Default: 'count'
+  color?: BadgeColor,
+}
+```
+
+#### `provider`
+
+Uses reactive values from `BadgeProvider` context. Values update automatically when the provider changes.
+
+```typescript
+{
+  type: 'provider',
+  slug?: string,            // Key in provider values. Defaults to item's slug/id
+  color?: BadgeColor,
+}
+```
+
+### Using BadgeProvider
+
+For reactive badges (real-time updates, websockets, etc.), use the `BadgeProvider`:
+
+1. Create a provider component:
+
+```typescript
+// components/MyBadgeProvider.tsx
+'use client'
+
+import { BadgeProvider } from '@veiag/payload-enhanced-sidebar'
+import { useEffect, useState } from 'react'
+
+export const MyBadgeProvider = ({ children }) => {
+  const [counts, setCounts] = useState({
+    orders: 0,
+    notifications: 0,
+  })
+
+  useEffect(() => {
+    // Fetch initial counts, subscribe to websocket, etc.
+    const ws = new WebSocket('wss://your-api/counts')
+    ws.onmessage = (e) => setCounts(JSON.parse(e.data))
+    return () => ws.close()
+  }, [])
+
+  return <BadgeProvider values={counts}>{children}</BadgeProvider>
+}
+```
+
+2. Add it to Payload's providers:
+
+```typescript
+// payload.config.ts
+export default buildConfig({
+  admin: {
+    components: {
+      providers: ['./components/MyBadgeProvider#MyBadgeProvider'],
+    },
+  },
+})
+```
+
+3. Configure badges to use the provider:
+
+```typescript
+payloadEnhancedSidebar({
+  badges: {
+    orders: { type: 'provider', color: 'error' },
+  },
+  tabs: [
+    {
+      id: 'notifications',
+      type: 'link',
+      href: '/notifications',
+      icon: 'Bell',
+      label: 'Notifications',
+      badge: { type: 'provider', slug: 'notifications', color: 'warning' },
+    },
+  ],
+})
+```
+
+### Badge Colors
+
+Available colors: `default`, `primary`, `success`, `warning`, `error`
+
+![Badge Colors](docs/badge-colors.png)
+
+### Badge Display
+
+- Numbers up to 99 are shown as-is
+- Numbers > 99 are shown as "99+"
+- Zero or undefined values hide the badge
+- Provider values can also be React nodes for custom rendering
 
 ### `showLogout`
 
@@ -211,12 +390,10 @@ label: {
 }
 ```
 
-## TODO
+## Payload Features Support
 
-The following features are planned but not yet implemented:
-
-- [ ] **Browse by Folder Button** - Support for the folder view button (requires Payload v3.41.0+)
-- [ ] **Settings Menu Items** - Support for Payload's SettingsMenu items (requires Payload v3.60.0+)
+- **Browse by Folder Button** - Automatically shows folder view button when Payload folders are enabled (requires Payload v3.41.0+)
+- **Settings Menu Items** - Integrates with Payload's SettingsMenu components (requires Payload v3.60.0+)
 
 ## Contributing
 

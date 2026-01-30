@@ -1,11 +1,100 @@
 import type { icons, LucideIcon } from 'lucide-react'
-import type { CollectionSlug, GlobalSlug } from 'payload'
+import type { CollectionSlug, GlobalSlug, Where } from 'payload'
+import type { ReactNode } from 'react'
 
 export type IconName = keyof typeof icons
 
 export type LocalizedString = { [locale: string]: string } | string
 
 export type InternalIcon = IconName | LucideIcon
+
+// ============================================
+// Badge Types
+// ============================================
+
+/**
+ * Available badge color variants
+ */
+export type BadgeColor = 'default' | 'error' | 'primary' | 'success' | 'warning'
+
+/**
+ * Badge configuration Trr API-based fetching
+ */
+export interface BadgeConfigApi {
+  /**
+   * Badge color variant
+   * @default 'default'
+   */
+  color?: BadgeColor
+  /**
+   * API endpoint to fetch badge data from.
+   * Can be relative (to current origin) or absolute URL.
+   */
+  endpoint: string
+  /**
+   * HTTP method for the request
+   * @default 'GET'
+   */
+  method?: 'GET' | 'POST'
+  /**
+   * Key in the response object to extract the count from
+   * @default 'count'
+   */
+  responseKey?: string
+  type: 'api'
+}
+
+/**
+ * Badge configuration for provider-based values.
+ * Values are provided via BadgeProvider context.
+ */
+export interface BadgeConfigProvider {
+  /**
+   * Badge color variant
+   * @default 'default'
+   */
+  color?: BadgeColor
+  /**
+   * Slug to look up in the BadgeProvider values.
+   * If not specified, defaults to the item's id/slug.
+   */
+  slug?: string
+  type: 'provider'
+}
+
+/**
+ * Badge configuration for automatic collection document count.
+ * Fetches from /api/{collectionSlug}?limit=0 and uses totalDocs.
+ */
+export interface BadgeConfigCollectionCount {
+  /**
+   * Collection slug to count documents from.
+   * If not specified, defaults to the item's slug.
+   */
+  collectionSlug?: CollectionSlug
+  /**
+   * Badge color variant
+   * @default 'default'
+   */
+  color?: BadgeColor
+  type: 'collection-count'
+  /**
+   * Optional where query to filter documents.
+   * Will be serialized as query string.
+   * @example { status: { equals: 'draft' } }
+   */
+  where?: Where
+}
+
+/**
+ * Badge configuration - union of all badge types
+ */
+export type BadgeConfig = BadgeConfigApi | BadgeConfigCollectionCount | BadgeConfigProvider
+
+/**
+ * Badge values provided via BadgeProvider context
+ */
+export type BadgeValues = Record<string, number | ReactNode>
 
 // ============================================
 // Enhanced Sidebar Types
@@ -15,6 +104,11 @@ export type InternalIcon = IconName | LucideIcon
  * Sidebar tab that shows content when selected
  */
 export interface SidebarTabContent {
+  /**
+   * Badge configuration for this tab.
+   * Shows a badge on the tab icon in the tabs bar.
+   */
+  badge?: BadgeConfig
   /**
    * Collections to show in this tab.
    * If not specified, no collections are shown (unless items are specified).
@@ -43,6 +137,11 @@ export interface SidebarTabContent {
 }
 
 interface SidebarTabLinkBase {
+  /**
+   * Badge configuration for this link.
+   * Shows a badge on the link icon in the tabs bar.
+   */
+  badge?: BadgeConfig
   /** Icon name from lucide-react */
   icon: IconName
   /** Unique identifier */
@@ -105,6 +204,21 @@ export type SidebarTabItem = ExternalHrefItem | InternalHrefItem
  * Configuration for the enhanced sidebar
  */
 export interface EnhancedSidebarConfig {
+  /**
+   * Badge configurations for sidebar items (collections, globals, custom items).
+   * Key is the slug of the item.
+   *
+   * @example
+   * ```typescript
+   * badges: {
+   *   'posts': { type: 'collection-count', color: 'primary' },
+   *   'orders': { type: 'api', endpoint: '/api/orders/pending', responseKey: 'count' },
+   *   'notifications': { type: 'provider', color: 'error' },
+   * }
+   * ```
+   */
+  badges?: Record<string, BadgeConfig>
+
   /**
    * Disable the plugin
    * @default false

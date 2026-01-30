@@ -9,6 +9,8 @@ import React from 'react'
 import type { EnhancedSidebarConfig, SidebarTabContent, SidebarTabLink } from '../../../types'
 
 import { Icon } from '../Icon'
+import { SettingsMenuButton } from '../SettingsMenuButton'
+import { TabButton, TabLink } from './TabItem'
 import './index.scss'
 
 const tabsBaseClass = 'tabs-bar'
@@ -16,66 +18,57 @@ const tabsBaseClass = 'tabs-bar'
 export type TabsBarProps = {
   activeTabId: string
   onTabChange: (tabId: string) => void
+  settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
 }
 
-export const TabsBar: React.FC<TabsBarProps> = ({ activeTabId, onTabChange, sidebarConfig }) => {
+export const TabsBar: React.FC<TabsBarProps> = ({
+  activeTabId,
+  onTabChange,
+  settingsMenu,
+  sidebarConfig,
+}) => {
   const { i18n } = useTranslation()
   const pathname = usePathname()
 
   const {
     config: {
       admin: {
-        routes: { logout: logoutRoute },
+        routes: { browseByFolder: foldersRoute, logout: logoutRoute },
       },
+      folders,
       routes: { admin: adminRoute },
     },
   } = useConfig()
 
   const showLogout = sidebarConfig.showLogout !== false
+  const showFolders = folders && folders.browseByFolder
 
-  const renderTab = (tab: SidebarTabContent) => {
-    const label = getTranslation(tab.label, i18n)
-    const isActive = activeTabId === tab.id
-
-    return (
-      <button
-        className={`${tabsBaseClass}__tab ${isActive ? `${tabsBaseClass}__tab--active` : ''}`}
-        key={tab.id}
-        onClick={() => onTabChange(tab.id)}
-        title={label}
-        type="button"
-      >
-        <Icon name={tab.icon} size={20} />
-      </button>
-    )
-  }
-
-  const renderLink = (link: SidebarTabLink) => {
-    const label = getTranslation(link.label, i18n)
-    const href = link.isExternal ? link.href : formatAdminURL({ adminRoute, path: link.href })
-
-    // Check if this link is active
-    const isActive = pathname === href || (link.href === '/' && pathname === adminRoute)
-
-    return (
-      <Link
-        className={`${tabsBaseClass}__link ${isActive ? `${tabsBaseClass}__link--active` : ''}`}
-        href={href}
-        key={link.id}
-        target={link.isExternal ? '_blank' : undefined}
-        title={label}
-      >
-        <Icon name={link.icon} size={20} />
-      </Link>
-    )
-  }
+  const folderURL = formatAdminURL({
+    adminRoute,
+    path: foldersRoute,
+  })
+  const isFoldersActive = pathname.startsWith(folderURL)
 
   const renderTabItem = (item: SidebarTabContent | SidebarTabLink) => {
     if (item.type === 'tab') {
-      return renderTab(item)
+      return (
+        <TabButton
+          isActive={activeTabId === item.id}
+          key={item.id}
+          onTabChange={onTabChange}
+          tab={item}
+        />
+      )
     }
-    return renderLink(item)
+
+    // Check if link is active
+    const href = item.isExternal
+      ? item.href
+      : formatAdminURL({ adminRoute, path: item.href })
+    const isActive = pathname === href || (item.href === '/' && pathname === adminRoute)
+
+    return <TabLink href={href} isActive={isActive} key={item.id} link={item} />
   }
 
   const tabItems = sidebarConfig.tabs ?? []
@@ -84,8 +77,18 @@ export const TabsBar: React.FC<TabsBarProps> = ({ activeTabId, onTabChange, side
     <div className={tabsBaseClass}>
       <div className={`${tabsBaseClass}__tabs`}>{tabItems.map(renderTabItem)}</div>
 
-      {showLogout && (
-        <div className={`${tabsBaseClass}__actions`}>
+      <div className={`${tabsBaseClass}__actions`}>
+        {showFolders && (
+          <Link
+            className={`${tabsBaseClass}__action ${isFoldersActive ? `${tabsBaseClass}__link--active` : ''}`}
+            href={folderURL}
+            title={getTranslation({ en: 'Browse by Folder', uk: 'Переглянути по папках' }, i18n)}
+          >
+            <Icon name="Folder" size={20} />
+          </Link>
+        )}
+        <SettingsMenuButton settingsMenu={settingsMenu} />
+        {showLogout && (
           <Link
             className={`${tabsBaseClass}__action`}
             href={formatAdminURL({
@@ -97,8 +100,8 @@ export const TabsBar: React.FC<TabsBarProps> = ({ activeTabId, onTabChange, side
           >
             <Icon name="LogOut" size={20} />
           </Link>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

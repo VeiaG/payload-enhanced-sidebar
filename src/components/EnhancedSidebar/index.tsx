@@ -39,7 +39,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
 
   const {
     admin: {
-      components: { afterNavLinks, beforeNavLinks },
+      components: { afterNavLinks, beforeNavLinks, settingsMenu },
     },
     collections,
     globals,
@@ -94,6 +94,18 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     serverProps,
   })
 
+  const renderedSettingsMenu =
+    settingsMenu && Array.isArray(settingsMenu)
+      ? settingsMenu.map((item, index) =>
+          RenderServerComponent({
+            Component: item,
+            importMap: payload.importMap,
+            key: `settings-menu-item-${index}`,
+            serverProps,
+          }),
+        )
+      : []
+
   // Default config if not provided
   const config: EnhancedSidebarConfig = sidebarConfig ?? {
     tabs: [
@@ -121,6 +133,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       groups={groups}
       initialActiveTabId={initialActiveTabId}
       navPreferences={navPreferences}
+      settingsMenu={renderedSettingsMenu}
       sidebarConfig={config}
     />
   )

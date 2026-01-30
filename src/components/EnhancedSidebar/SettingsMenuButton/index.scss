@@ -1,0 +1,25 @@
+@import '~@payloadcms/ui/scss';
+
+@layer payload-default {
+  .settings-menu-button {
+    &__button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: base(0.25);
+      background: transparent;
+      color: var(--theme-elevation-500);
+      cursor: pointer;
+      transition: all 150ms ease;
+
+      &:hover {
+        background: var(--theme-elevation-100);
+        color: var(--theme-text);
+      }
+    }
+
+  }
+}
