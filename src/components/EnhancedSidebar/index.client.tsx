@@ -1,20 +1,22 @@
 'use client'
 import type { NavPreferences } from 'payload'
-import type { ExtendedGroup } from 'src/types'
 
 import { getTranslation } from '@payloadcms/translations'
-import { Link, NavGroup, useConfig, useTranslation } from '@payloadcms/ui'
+import { NavGroup, useConfig, useTranslation } from '@payloadcms/ui'
 import { EntityType } from '@payloadcms/ui/shared'
 import { usePathname } from 'next/navigation.js'
 import { formatAdminURL } from 'payload/shared'
 import React, { Fragment } from 'react'
 
-const baseClass = 'enhanced-sidebar'
+import type { BadgeConfig, ExtendedGroup } from '../../types'
+
+import { NavItem } from './NavItem'
 
 export const EnhancedSidebarClient: React.FC<{
+  badges?: Record<string, BadgeConfig>
   groups: ExtendedGroup[]
   navPreferences: NavPreferences | null
-}> = ({ groups, navPreferences }) => {
+}> = ({ badges, groups, navPreferences }) => {
   const pathname = usePathname()
 
   const {
@@ -33,7 +35,7 @@ export const EnhancedSidebarClient: React.FC<{
         const isUngrouped = !label || (typeof label === 'string' && label === '')
 
         const content = entities.map((entity, i) => {
-          const { slug, label: entityLabel } = entity
+          const { slug } = entity
           const entityType = entity.type
           let href: string
           let id: string
@@ -61,28 +63,21 @@ export const EnhancedSidebarClient: React.FC<{
 
           const isActive =
             pathname.startsWith(href) && ['/', undefined].includes(pathname[href.length])
+          const isCurrentPage = pathname === href
 
-          const Label = (
-            <>
-              {isActive && <div className={`${baseClass}__link-indicator`} />}
-              <span className={`${baseClass}__link-label`}>
-                {getTranslation(entityLabel, i18n)}
-              </span>
-            </>
-          )
-
-          if (pathname === href) {
-            return (
-              <div className={`${baseClass}__link`} id={id} key={i}>
-                {Label}
-              </div>
-            )
-          }
+          // Get badge config for this entity
+          const badgeConfig = badges?.[slug]
 
           return (
-            <Link className={`${baseClass}__link`} href={href} id={id} key={i} prefetch={false}>
-              {Label}
-            </Link>
+            <NavItem
+              badgeConfig={badgeConfig}
+              entity={entity}
+              href={href}
+              id={id}
+              isActive={isActive}
+              isCurrentPage={isCurrentPage}
+              key={i}
+            />
           )
         })
 

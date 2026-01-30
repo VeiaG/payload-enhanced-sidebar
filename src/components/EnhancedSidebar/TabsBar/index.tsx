@@ -10,6 +10,7 @@ import type { EnhancedSidebarConfig, SidebarTabContent, SidebarTabLink } from '.
 
 import { Icon } from '../Icon'
 import { SettingsMenuButton } from '../SettingsMenuButton'
+import { TabButton, TabLink } from './TabItem'
 import './index.scss'
 
 const tabsBaseClass = 'tabs-bar'
@@ -49,48 +50,25 @@ export const TabsBar: React.FC<TabsBarProps> = ({
   })
   const isFoldersActive = pathname.startsWith(folderURL)
 
-  const renderTab = (tab: SidebarTabContent) => {
-    const label = getTranslation(tab.label, i18n)
-    const isActive = activeTabId === tab.id
-
-    return (
-      <button
-        className={`${tabsBaseClass}__tab ${isActive ? `${tabsBaseClass}__tab--active` : ''}`}
-        key={tab.id}
-        onClick={() => onTabChange(tab.id)}
-        title={label}
-        type="button"
-      >
-        <Icon name={tab.icon} size={20} />
-      </button>
-    )
-  }
-
-  const renderLink = (link: SidebarTabLink) => {
-    const label = getTranslation(link.label, i18n)
-    const href = link.isExternal ? link.href : formatAdminURL({ adminRoute, path: link.href })
-
-    // Check if this link is active
-    const isActive = pathname === href || (link.href === '/' && pathname === adminRoute)
-
-    return (
-      <Link
-        className={`${tabsBaseClass}__link ${isActive ? `${tabsBaseClass}__link--active` : ''}`}
-        href={href}
-        key={link.id}
-        target={link.isExternal ? '_blank' : undefined}
-        title={label}
-      >
-        <Icon name={link.icon} size={20} />
-      </Link>
-    )
-  }
-
   const renderTabItem = (item: SidebarTabContent | SidebarTabLink) => {
     if (item.type === 'tab') {
-      return renderTab(item)
+      return (
+        <TabButton
+          isActive={activeTabId === item.id}
+          key={item.id}
+          onTabChange={onTabChange}
+          tab={item}
+        />
+      )
     }
-    return renderLink(item)
+
+    // Check if link is active
+    const href = item.isExternal
+      ? item.href
+      : formatAdminURL({ adminRoute, path: item.href })
+    const isActive = pathname === href || (item.href === '/' && pathname === adminRoute)
+
+    return <TabLink href={href} isActive={isActive} key={item.id} link={item} />
   }
 
   const tabItems = sidebarConfig.tabs ?? []
