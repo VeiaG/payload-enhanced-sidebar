@@ -1,32 +1,12 @@
 'use client'
 
 import { useConfig } from '@payloadcms/ui'
+import { stringify } from 'qs-esm'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { BadgeConfig, BadgeValues, EnhancedSidebarConfig } from '../../../types'
 
 import { BadgeProvider } from '../BadgeProvider'
-
-/**
- * Serialize where query to query string
- */
-const serializeWhere = (where: Record<string, unknown>): string => {
-  const params = new URLSearchParams()
-
-  const serialize = (obj: Record<string, unknown>, prefix = 'where') => {
-    for (const [key, val] of Object.entries(obj)) {
-      const paramKey = prefix ? `${prefix}[${key}]` : key
-      if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
-        serialize(val as Record<string, unknown>, paramKey)
-      } else {
-        params.append(paramKey, String(val))
-      }
-    }
-  }
-
-  serialize(where)
-  return params.toString()
-}
 
 type BadgeToFetch = {
   config: BadgeConfig
@@ -67,7 +47,7 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
     if (sidebarConfig.tabs) {
       for (const tab of sidebarConfig.tabs) {
         if (tab.badge && tab.badge.type !== 'provider') {
-          badges.push({ config: tab.badge, slug: tab.id })
+          badges.push({ slug: tab.id, config: tab.badge })
         }
       }
     }
@@ -76,7 +56,7 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
     if (sidebarConfig.badges) {
       for (const [slug, config] of Object.entries(sidebarConfig.badges)) {
         if (config.type !== 'provider') {
-          badges.push({ config, slug })
+          badges.push({ slug, config })
         }
       }
     }
@@ -87,7 +67,7 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
   // Fetch a single badge value
   const fetchBadge = useCallback(
     async (badge: BadgeToFetch): Promise<{ slug: string; value: number | undefined }> => {
-      const { config, slug } = badge
+      const { slug, config } = badge
 
       try {
         let url: string
@@ -108,7 +88,7 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
           const params = new URLSearchParams({ limit: '0' })
 
           if (config.where) {
-            const whereParams = serializeWhere(config.where)
+            const whereParams = stringify(config.where)
             url = `${baseUrl}?${params.toString()}&${whereParams}`
           } else {
             url = `${baseUrl}?${params.toString()}`
@@ -135,6 +115,7 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
           return { slug, value: typeof value === 'number' ? value : undefined }
         }
       } catch (error) {
+        //eslint-disable-next-line no-console
         console.error(`Failed to fetch badge data for ${slug}:`, error)
       }
 
@@ -145,7 +126,9 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
 
   // Fetch all badges on mount
   useEffect(() => {
-    if (badgesToFetch.length === 0) return
+    if (badgesToFetch.length === 0) {
+      return
+    }
 
     const fetchAll = async () => {
       const results = await Promise.all(badgesToFetch.map(fetchBadge))
@@ -160,7 +143,10 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
       setValues(newValues)
     }
 
-    fetchAll()
+    fetchAll().catch((err) => {
+      //eslint-disable-next-line no-console
+      console.error('Error fetching badge data:', err)
+    })
   }, [badgesToFetch, fetchBadge])
 
   return <BadgeProvider values={values}>{children}</BadgeProvider>

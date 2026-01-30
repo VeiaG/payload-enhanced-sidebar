@@ -1,5 +1,5 @@
 import type { icons, LucideIcon } from 'lucide-react'
-import type { CollectionSlug, GlobalSlug } from 'payload'
+import type { CollectionSlug, GlobalSlug, Where } from 'payload'
 import type { ReactNode } from 'react'
 
 export type IconName = keyof typeof icons
@@ -68,22 +68,22 @@ export interface BadgeConfigProvider {
  */
 export interface BadgeConfigCollectionCount {
   /**
-   * Badge color variant
-   * @default 'default'
-   */
-  color?: BadgeColor
-  /**
    * Collection slug to count documents from.
    * If not specified, defaults to the item's slug.
    */
   collectionSlug?: CollectionSlug
+  /**
+   * Badge color variant
+   * @default 'default'
+   */
+  color?: BadgeColor
   type: 'collection-count'
   /**
    * Optional where query to filter documents.
    * Will be serialized as query string.
    * @example { status: { equals: 'draft' } }
    */
-  where?: Record<string, unknown>
+  where?: Where
 }
 
 /**

@@ -90,6 +90,12 @@ export const payloadEnhancedSidebar =
     return config
   }
 
+export {
+  BadgeProvider,
+  useBadgeContext,
+  useBadgeValue,
+} from './components/EnhancedSidebar/BadgeProvider'
+
 export type {
   BadgeColor,
   BadgeConfig,
@@ -99,5 +105,3 @@ export type {
   BadgeValues,
   EnhancedSidebarConfig,
 } from './types'
-
-export { BadgeProvider, useBadgeContext, useBadgeValue } from './components/EnhancedSidebar/BadgeProvider'
