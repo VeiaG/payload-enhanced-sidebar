@@ -33,6 +33,9 @@ export const EnhancedSidebarClient: React.FC<{
         // Handle empty label (ungrouped items)
         const groupLabel = label || ''
         const isUngrouped = !label || (typeof label === 'string' && label === '')
+        const translatedLabel = getTranslation(groupLabel, i18n)
+
+        const properKey = `${translatedLabel}-${key}`
 
         const content = entities.map((entity, i) => {
           const { slug } = entity
@@ -83,16 +86,13 @@ export const EnhancedSidebarClient: React.FC<{
 
         // For ungrouped items, render without NavGroup wrapper
         if (isUngrouped) {
-          return <Fragment key={key}>{content}</Fragment>
+          return <Fragment key={properKey}>{content}</Fragment>
         }
-
-        // Get translated label for NavGroup
-        const translatedLabel = getTranslation(groupLabel, i18n)
-
+        //TODO:
         return (
           <NavGroup
             isOpen={navPreferences?.groups?.[translatedLabel]?.open}
-            key={key}
+            key={properKey}
             label={translatedLabel}
           >
             {content}
