@@ -357,102 +357,62 @@ const buildConfigWithMemoryDB = async () => {
     plugins: [
       payloadEnhancedSidebar({
         // Badge configurations for sidebar items
+        // All 5 badge colors showcased on Content tab items:
         badges: {
-          // Collection count - automatically fetches document count
+          // default (gray)
+          categories: { type: 'collection-count', color: 'default' },
+          // primary (blue)
           posts: { type: 'collection-count', color: 'primary' },
+          // success (green)
+          pages: { type: 'collection-count', color: 'success' },
+          // warning (yellow)
+          articles: { type: 'collection-count', color: 'warning' },
+          // error (red)
+          authors: { type: 'collection-count', color: 'error' },
           // Provider-based badge - value comes from TestBadgeProvider
           orders: { type: 'provider', color: 'error' },
-          // Collection count - total articles
-          articles: {
-            type: 'collection-count',
-            color: 'warning',
-          },
         },
         tabs: [
+          // All 5 badge colors showcased on tab icons:
           {
-            id: 'dashboard',
-            type: 'link',
-            href: '/',
-            icon: 'House',
-            label: { en: 'Dashboard', uk: 'Головна' },
-          },
-          {
-            id: 'docs',
-            type: 'link',
-            href: 'https://payloadcms.com/',
-            icon: 'BookOpen',
-            isExternal: true,
-            label: { en: 'Documentation', uk: 'Документація' },
-          },
-          {
-            id: 'content',
+            id: 'default-badge',
             type: 'tab',
-            // Badge on tab icon - collection count
+            badge: { type: 'collection-count', collectionSlug: 'categories', color: 'default' },
+            collections: ['categories'],
+            icon: 'Folder',
+            label: { en: 'Default', uk: 'Default' },
+          },
+          {
+            id: 'primary-badge',
+            type: 'tab',
             badge: { type: 'collection-count', collectionSlug: 'posts', color: 'primary' },
-            collections: ['posts', 'pages', 'categories', 'articles', 'authors', 'tags'],
+            collections: ['posts'],
             icon: 'FileText',
-            label: { en: 'Content', uk: 'Контент' },
+            label: { en: 'Primary', uk: 'Primary' },
           },
           {
-            id: 'ecommerce',
+            id: 'success-badge',
             type: 'tab',
-            // Badge on tab icon - provider-based (value from TestBadgeProvider)
-            badge: { slug: 'orders', type: 'provider', color: 'error' },
-            collections: ['products', 'orders', 'customers', 'reviews'],
-            // Example: custom item merged into existing group
-            customItems: [
-              {
-                slug: 'analytics',
-                group: 'E-commerce',
-                href: '/analytics',
-                label: { en: 'Analytics', uk: 'Аналітика' },
-              },
-            ],
-            icon: 'ShoppingCart',
-            label: { en: 'E-commerce', uk: 'E-commerce' },
+            badge: { type: 'collection-count', collectionSlug: 'pages', color: 'success' },
+            collections: ['pages'],
+            icon: 'CircleCheck',
+            label: { en: 'Success', uk: 'Success' },
           },
           {
-            id: 'marketing',
+            id: 'warning-badge',
             type: 'tab',
-            collections: ['campaigns', 'newsletters', 'subscribers'],
-            icon: 'Megaphone',
-            label: { en: 'Marketing', uk: 'Маркетинг' },
+            badge: { type: 'collection-count', collectionSlug: 'articles', color: 'warning' },
+            collections: ['articles'],
+            icon: 'TriangleAlert',
+            label: { en: 'Warning', uk: 'Warning' },
           },
           {
-            id: 'media',
+            id: 'error-badge',
             type: 'tab',
-            // Badge on tab icon - API-based
-            badge: {
-              type: 'api',
-              color: 'default',
-              endpoint: '/api/media?limit=0',
-              responseKey: 'totalDocs',
-            },
-            collections: ['media'],
-            icon: 'Image',
-            label: { en: 'Media', uk: 'Медіа' },
-          },
-          {
-            id: 'settings',
-            type: 'tab',
-            collections: ['users'],
-            // Example: custom items - one in group, one ungrouped
-            customItems: [
-              {
-                slug: 'account',
-                group: 'Settings',
-                href: '/account',
-                label: { en: 'Account', uk: 'Акаунт' },
-              },
-              {
-                slug: 'api-keys',
-                href: '/api-keys',
-                label: { en: 'API Keys', uk: 'API Ключі' },
-              },
-            ],
-            globals: ['site-settings', 'footer-settings'],
-            icon: 'Settings',
-            label: { en: 'Settings', uk: 'Налаштування' },
+            badge: { type: 'collection-count', collectionSlug: 'authors', color: 'error' },
+            collections: ['authors'],
+            icon: 'Bell',
+            label: { en: 'Error', uk: 'Error' },
           },
         ],
       }),

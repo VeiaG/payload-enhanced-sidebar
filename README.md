@@ -14,6 +14,8 @@ An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a
 - **i18n Support** - Full localization support for labels and groups
 - **Lucide Icons** - Use any [Lucide icon](https://lucide.dev/icons) for tabs and links
 
+![Showcase](docs/showcase.gif)
+
 ## Installation
 
 ```bash
@@ -44,6 +46,8 @@ This will add:
 - A Dashboard link at the top
 - A default tab showing all collections and globals
 - A logout button at the bottom
+
+![Default Config](docs/default-config.png)
 
 ## Configuration
 
@@ -155,6 +159,7 @@ Array of tabs and links to show in the sidebar.
 
 > If neither `collections` nor `globals` are specified, the tab shows all collections and globals.
 
+
 **Link (`type: 'link'`)**
 
 | Property | Type | Required | Description |
@@ -166,6 +171,9 @@ Array of tabs and links to show in the sidebar.
 | `href` | `string` | Yes | URL |
 | `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
 | `badge` | `BadgeConfig` | No | Badge configuration for the link icon |
+
+
+![Tab and Link active difference](docs/tab-link-active.png)
 
 ### `customItems`
 
@@ -186,9 +194,12 @@ Custom items can be added to any tab:
 - If `group` doesn't match any existing group, a new group is created
 - If `group` is not specified, the item appears at the bottom as ungrouped
 
+
 ## Badges
 
 Badges allow you to show notification counts on tabs and navigation items. There are three ways to configure badges:
+
+<!-- [screenshot - Badges showcase: show sidebar with multiple badges - on tab icon (red "5"), on nav item (blue "12"), maybe one with "99+". Show different colors: error (red), primary (blue), warning (yellow)] -->
 
 ### Badge on Tabs/Links
 
@@ -342,6 +353,8 @@ payloadEnhancedSidebar({
 
 Available colors: `default`, `primary`, `success`, `warning`, `error`
 
+![Badge Colors](docs/badge-colors.png)
+
 ### Badge Display
 
 - Numbers up to 99 are shown as-is
@@ -377,12 +390,10 @@ label: {
 }
 ```
 
-## TODO
+## Payload Features Support
 
-The following features are planned but not yet implemented:
-
-- [x] **Browse by Folder Button** - Support for the folder view button (requires Payload v3.41.0+)
-- [x] **Settings Menu Items** - Support for Payload's SettingsMenu items (requires Payload v3.60.0+)
+- **Browse by Folder Button** - Automatically shows folder view button when Payload folders are enabled (requires Payload v3.41.0+)
+- **Settings Menu Items** - Integrates with Payload's SettingsMenu components (requires Payload v3.60.0+)
 
 ## Contributing
 

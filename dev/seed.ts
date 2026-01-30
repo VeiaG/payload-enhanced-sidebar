@@ -181,6 +181,43 @@ export const seed = async (payload: Payload) => {
 
   payload.logger.info(`Created ${createdPages.length} pages`)
 
+  // Seed Authors
+  const authors = [
+    { name: 'John Smith', bio: 'Senior developer and tech writer' },
+    { name: 'Jane Doe', bio: 'UX designer and blogger' },
+    { name: 'Alex Johnson', bio: 'Full-stack developer' },
+  ]
+
+  const createdAuthors = await Promise.all(
+    authors.map((author) =>
+      payload.create({
+        collection: 'authors',
+        data: author,
+      }),
+    ),
+  )
+
+  payload.logger.info(`Created ${createdAuthors.length} authors`)
+
+  // Seed Articles
+  const articles = [
+    { title: 'Getting Started with Payload CMS', content: null },
+    { title: 'Building Modern Web Applications', content: null },
+    { title: 'React Best Practices 2024', content: null },
+    { title: 'Introduction to TypeScript', content: null },
+  ]
+
+  const createdArticles = await Promise.all(
+    articles.map((article) =>
+      payload.create({
+        collection: 'articles',
+        data: article,
+      }),
+    ),
+  )
+
+  payload.logger.info(`Created ${createdArticles.length} articles`)
+
   // Seed Products
   const products = [
     { name: 'Wireless Headphones', price: 199.99, sku: 'WH-001' },

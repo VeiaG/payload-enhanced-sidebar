@@ -135,7 +135,10 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   const { i18n } = useTranslation()
   const currentLang = i18n.language
 
-  const tabs = sidebarConfig.tabs?.filter((t): t is SidebarTabContentType => t.type === 'tab') ?? []
+  const tabs = useMemo(
+    () => sidebarConfig.tabs?.filter((t): t is SidebarTabContentType => t.type === 'tab') ?? [],
+    [sidebarConfig.tabs],
+  )
 
   const [activeTabId, setActiveTabId] = useState(initialActiveTabId)
 
