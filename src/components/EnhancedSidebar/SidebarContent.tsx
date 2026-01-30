@@ -155,7 +155,11 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       <nav className={`${baseClass}__content`}>
         <div className={`${baseClass}__content-scroll`}>
           {beforeNavLinks}
-          <EnhancedSidebarClient groups={filteredGroups} navPreferences={navPreferences} />
+          <EnhancedSidebarClient
+            badges={sidebarConfig.badges}
+            groups={filteredGroups}
+            navPreferences={navPreferences}
+          />
           {afterNavLinks}
         </div>
       </nav>

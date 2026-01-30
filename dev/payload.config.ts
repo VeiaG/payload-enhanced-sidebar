@@ -34,6 +34,7 @@ const buildConfigWithMemoryDB = async () => {
   return buildConfig({
     admin: {
       components: {
+        providers: ['./components/TestBadgeProvider#TestBadgeProvider'],
         settingsMenu: [
           './components/SettingsMenuItem#SettingsMenuItem',
           './components/SettingsMenuItem#AnotherSettingsItem',
@@ -355,6 +356,18 @@ const buildConfigWithMemoryDB = async () => {
     },
     plugins: [
       payloadEnhancedSidebar({
+        // Badge configurations for sidebar items
+        badges: {
+          // Collection count - automatically fetches document count
+          posts: { type: 'collection-count', color: 'primary' },
+          // Provider-based badge - value comes from TestBadgeProvider
+          orders: { type: 'provider', color: 'error' },
+          // Collection count with filter - only draft posts
+          articles: {
+            type: 'collection-count',
+            color: 'warning',
+          },
+        },
         tabs: [
           {
             id: 'dashboard',
@@ -374,6 +387,8 @@ const buildConfigWithMemoryDB = async () => {
           {
             id: 'content',
             type: 'tab',
+            // Badge on tab icon - collection count
+            badge: { type: 'collection-count', collectionSlug: 'posts', color: 'primary' },
             collections: ['posts', 'pages', 'categories', 'articles', 'authors', 'tags'],
             icon: 'FileText',
             label: { en: 'Content', uk: 'Контент' },
@@ -381,6 +396,8 @@ const buildConfigWithMemoryDB = async () => {
           {
             id: 'ecommerce',
             type: 'tab',
+            // Badge on tab icon - provider-based (value from TestBadgeProvider)
+            badge: { slug: 'orders', type: 'provider', color: 'error' },
             collections: ['products', 'orders', 'customers', 'reviews'],
             // Example: custom item merged into existing group
             customItems: [
@@ -404,6 +421,13 @@ const buildConfigWithMemoryDB = async () => {
           {
             id: 'media',
             type: 'tab',
+            // Badge on tab icon - API-based
+            badge: {
+              type: 'api',
+              color: 'default',
+              endpoint: '/api/media?limit=0',
+              responseKey: 'totalDocs',
+            },
             collections: ['media'],
             icon: 'Image',
             label: { en: 'Media', uk: 'Медіа' },

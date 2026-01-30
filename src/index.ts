@@ -57,6 +57,26 @@ export const payloadEnhancedSidebar =
       }
     }
 
+    // Check if we have any badges to fetch (api or collection-count)
+    const hasBadgesToFetch =
+      sidebarConfig.badges ||
+      sidebarConfig.tabs?.some((tab) => tab.badge && tab.badge.type !== 'provider')
+
+    // Add InternalBadgeProvider if we have badges to fetch
+    if (hasBadgesToFetch) {
+      if (!config.admin.components.providers) {
+        config.admin.components.providers = []
+      }
+
+      // Add our internal provider at the beginning (so user providers can override)
+      config.admin.components.providers.unshift({
+        clientProps: {
+          sidebarConfig,
+        },
+        path: '@veiag/payload-enhanced-sidebar/client#InternalBadgeProvider',
+      })
+    }
+
     // Adding translations
     if (!config.i18n) {
       config.i18n = {}
@@ -70,4 +90,14 @@ export const payloadEnhancedSidebar =
     return config
   }
 
-export type { EnhancedSidebarConfig } from './types'
+export type {
+  BadgeColor,
+  BadgeConfig,
+  BadgeConfigApi,
+  BadgeConfigCollectionCount,
+  BadgeConfigProvider,
+  BadgeValues,
+  EnhancedSidebarConfig,
+} from './types'
+
+export { BadgeProvider, useBadgeContext, useBadgeValue } from './components/EnhancedSidebar/BadgeProvider'

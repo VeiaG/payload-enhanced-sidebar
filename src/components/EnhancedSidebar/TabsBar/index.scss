@@ -27,6 +27,7 @@
 
     &__tab,
     &__link {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -52,8 +53,6 @@
     }
 
     &__link {
-      position: relative;
-
       &--active {
         color: var(--theme-text);
 

@@ -27,6 +27,8 @@ import { FolderTypeField as FolderTypeField_3817bf644402e67bfe6577f60ef982de } f
 import { EnhancedSidebar as EnhancedSidebar_1991e0cd7459bf6a1f4021425d377371 } from '@veiag/payload-enhanced-sidebar/rsc'
 import { SettingsMenuItem as SettingsMenuItem_ce02ca69364e80caf8e4590bdae13e81 } from '../../../components/SettingsMenuItem'
 import { AnotherSettingsItem as AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81 } from '../../../components/SettingsMenuItem'
+import { InternalBadgeProvider as InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324 } from '@veiag/payload-enhanced-sidebar/client'
+import { TestBadgeProvider as TestBadgeProvider_bf163306dc8f99f46056a1312f80979d } from '../../../components/TestBadgeProvider'
 
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -57,5 +59,7 @@ export const importMap = {
   "@payloadcms/ui#FolderTypeField": FolderTypeField_3817bf644402e67bfe6577f60ef982de,
   "@veiag/payload-enhanced-sidebar/rsc#EnhancedSidebar": EnhancedSidebar_1991e0cd7459bf6a1f4021425d377371,
   "./components/SettingsMenuItem#SettingsMenuItem": SettingsMenuItem_ce02ca69364e80caf8e4590bdae13e81,
-  "./components/SettingsMenuItem#AnotherSettingsItem": AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81
+  "./components/SettingsMenuItem#AnotherSettingsItem": AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81,
+  "@veiag/payload-enhanced-sidebar/client#InternalBadgeProvider": InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324,
+  "./components/TestBadgeProvider#TestBadgeProvider": TestBadgeProvider_bf163306dc8f99f46056a1312f80979d
 }
