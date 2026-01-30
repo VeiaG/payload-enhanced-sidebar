@@ -68,7 +68,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({
       : formatAdminURL({ adminRoute, path: item.href })
     const isActive = pathname === href || (item.href === '/' && pathname === adminRoute)
 
-    return <TabLink adminRoute={adminRoute} isActive={isActive} key={item.id} link={item} />
+    return <TabLink href={href} isActive={isActive} key={item.id} link={item} />
   }
 
   const tabItems = sidebarConfig.tabs ?? []

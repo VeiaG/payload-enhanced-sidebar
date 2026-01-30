@@ -18,7 +18,7 @@ export type InternalIcon = IconName | LucideIcon
 export type BadgeColor = 'default' | 'error' | 'primary' | 'success' | 'warning'
 
 /**
- * Badge configuration for API-based fetching
+ * Badge configuration Trr API-based fetching
  */
 export interface BadgeConfigApi {
   /**

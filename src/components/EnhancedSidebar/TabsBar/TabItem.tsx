@@ -37,23 +37,21 @@ export const TabButton: React.FC<TabButtonProps> = ({ isActive, onTabChange, tab
 }
 
 type TabLinkProps = {
-  adminRoute: string
+  href: string
   isActive: boolean
   link: SidebarTabLink
 }
 
-export const TabLink: React.FC<TabLinkProps> = ({ adminRoute, isActive, link }) => {
+export const TabLink: React.FC<TabLinkProps> = ({ href, isActive, link }) => {
   const { i18n } = useTranslation()
   const label = getTranslation(link.label, i18n)
-  const href = link.isExternal
-    ? link.href
-    : `${adminRoute}${link.href === '/' ? '' : link.href || ''}`
   const { value } = useBadge(link.badge, link.id)
 
   return (
     <Link
       className={`${tabsBaseClass}__link ${isActive ? `${tabsBaseClass}__link--active` : ''}`}
       href={href}
+      rel={link.isExternal ? 'noopener noreferrer' : undefined}
       target={link.isExternal ? '_blank' : undefined}
       title={label}
     >

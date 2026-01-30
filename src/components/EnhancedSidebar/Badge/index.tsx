@@ -39,15 +39,11 @@ const formatValue = (value: number | React.ReactNode): React.ReactNode => {
 
 export const Badge: React.FC<BadgeProps> = ({ color = 'default', position, value }) => {
   // Don't render if value is 0 or falsy (except for React nodes)
-  if (value === 0 || (typeof value !== 'object' && !value)) {
+  if (value === 0 || value === null || (typeof value !== 'object' && !value)) {
     return null
   }
 
-  const classes = [
-    baseClass,
-    `${baseClass}--${color}`,
-    position && `${baseClass}--${position}`,
-  ]
+  const classes = [baseClass, `${baseClass}--${color}`, position && `${baseClass}--${position}`]
     .filter(Boolean)
     .join(' ')
 

@@ -85,13 +85,13 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
           const collectionSlug = config.collectionSlug ?? slug
           const baseUrl = `${serverURL || ''}${apiRoute}/${collectionSlug}`
 
-          const params = new URLSearchParams({ limit: '0' })
-
           if (config.where) {
-            const whereParams = stringify(config.where)
-            url = `${baseUrl}?${params.toString()}&${whereParams}`
+            const whereParams = stringify({
+              where: config.where,
+            })
+            url = `${baseUrl}?${whereParams}`
           } else {
-            url = `${baseUrl}?${params.toString()}`
+            url = `${baseUrl}`
           }
 
           responseKey = 'totalDocs'

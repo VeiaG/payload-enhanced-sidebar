@@ -55,6 +55,7 @@ export const NavItem: React.FC<NavItemProps> = ({
       href={href}
       id={id}
       prefetch={false}
+      rel={entity.isExternal ? 'noopener noreferrer' : undefined}
       target={entity.isExternal ? '_blank' : undefined}
     >
       {Label}

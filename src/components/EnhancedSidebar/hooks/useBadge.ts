@@ -1,11 +1,13 @@
 'use client'
 
+import type { ReactNode } from 'react'
+
 import type { BadgeConfig } from '../../../types'
 
 import { useBadgeValue } from '../BadgeProvider'
 
 type UseBadgeResult = {
-  value: number | React.ReactNode | undefined
+  value: number | ReactNode | undefined
 }
 
 /**
