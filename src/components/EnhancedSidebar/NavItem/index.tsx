@@ -21,10 +21,10 @@ export type NavItemProps = {
 }
 
 export const NavItem: React.FC<NavItemProps> = ({
+  id,
   badgeConfig,
   entity,
   href,
-  id,
   isActive,
   isCurrentPage,
 }) => {

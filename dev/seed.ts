@@ -146,7 +146,7 @@ export const seed = async (payload: Payload) => {
       status: 'draft',
       title: 'Coffee Brewing Methods Explained',
     },
-  ]
+  ] as const
 
   const createdPosts = await Promise.all(
     posts.map((post) =>
@@ -201,10 +201,10 @@ export const seed = async (payload: Payload) => {
 
   // Seed Articles
   const articles = [
-    { title: 'Getting Started with Payload CMS', content: null },
-    { title: 'Building Modern Web Applications', content: null },
-    { title: 'React Best Practices 2024', content: null },
-    { title: 'Introduction to TypeScript', content: null },
+    { content: null, title: 'Getting Started with Payload CMS' },
+    { content: null, title: 'Building Modern Web Applications' },
+    { content: null, title: 'React Best Practices 2024' },
+    { content: null, title: 'Introduction to TypeScript' },
   ]
 
   const createdArticles = await Promise.all(
