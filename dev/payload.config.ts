@@ -362,7 +362,7 @@ const buildConfigWithMemoryDB = async () => {
           posts: { type: 'collection-count', color: 'primary' },
           // Provider-based badge - value comes from TestBadgeProvider
           orders: { type: 'provider', color: 'error' },
-          // Collection count with filter - only draft posts
+          // Collection count - total articles
           articles: {
             type: 'collection-count',
             color: 'warning',
