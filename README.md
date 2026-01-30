@@ -215,8 +215,8 @@ label: {
 
 The following features are planned but not yet implemented:
 
-- [ ] **Browse by Folder Button** - Support for the folder view button (requires Payload v3.41.0+)
-- [ ] **Settings Menu Items** - Support for Payload's SettingsMenu items (requires Payload v3.60.0+)
+- [x] **Browse by Folder Button** - Support for the folder view button (requires Payload v3.41.0+)
+- [x] **Settings Menu Items** - Support for Payload's SettingsMenu items (requires Payload v3.60.0+)
 
 ## Contributing
 

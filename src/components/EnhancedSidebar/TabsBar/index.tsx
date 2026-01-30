@@ -9,6 +9,7 @@ import React from 'react'
 import type { EnhancedSidebarConfig, SidebarTabContent, SidebarTabLink } from '../../../types'
 
 import { Icon } from '../Icon'
+import { SettingsMenuButton } from '../SettingsMenuButton'
 import './index.scss'
 
 const tabsBaseClass = 'tabs-bar'
@@ -16,23 +17,37 @@ const tabsBaseClass = 'tabs-bar'
 export type TabsBarProps = {
   activeTabId: string
   onTabChange: (tabId: string) => void
+  settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
 }
 
-export const TabsBar: React.FC<TabsBarProps> = ({ activeTabId, onTabChange, sidebarConfig }) => {
+export const TabsBar: React.FC<TabsBarProps> = ({
+  activeTabId,
+  onTabChange,
+  settingsMenu,
+  sidebarConfig,
+}) => {
   const { i18n } = useTranslation()
   const pathname = usePathname()
 
   const {
     config: {
       admin: {
-        routes: { logout: logoutRoute },
+        routes: { browseByFolder: foldersRoute, logout: logoutRoute },
       },
+      folders,
       routes: { admin: adminRoute },
     },
   } = useConfig()
 
   const showLogout = sidebarConfig.showLogout !== false
+  const showFolders = folders && folders.browseByFolder
+
+  const folderURL = formatAdminURL({
+    adminRoute,
+    path: foldersRoute,
+  })
+  const isFoldersActive = pathname.startsWith(folderURL)
 
   const renderTab = (tab: SidebarTabContent) => {
     const label = getTranslation(tab.label, i18n)
@@ -84,8 +99,18 @@ export const TabsBar: React.FC<TabsBarProps> = ({ activeTabId, onTabChange, side
     <div className={tabsBaseClass}>
       <div className={`${tabsBaseClass}__tabs`}>{tabItems.map(renderTabItem)}</div>
 
-      {showLogout && (
-        <div className={`${tabsBaseClass}__actions`}>
+      <div className={`${tabsBaseClass}__actions`}>
+        {showFolders && (
+          <Link
+            className={`${tabsBaseClass}__action ${isFoldersActive ? `${tabsBaseClass}__link--active` : ''}`}
+            href={folderURL}
+            title={getTranslation({ en: 'Browse by Folder', uk: 'Переглянути по папках' }, i18n)}
+          >
+            <Icon name="Folder" size={20} />
+          </Link>
+        )}
+        <SettingsMenuButton settingsMenu={settingsMenu} />
+        {showLogout && (
           <Link
             className={`${tabsBaseClass}__action`}
             href={formatAdminURL({
@@ -97,8 +122,8 @@ export const TabsBar: React.FC<TabsBarProps> = ({ activeTabId, onTabChange, side
           >
             <Icon name="LogOut" size={20} />
           </Link>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

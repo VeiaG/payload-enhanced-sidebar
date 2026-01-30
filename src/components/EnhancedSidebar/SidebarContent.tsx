@@ -25,6 +25,7 @@ export type SidebarContentProps = {
   groups: ExtendedGroup[]
   initialActiveTabId: string
   navPreferences: NavPreferences | null
+  settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
 }
 
@@ -40,6 +41,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   groups,
   initialActiveTabId,
   navPreferences,
+  settingsMenu,
   sidebarConfig,
 }) => {
   const { i18n } = useTranslation()
@@ -147,6 +149,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       <TabsBar
         activeTabId={activeTabId}
         onTabChange={handleTabChange}
+        settingsMenu={settingsMenu}
         sidebarConfig={sidebarConfig}
       />
       <nav className={`${baseClass}__content`}>

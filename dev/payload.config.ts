@@ -33,6 +33,12 @@ const buildConfigWithMemoryDB = async () => {
 
   return buildConfig({
     admin: {
+      components: {
+        settingsMenu: [
+          './components/SettingsMenuItem#SettingsMenuItem',
+          './components/SettingsMenuItem#AnotherSettingsItem',
+        ],
+      },
       importMap: {
         baseDir: path.resolve(dirname),
       },
@@ -217,6 +223,7 @@ const buildConfigWithMemoryDB = async () => {
           { name: 'title', type: 'text', required: true },
           { name: 'content', type: 'richText' },
         ],
+        folders: true,
         labels: { plural: 'Articles', singular: 'Article' },
       },
       {
