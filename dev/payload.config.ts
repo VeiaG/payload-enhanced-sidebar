@@ -1,4 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { en } from '@payloadcms/translations/languages/en'
 import { uk } from '@payloadcms/translations/languages/uk'
@@ -191,6 +192,19 @@ const buildConfigWithMemoryDB = async () => {
         ],
       },
       {
+        slug: 'tenants',
+        admin: {
+          useAsTitle: 'name',
+        },
+        fields: [
+          {
+            name: 'name',
+            type: 'text',
+            required: true,
+          },
+        ],
+      },
+      {
         slug: 'users',
         admin: {
           useAsTitle: 'email',
@@ -355,6 +369,16 @@ const buildConfigWithMemoryDB = async () => {
       await seed(payload)
     },
     plugins: [
+      multiTenantPlugin({
+        collections: {
+          posts: {},
+          pages: {},
+        },
+        tenantsSlug: 'tenants',
+        userHasAccessToAllTenants(user) {
+          return true
+        },
+      }),
       payloadEnhancedSidebar({
         // Badge configurations for sidebar items
         // All 5 badge colors showcased on Content tab items:

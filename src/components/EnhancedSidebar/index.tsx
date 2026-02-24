@@ -31,6 +31,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     sidebarConfig,
     user,
     visibleEntities,
+    documentSubViewType,
+    viewType,
   } = props
 
   if (!payload?.config) {
@@ -82,16 +84,23 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     user,
   }
 
+  const clientProps = {
+    documentSubViewType,
+    viewType,
+  }
+
   const beforeNavLinksRendered = RenderServerComponent({
     Component: beforeNavLinks,
     importMap: payload.importMap,
     serverProps,
+    clientProps,
   })
 
   const afterNavLinksRendered = RenderServerComponent({
     Component: afterNavLinks,
     importMap: payload.importMap,
     serverProps,
+    clientProps,
   })
 
   const renderedSettingsMenu =
@@ -102,6 +111,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
             importMap: payload.importMap,
             key: `settings-menu-item-${index}`,
             serverProps,
+            clientProps,
           }),
         )
       : []
