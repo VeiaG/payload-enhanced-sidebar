@@ -1,3 +1,6 @@
+import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -27,10 +30,15 @@ import { FolderTypeField as FolderTypeField_3817bf644402e67bfe6577f60ef982de } f
 import { EnhancedSidebar as EnhancedSidebar_1991e0cd7459bf6a1f4021425d377371 } from '@veiag/payload-enhanced-sidebar/rsc'
 import { SettingsMenuItem as SettingsMenuItem_ce02ca69364e80caf8e4590bdae13e81 } from '../../../components/SettingsMenuItem'
 import { AnotherSettingsItem as AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81 } from '../../../components/SettingsMenuItem'
+import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { InternalBadgeProvider as InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324 } from '@veiag/payload-enhanced-sidebar/client'
 import { TestBadgeProvider as TestBadgeProvider_bf163306dc8f99f46056a1312f80979d } from '../../../components/TestBadgeProvider'
+import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 
 export const importMap = {
+  "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
+  "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
+  "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -60,6 +68,8 @@ export const importMap = {
   "@veiag/payload-enhanced-sidebar/rsc#EnhancedSidebar": EnhancedSidebar_1991e0cd7459bf6a1f4021425d377371,
   "./components/SettingsMenuItem#SettingsMenuItem": SettingsMenuItem_ce02ca69364e80caf8e4590bdae13e81,
   "./components/SettingsMenuItem#AnotherSettingsItem": AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81,
+  "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "@veiag/payload-enhanced-sidebar/client#InternalBadgeProvider": InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324,
-  "./components/TestBadgeProvider#TestBadgeProvider": TestBadgeProvider_bf163306dc8f99f46056a1312f80979d
+  "./components/TestBadgeProvider#TestBadgeProvider": TestBadgeProvider_bf163306dc8f99f46056a1312f80979d,
+  "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62
 }
