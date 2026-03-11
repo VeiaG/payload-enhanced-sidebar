@@ -4,7 +4,7 @@ import { getTranslation } from '@payloadcms/translations'
 import { Link, useTranslation } from '@payloadcms/ui'
 import React from 'react'
 
-import type { SidebarTabContent, SidebarTabLink } from '../../../types'
+import type { IconName, SidebarTabContent, SidebarTabLink } from '../../../types'
 
 import { Badge } from '../Badge'
 import { useBadge } from '../hooks/useBadge'
@@ -30,7 +30,7 @@ export const TabButton: React.FC<TabButtonProps> = ({ isActive, onTabChange, tab
       title={label}
       type="button"
     >
-      <Icon name={tab.icon} size={20} />
+      {typeof tab.icon === 'string' ? <Icon name={tab.icon as IconName} size={20} /> : tab.icon}
       {value !== undefined && <Badge color={tab.badge?.color} position="absolute" value={value} />}
     </button>
   )
@@ -55,7 +55,7 @@ export const TabLink: React.FC<TabLinkProps> = ({ href, isActive, link }) => {
       target={link.isExternal ? '_blank' : undefined}
       title={label}
     >
-      <Icon name={link.icon} size={20} />
+      <Icon name={link.icon as any} size={20} />
       {value !== undefined && <Badge color={link.badge?.color} position="absolute" value={value} />}
     </Link>
   )

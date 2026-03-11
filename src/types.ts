@@ -128,7 +128,8 @@ export interface SidebarTabContent {
    */
   globals?: GlobalSlug[]
   /** Icon name from lucide-react */
-  icon: IconName
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  icon: IconName | ReactNode
   /** Unique identifier for the tab */
   id: string
   /** Tooltip/label for the tab */
