@@ -55,7 +55,7 @@ export const TabLink: React.FC<TabLinkProps> = ({ href, isActive, link }) => {
       target={link.isExternal ? '_blank' : undefined}
       title={label}
     >
-      <Icon name={link.icon as any} size={20} />
+      {typeof link.icon === 'string' ? <Icon name={link.icon as IconName} size={20} /> : link.icon}
       {value !== undefined && <Badge color={link.badge?.color} position="absolute" value={value} />}
     </Link>
   )

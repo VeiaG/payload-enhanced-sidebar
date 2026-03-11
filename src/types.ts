@@ -144,8 +144,8 @@ interface SidebarTabLinkBase {
    */
   badge?: BadgeConfig
   /** Icon name from lucide-react */
-  icon: IconName
-  /** Unique identifier */
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  icon: IconName | ReactNode /** Unique identifier */
   id: string
   /** Tooltip/label */
   label: LocalizedString
