@@ -77,6 +77,41 @@ export const payloadEnhancedSidebar =
       }
     }
 
+    if (pluginOptions.customComponents?.NavContent) {
+      if (!config.admin.dependencies) {
+        config.admin.dependencies = {}
+      }
+      config.admin.dependencies['enhanced-sidebar-nav-content'] = {
+        path: pluginOptions.customComponents.NavContent,
+        type: 'component',
+      }
+    }
+
+    if (pluginOptions.customComponents?.TabButton) {
+      if (!config.admin.dependencies) {
+        config.admin.dependencies = {}
+      }
+      config.admin.dependencies['enhanced-sidebar-tab-button'] = {
+        path: pluginOptions.customComponents.TabButton,
+        type: 'component',
+      }
+    }
+
+    // Register per-tab iconComponent paths
+    if (pluginOptions.tabs) {
+      if (!config.admin.dependencies) {
+        config.admin.dependencies = {}
+      }
+      for (const tab of pluginOptions.tabs) {
+        if (tab.iconComponent) {
+          config.admin.dependencies[`enhanced-sidebar-icon-${tab.id}`] = {
+            path: tab.iconComponent,
+            type: 'component',
+          }
+        }
+      }
+    }
+
     // Check if we have any badges to fetch (api or collection-count)
     const hasBadgesToFetch =
       sidebarConfig.badges ||
@@ -116,7 +151,9 @@ export {
   useBadgeValue,
 } from './components/EnhancedSidebar/BadgeProvider'
 
+export { useEnhancedSidebar } from './components/EnhancedSidebar/context'
 export { useNavItemState } from './components/EnhancedSidebar/hooks/useNavItemState'
+export { useTabState } from './components/EnhancedSidebar/hooks/useTabState'
 
 export type {
   BadgeColor,
@@ -125,7 +162,10 @@ export type {
   BadgeConfigCollectionCount,
   BadgeConfigProvider,
   BadgeValues,
+  CustomNavContentProps,
   CustomNavGroupProps,
   CustomNavItemProps,
+  CustomTabButtonProps,
+  CustomTabIconProps,
   EnhancedSidebarConfig,
 } from './types'

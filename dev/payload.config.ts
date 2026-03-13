@@ -371,8 +371,8 @@ const buildConfigWithMemoryDB = async () => {
     plugins: [
       multiTenantPlugin({
         collections: {
-          posts: {},
           pages: {},
+          posts: {},
         },
         tenantsSlug: 'tenants',
         userHasAccessToAllTenants(user) {
@@ -386,15 +386,17 @@ const buildConfigWithMemoryDB = async () => {
           posts: { type: 'collection-count', color: 'primary' },
         },
         customComponents: {
+          NavContent: './components/CustomNavComponents#CustomNavContent',
           NavGroup: './components/CustomNavComponents#CustomNavGroup',
           NavItem: './components/CustomNavComponents#CustomNavItem',
+          TabButton: './components/CustomNavComponents#CustomTabButton',
         },
         tabs: [
           {
             id: 'dashboard',
             type: 'link',
             href: '/',
-            icon: 'House',
+            iconComponent: './components/CustomNavComponents#CustomTabIcon',
             label: { en: 'Dashboard', uk: 'Головна' },
           },
           {

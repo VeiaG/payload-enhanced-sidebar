@@ -1,9 +1,11 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import type { EnhancedSidebarConfig } from '../../types'
 
+import { EnhancedSidebarContext } from './context'
+import { NavContent } from './NavContent'
 import { SidebarWrapper } from './SidebarWrapper'
 import { TabsBar } from './TabsBar'
 
@@ -13,9 +15,12 @@ export type SidebarContentProps = {
   afterNavLinks?: React.ReactNode
   allContent?: React.ReactNode
   beforeNavLinks?: React.ReactNode
+  customNavContent?: React.ReactNode
   initialActiveTabId: string
+  renderedTabItems?: React.ReactNode[]
   settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
+  tabIcons?: Record<string, React.ReactNode>
   tabsContent: Record<string, React.ReactNode>
 }
 
@@ -29,9 +34,12 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   afterNavLinks,
   allContent,
   beforeNavLinks,
+  customNavContent,
   initialActiveTabId,
+  renderedTabItems,
   settingsMenu,
   sidebarConfig,
+  tabIcons,
   tabsContent,
 }) => {
   const [activeTabId, setActiveTabId] = useState(initialActiveTabId)
@@ -41,37 +49,36 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
     setTabCookie(tabId)
   }, [])
 
+  const contextValue = useMemo(
+    () => ({ activeTabId, onTabChange: handleTabChange }),
+    [activeTabId, handleTabChange],
+  )
+
   const tabs = sidebarConfig.tabs?.filter((t) => t.type === 'tab') ?? []
-  const hasTabs = tabs.length > 0
 
   return (
-    <SidebarWrapper baseClass={baseClass}>
-      <TabsBar
-        activeTabId={activeTabId}
-        onTabChange={handleTabChange}
-        settingsMenu={settingsMenu}
-        sidebarConfig={sidebarConfig}
-      />
-      <nav className={`${baseClass}__content`}>
-        <div className={`${baseClass}__content-scroll`}>
-          {beforeNavLinks}
-          {hasTabs
-            ? tabs.map((tab) => {
-                const isActive = activeTabId === tab.id
-                return (
-                  <div
-                    aria-hidden={!isActive}
-                    key={tab.id}
-                    style={{ display: isActive ? undefined : 'none' }}
-                  >
-                    {tabsContent[tab.id]}
-                  </div>
-                )
-              })
-            : allContent}
-          {afterNavLinks}
-        </div>
-      </nav>
-    </SidebarWrapper>
+    <EnhancedSidebarContext.Provider value={contextValue}>
+      <SidebarWrapper baseClass={baseClass}>
+        <TabsBar
+          key="tabs-bar"
+          activeTabId={activeTabId}
+          onTabChange={handleTabChange}
+          renderedTabItems={renderedTabItems}
+          settingsMenu={settingsMenu}
+          sidebarConfig={sidebarConfig}
+          tabIcons={tabIcons}
+        />
+        {customNavContent ?? (
+          <NavContent
+            key="nav-content"
+            afterNavLinks={afterNavLinks}
+            allContent={allContent}
+            beforeNavLinks={beforeNavLinks}
+            tabs={tabs}
+            tabsContent={tabsContent}
+          />
+        )}
+      </SidebarWrapper>
+    </EnhancedSidebarContext.Provider>
   )
 }

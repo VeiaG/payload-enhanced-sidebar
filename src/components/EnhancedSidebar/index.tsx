@@ -15,12 +15,14 @@ import type {
   EnhancedSidebarConfig,
   ExtendedEntity,
   ExtendedGroup,
+  SidebarTab,
   SidebarTabContent as SidebarTabContentType,
   SidebarTabItem,
 } from '../../types'
 
 import { extractLocalizedValue } from '../../utils'
 import { getNavPrefs } from './getNavPrefs'
+import { Icon } from './Icon'
 import { NavItem } from './NavItem'
 import { SidebarContent } from './SidebarContent'
 import './index.scss'
@@ -233,15 +235,15 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   /**
    * Renders a single entity as a NavItem (default or custom).
    */
-  const renderEntity = (entity: ExtendedEntity, key: number): React.ReactNode => {
+  const renderEntity = (entity: ExtendedEntity, key: string): React.ReactNode => {
     const { slug, type } = entity
     let href: string
     let id: string
 
-    if (type === EntityType.collection) {
+    if (type === 'collection') {
       href = formatAdminURL({ adminRoute, path: `/collections/${slug}` })
       id = `nav-${slug}`
-    } else if (type === EntityType.global) {
+    } else if (type === 'global') {
       href = formatAdminURL({ adminRoute, path: `/globals/${slug}` })
       id = `nav-global-${slug}`
     } else if (type === 'custom' && entity.href) {
@@ -274,7 +276,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     const isUngrouped = !label || (typeof label === 'string' && label === '')
     const translatedLabel = getTranslation(label || '', i18n)
 
-    const items = entities.map((entity, i) => renderEntity(entity, i))
+    const items = entities.map((entity, i) => renderEntity(entity, `${key}-${i}`))
 
     if (isUngrouped) {
       return <Fragment key={key}>{items}</Fragment>
@@ -319,14 +321,85 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       <Fragment>{groups.map((group, i) => renderGroup(group, `all-${i}`))}</Fragment>
     ) : undefined
 
+  // Build server-side icon and tab button rendering
+  const allTabItems = config.tabs ?? []
+  const hasCustomTabButton = !!config.customComponents?.TabButton
+  const hasAnyIconComponent = allTabItems.some((t) => t.iconComponent)
+
+  // tabIcons: per-id icon node (only built when no custom TabButton, just iconComponent overrides)
+  const tabIcons: Record<string, React.ReactNode> = {}
+  // renderedTabItems: fully custom tab button nodes (built when customComponents.TabButton is set)
+  const renderedTabItems: React.ReactNode[] = []
+
+  if (hasCustomTabButton || hasAnyIconComponent) {
+    for (const item of allTabItems) {
+      const label = getTranslation(item.label, i18n)
+
+      // Resolve icon: custom iconComponent > default Lucide
+      const iconNode: React.ReactNode = item.iconComponent
+        ? RenderServerComponent({
+            Component: item.iconComponent,
+            importMap: payload.importMap,
+            clientProps: { id: item.id, label, type: item.type },
+          })
+        : <Icon name={item.icon!} size={20} />
+
+      if (hasCustomTabButton) {
+        // Compute href for links
+        let href: string | undefined
+        if (item.type === 'link') {
+          href = item.isExternal
+            ? item.href
+            : formatAdminURL({ adminRoute, path: item.href })
+        }
+
+        renderedTabItems.push(
+          RenderServerComponent({
+            Component: config.customComponents!.TabButton!,
+            importMap: payload.importMap,
+            key: item.id,
+            clientProps: {
+              badge: item.badge,
+              href,
+              icon: iconNode,
+              id: item.id,
+              isExternal: item.type === 'link' ? item.isExternal : undefined,
+              label,
+              type: item.type,
+            },
+          }),
+        )
+      } else if (item.iconComponent) {
+        tabIcons[item.id] = iconNode
+      }
+    }
+  }
+
+  const customNavContent = config.customComponents?.NavContent
+    ? RenderServerComponent({
+        Component: config.customComponents.NavContent,
+        importMap: payload.importMap,
+        clientProps: {
+          afterNavLinks: afterNavLinksRendered,
+          allContent,
+          beforeNavLinks: beforeNavLinksRendered,
+          tabs: tabs.map((t) => ({ id: t.id })),
+          tabsContent,
+        },
+      })
+    : undefined
+
   return (
     <SidebarContent
       afterNavLinks={afterNavLinksRendered}
       allContent={allContent}
       beforeNavLinks={beforeNavLinksRendered}
+      customNavContent={customNavContent}
       initialActiveTabId={initialActiveTabId}
+      renderedTabItems={renderedTabItems.length > 0 ? renderedTabItems : undefined}
       settingsMenu={renderedSettingsMenu}
       sidebarConfig={config}
+      tabIcons={Object.keys(tabIcons).length > 0 ? tabIcons : undefined}
       tabsContent={tabsContent}
     />
   )
