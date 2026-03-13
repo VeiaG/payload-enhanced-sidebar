@@ -2,6 +2,7 @@
 
 import { getTranslation } from '@payloadcms/translations'
 import { Link, useTranslation } from '@payloadcms/ui'
+import { usePathname } from 'next/navigation.js'
 import React from 'react'
 
 import type { BadgeConfig, ExtendedEntity } from '../../../types'
@@ -16,20 +17,15 @@ export type NavItemProps = {
   entity: ExtendedEntity
   href: string
   id: string
-  isActive: boolean
-  isCurrentPage: boolean
 }
 
-export const NavItem: React.FC<NavItemProps> = ({
-  id,
-  badgeConfig,
-  entity,
-  href,
-  isActive,
-  isCurrentPage,
-}) => {
+export const NavItem: React.FC<NavItemProps> = ({ id, badgeConfig, entity, href }) => {
   const { i18n } = useTranslation()
   const { value: badgeValue } = useBadge(badgeConfig, entity.slug)
+  const pathname = usePathname()
+
+  const isActive = pathname.startsWith(href) && ['/', undefined].includes(pathname[href.length])
+  const isCurrentPage = pathname === href
 
   const Label = (
     <>

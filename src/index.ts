@@ -33,7 +33,6 @@ export const payloadEnhancedSidebar =
       return config
     }
 
-    // Merge user config with defaults
     const sidebarConfig: EnhancedSidebarConfig = {
       ...defaultConfig,
       ...pluginOptions,
@@ -54,6 +53,27 @@ export const payloadEnhancedSidebar =
         serverProps: {
           sidebarConfig,
         },
+      }
+    }
+
+    // Register custom components in the import map via admin.dependencies
+    if (pluginOptions.customComponents?.NavItem) {
+      if (!config.admin.dependencies) {
+        config.admin.dependencies = {}
+      }
+      config.admin.dependencies['enhanced-sidebar-nav-item'] = {
+        path: pluginOptions.customComponents.NavItem,
+        type: 'component',
+      }
+    }
+
+    if (pluginOptions.customComponents?.NavGroup) {
+      if (!config.admin.dependencies) {
+        config.admin.dependencies = {}
+      }
+      config.admin.dependencies['enhanced-sidebar-nav-group'] = {
+        path: pluginOptions.customComponents.NavGroup,
+        type: 'component',
       }
     }
 
@@ -96,6 +116,8 @@ export {
   useBadgeValue,
 } from './components/EnhancedSidebar/BadgeProvider'
 
+export { useNavItemState } from './components/EnhancedSidebar/hooks/useNavItemState'
+
 export type {
   BadgeColor,
   BadgeConfig,
@@ -103,5 +125,7 @@ export type {
   BadgeConfigCollectionCount,
   BadgeConfigProvider,
   BadgeValues,
+  CustomNavGroupProps,
+  CustomNavItemProps,
   EnhancedSidebarConfig,
 } from './types'

@@ -380,63 +380,151 @@ const buildConfigWithMemoryDB = async () => {
         },
       }),
       payloadEnhancedSidebar({
-        // Badge configurations for sidebar items
-        // All 5 badge colors showcased on Content tab items:
         badges: {
-          // default (gray)
-          categories: { type: 'collection-count', color: 'default' },
-          // primary (blue)
-          posts: { type: 'collection-count', color: 'primary' },
-          // success (green)
-          pages: { type: 'collection-count', color: 'success' },
-          // warning (yellow)
           articles: { type: 'collection-count', color: 'warning' },
-          // error (red)
-          authors: { type: 'collection-count', color: 'error' },
-          // Provider-based badge - value comes from TestBadgeProvider
           orders: { type: 'provider', color: 'error' },
+          posts: { type: 'collection-count', color: 'primary' },
+        },
+        customComponents: {
+          NavGroup: './components/CustomNavComponents#CustomNavGroup',
+          NavItem: './components/CustomNavComponents#CustomNavItem',
         },
         tabs: [
-          // All 5 badge colors showcased on tab icons:
           {
-            id: 'default-badge',
-            type: 'tab',
-            badge: { type: 'collection-count', collectionSlug: 'categories', color: 'default' },
-            collections: ['categories'],
-            icon: 'Folder',
-            label: { en: 'Default', uk: 'Default' },
+            id: 'dashboard',
+            type: 'link',
+            href: '/',
+            icon: 'House',
+            label: { en: 'Dashboard', uk: 'Головна' },
           },
           {
-            id: 'primary-badge',
+            id: 'content',
             type: 'tab',
             badge: { type: 'collection-count', collectionSlug: 'posts', color: 'primary' },
-            collections: ['posts'],
+            collections: ['posts', 'pages', 'categories', 'articles', 'authors', 'tags'],
+            customItems: [
+              // Merged into existing 'Content' group (localized match)
+              {
+                slug: 'drafts',
+                group: { en: 'Content', uk: 'Контент' },
+                href: '/collections/posts',
+                label: { en: 'Drafts', uk: 'Чернетки' },
+              },
+              // Merged into existing 'Blog' group
+              {
+                slug: 'rss-feed',
+                group: 'Blog',
+                href: 'https://example.com/rss',
+                isExternal: true,
+                label: 'RSS Feed',
+              },
+              // New custom 'Tools' group
+              {
+                slug: 'analytics',
+                group: { en: 'Tools', uk: 'Інструменти' },
+                href: '/analytics',
+                label: { en: 'Analytics', uk: 'Аналітика' },
+              },
+              {
+                slug: 'seo',
+                group: { en: 'Tools', uk: 'Інструменти' },
+                href: '/seo',
+                label: 'SEO',
+              },
+              // Ungrouped — appears at the bottom
+              {
+                slug: 'import-data',
+                href: '/import',
+                label: { en: 'Import Data', uk: 'Імпорт' },
+              },
+            ],
             icon: 'FileText',
-            label: { en: 'Primary', uk: 'Primary' },
+            label: { en: 'Content', uk: 'Контент' },
           },
           {
-            id: 'success-badge',
+            id: 'shop',
             type: 'tab',
-            badge: { type: 'collection-count', collectionSlug: 'pages', color: 'success' },
-            collections: ['pages'],
-            icon: 'CircleCheck',
-            label: { en: 'Success', uk: 'Success' },
+            badge: { type: 'provider', color: 'error' },
+            collections: ['products', 'orders', 'customers', 'reviews'],
+            customItems: [
+              // Merged into existing 'E-commerce' group
+              {
+                slug: 'pending-orders',
+                group: 'E-commerce',
+                href: '/collections/orders',
+                label: { en: 'Pending', uk: 'Очікують' },
+              },
+              // New 'Integrations' group
+              {
+                slug: 'stripe',
+                group: 'Integrations',
+                href: 'https://dashboard.stripe.com',
+                isExternal: true,
+                label: 'Stripe',
+              },
+              {
+                slug: 'shipping',
+                group: 'Integrations',
+                href: '/shipping',
+                label: { en: 'Shipping', uk: 'Доставка' },
+              },
+              // Ungrouped
+              {
+                slug: 'reports',
+                href: '/reports',
+                label: { en: 'Reports', uk: 'Звіти' },
+              },
+            ],
+            icon: 'ShoppingCart',
+            label: { en: 'Shop', uk: 'Магазин' },
           },
           {
-            id: 'warning-badge',
+            id: 'marketing',
             type: 'tab',
-            badge: { type: 'collection-count', collectionSlug: 'articles', color: 'warning' },
-            collections: ['articles'],
-            icon: 'TriangleAlert',
-            label: { en: 'Warning', uk: 'Warning' },
+            collections: ['campaigns', 'newsletters', 'subscribers'],
+            customItems: [
+              // New 'Email' group
+              {
+                slug: 'email-templates',
+                group: 'Email',
+                href: '/email-templates',
+                label: { en: 'Templates', uk: 'Шаблони' },
+              },
+              {
+                slug: 'email-logs',
+                group: 'Email',
+                href: '/email-logs',
+                label: { en: 'Send Logs', uk: 'Логи' },
+              },
+              // Ungrouped
+              {
+                slug: 'social-media',
+                href: '/social',
+                label: { en: 'Social Media', uk: 'Соцмережі' },
+              },
+            ],
+            icon: 'Megaphone',
+            label: { en: 'Marketing', uk: 'Маркетинг' },
           },
           {
-            id: 'error-badge',
+            id: 'settings',
             type: 'tab',
-            badge: { type: 'collection-count', collectionSlug: 'authors', color: 'error' },
-            collections: ['authors'],
-            icon: 'Bell',
-            label: { en: 'Error', uk: 'Error' },
+            customItems: [
+              // Ungrouped
+              {
+                slug: 'users-settings',
+                href: '/collections/users',
+                label: { en: 'Users', uk: 'Користувачі' },
+              },
+              {
+                slug: 'tenants-settings',
+                href: '/collections/tenants',
+                label: { en: 'Tenants', uk: 'Тенанти' },
+              },
+            ],
+            globals: ['site-settings', 'footer-settings'],
+            icon: 'Settings',
+            label: { en: 'Settings', uk: 'Налаштування' },
           },
         ],
       }),

@@ -200,6 +200,62 @@ interface InternalHrefItem extends BaseSidebarTabItem {
  */
 export type SidebarTabItem = ExternalHrefItem | InternalHrefItem
 
+// ============================================
+// Custom Component Types
+// ============================================
+
+/**
+ * Props received by a custom NavItem component registered via `customComponents.NavItem`.
+ *
+ * Use the `useNavItemState(href)` hook to get reactive `isActive` / `isCurrentPage` values.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import { useNavItemState } from '@veiag/payload-enhanced-sidebar'
+ * import type { CustomNavItemProps } from '@veiag/payload-enhanced-sidebar'
+ *
+ * export const MyNavItem: React.FC<CustomNavItemProps> = ({ entity, href, id, label, badgeConfig }) => {
+ *   const { isActive, isCurrentPage } = useNavItemState(href)
+ *   return <a href={href}>{label}</a>
+ * }
+ * ```
+ */
+export type CustomNavItemProps = {
+  /** Badge configuration as defined in the plugin config */
+  badgeConfig?: BadgeConfig
+  /** The entity (collection, global, or custom item) */
+  entity: ExtendedEntity
+  /** Computed href with admin route prefix applied */
+  href: string
+  /** DOM element id */
+  id: string
+  /** Pre-translated label string */
+  label: string
+}
+
+/**
+ * Props received by a custom NavGroup component registered via `customComponents.NavGroup`.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomNavGroupProps } from '@veiag/payload-enhanced-sidebar'
+ *
+ * export const MyNavGroup: React.FC<CustomNavGroupProps> = ({ label, isOpen, children }) => {
+ *   return <div><strong>{label}</strong>{children}</div>
+ * }
+ * ```
+ */
+export type CustomNavGroupProps = {
+  /** Nav items inside the group */
+  children: ReactNode
+  /** Initial open state from nav preferences */
+  isOpen?: boolean
+  /** Translated group label */
+  label: string
+}
+
 /**
  * Configuration for the enhanced sidebar
  */
@@ -218,6 +274,26 @@ export interface EnhancedSidebarConfig {
    * ```
    */
   badges?: Record<string, BadgeConfig>
+
+  /**
+   * Custom components to replace the default NavItem and/or NavGroup rendering.
+   * Paths follow Payload's component path format: 'path/to/file#ExportName'.
+   * The plugin automatically adds them to the import map.
+   *
+   * @example
+   * ```typescript
+   * customComponents: {
+   *   NavItem: '@/components/MyNavItem#MyNavItem',
+   *   NavGroup: '@/components/MyNavGroup#MyNavGroup',
+   * }
+   * ```
+   */
+  customComponents?: {
+    /** Path to a custom NavItem component. Receives `CustomNavItemProps`. */
+    NavGroup?: string
+    /** Path to a custom NavGroup component. Receives `CustomNavGroupProps`. */
+    NavItem?: string
+  }
 
   /**
    * Disable the plugin
