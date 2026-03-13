@@ -379,6 +379,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     ? RenderServerComponent({
         Component: config.customComponents.NavContent,
         importMap: payload.importMap,
+        key: 'enhanced-sidebar-nav-content',
         clientProps: {
           afterNavLinks: afterNavLinksRendered,
           allContent,

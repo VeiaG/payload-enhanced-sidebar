@@ -11,8 +11,9 @@ An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a
 - **Link Support** - Add navigation links (like Dashboard) alongside tabs
 - **Custom Items** - Add custom navigation items that can be merged into existing groups
 - **Badges** - Show notification badges on tabs and navigation items (API-based or reactive provider)
+- **Custom Components** - Replace any part of the sidebar with your own React components
 - **i18n Support** - Full localization support for labels and groups
-- **Lucide Icons** - Use any [Lucide icon](https://lucide.dev/icons) for tabs and links
+- **Lucide Icons** - Use any [Lucide icon](https://lucide.dev/icons) for tabs and links, or provide a custom icon component per tab
 
 ![Showcase](docs/showcase.gif)
 
@@ -150,12 +151,15 @@ Array of tabs and links to show in the sidebar.
 |----------|------|----------|-------------|
 | `id` | `string` | Yes | Unique identifier |
 | `type` | `'tab'` | Yes | Tab type |
-| `icon` | `string` | Yes | Lucide icon name |
+| `icon` | `IconName` | Yes* | Lucide icon name |
+| `iconComponent` | `string` | Yes* | Path to a custom icon component |
 | `label` | `LocalizedString` | Yes | Tab tooltip/label |
 | `collections` | `CollectionSlug[]` | No | Collections to show in this tab |
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
 | `customItems` | `SidebarTabItem[]` | No | Custom navigation items |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
+
+> \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
 
 > If neither `collections` nor `globals` are specified, the tab shows all collections and globals.
 
@@ -166,11 +170,14 @@ Array of tabs and links to show in the sidebar.
 |----------|------|----------|-------------|
 | `id` | `string` | Yes | Unique identifier |
 | `type` | `'link'` | Yes | Link type |
-| `icon` | `string` | Yes | Lucide icon name |
+| `icon` | `IconName` | Yes* | Lucide icon name |
+| `iconComponent` | `string` | Yes* | Path to a custom icon component |
 | `label` | `LocalizedString` | Yes | Link tooltip/label |
 | `href` | `string` | Yes | URL |
 | `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
 | `badge` | `BadgeConfig` | No | Badge configuration for the link icon |
+
+> \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
 
 
 ![Tab and Link active difference](docs/tab-link-active.png)
@@ -375,6 +382,45 @@ Completely disable the plugin.
 
 - **Type:** `boolean`
 - **Default:** `false`
+
+## Custom Components
+
+You can replace any part of the sidebar with your own React components. The plugin registers them automatically in Payload's import map — no manual import map configuration needed.
+
+```typescript
+payloadEnhancedSidebar({
+  customComponents: {
+    // Replace individual nav items (collections, globals, custom links)
+    NavItem: './components/Sidebar#MyNavItem',
+    // Replace group headers
+    NavGroup: './components/Sidebar#MyNavGroup',
+    // Replace the entire nav scroll area
+    NavContent: './components/Sidebar#MyNavContent',
+    // Replace every button in the tabs bar (tabs and links)
+    TabButton: './components/Sidebar#MyTabButton',
+  },
+  tabs: [
+    {
+      id: 'dashboard',
+      type: 'link',
+      href: '/',
+      // Custom icon for just this tab/link (mutually exclusive with `icon`)
+      iconComponent: './components/Sidebar#DashboardIcon',
+      label: 'Dashboard',
+    },
+  ],
+})
+```
+
+All custom components are client components (`'use client'`). The plugin provides hooks to connect them to sidebar state:
+
+| Hook | Description |
+|------|-------------|
+| `useNavItemState(href)` | `{ isActive, isCurrentPage }` — for custom NavItem |
+| `useTabState(id)` | `{ isActive }` — for custom NavContent or TabButton |
+| `useEnhancedSidebar()` | `{ activeTabId, onTabChange }` — full tab context |
+
+**→ See [docs/custom-components.md](docs/custom-components.md) for full documentation, prop types, and examples for each slot.**
 
 ## Localization
 

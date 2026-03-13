@@ -60,7 +60,6 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
     <EnhancedSidebarContext.Provider value={contextValue}>
       <SidebarWrapper baseClass={baseClass}>
         <TabsBar
-          key="tabs-bar"
           activeTabId={activeTabId}
           onTabChange={handleTabChange}
           renderedTabItems={renderedTabItems}
@@ -70,7 +69,6 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         />
         {customNavContent ?? (
           <NavContent
-            key="nav-content"
             afterNavLinks={afterNavLinks}
             allContent={allContent}
             beforeNavLinks={beforeNavLinks}
