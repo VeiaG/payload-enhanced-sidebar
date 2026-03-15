@@ -18,15 +18,19 @@ const tabsBaseClass = 'tabs-bar'
 export type TabsBarProps = {
   activeTabId: string
   onTabChange: (tabId: string) => void
+  renderedTabItems?: React.ReactNode[]
   settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
+  tabIcons?: Record<string, React.ReactNode>
 }
 
 export const TabsBar: React.FC<TabsBarProps> = ({
   activeTabId,
   onTabChange,
+  renderedTabItems,
   settingsMenu,
   sidebarConfig,
+  tabIcons,
 }) => {
   const { i18n } = useTranslation()
   const pathname = usePathname()
@@ -54,6 +58,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({
     if (item.type === 'tab') {
       return (
         <TabButton
+          icon={tabIcons?.[item.id]}
           isActive={activeTabId === item.id}
           key={item.id}
           onTabChange={onTabChange}
@@ -68,14 +73,16 @@ export const TabsBar: React.FC<TabsBarProps> = ({
       : formatAdminURL({ adminRoute, path: item.href })
     const isActive = pathname === href || (item.href === '/' && pathname === adminRoute)
 
-    return <TabLink href={href} isActive={isActive} key={item.id} link={item} />
+    return <TabLink href={href} icon={tabIcons?.[item.id]} isActive={isActive} key={item.id} link={item} />
   }
 
   const tabItems = sidebarConfig.tabs ?? []
 
   return (
     <div className={tabsBaseClass}>
-      <div className={`${tabsBaseClass}__tabs`}>{tabItems.map(renderTabItem)}</div>
+      <div className={`${tabsBaseClass}__tabs`}>
+        {renderedTabItems ?? tabItems.map(renderTabItem)}
+      </div>
 
       <div className={`${tabsBaseClass}__actions`}>
         {showFolders && (

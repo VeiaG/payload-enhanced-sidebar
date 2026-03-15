@@ -1,5 +1,5 @@
 import type { icons, LucideIcon } from 'lucide-react'
-import type { CollectionSlug, GlobalSlug, Where } from 'payload'
+import type { CollectionSlug, GlobalSlug, PayloadRequest, Where } from 'payload'
 import type { ReactNode } from 'react'
 
 export type IconName = keyof typeof icons
@@ -97,13 +97,84 @@ export type BadgeConfig = BadgeConfigApi | BadgeConfigCollectionCount | BadgeCon
 export type BadgeValues = Record<string, number | ReactNode>
 
 // ============================================
+// Access Control Types
+// ============================================
+
+/**
+ * Access function for a tab or link in the tabs bar.
+ * Return `false` to hide the item entirely (both the button and its content).
+ */
+export type TabAccessFunction = (args: {
+  item: SidebarTab
+  req: PayloadRequest
+}) => boolean | Promise<boolean>
+
+/**
+ * Access function for a custom item inside a tab.
+ * Return `false` to hide the item from the nav.
+ */
+export type ItemAccessFunction = (args: {
+  item: SidebarTabItem
+  req: PayloadRequest
+}) => boolean | Promise<boolean>
+
+// ============================================
 // Enhanced Sidebar Types
 // ============================================
 
 /**
+ * Path to a component, either as a plain string or as an object with a path and
+ * additional client props to forward to the component. Follows Payload's component format.
+ *
+ * @example
+ * ```typescript
+ * // Simple path
+ * iconComponent: './components/Icons#TabIcon'
+ *
+ * // With client props — useful for a single component shared across all tabs
+ * iconComponent: {
+ *   path: './components/Icons#TabIcon',
+ *   clientProps: { icon: 'house' },
+ * }
+ * ```
+ */
+export type SidebarComponent =
+  | {
+      /** Additional props forwarded to the component on the client */
+      clientProps?: Record<string, unknown>
+      /** Component path in Payload's format: `'./path/to/file#ExportName'` */
+      path: string
+    }
+  | string
+
+/**
+ * Mutually exclusive icon config: either a Lucide icon name OR a custom icon component path.
+ */
+type TabIconConfig =
+  | {
+      /** Icon name from lucide-react */
+      icon: IconName
+      iconComponent?: never
+    }
+  | {
+      icon?: never
+      /**
+       * Path to a custom icon component. Receives `CustomTabIconProps`.
+       * Supports a plain string path or `{ path, clientProps }` to forward extra props.
+       * Registered automatically in the import map.
+       */
+      iconComponent: SidebarComponent
+    }
+
+/**
  * Sidebar tab that shows content when selected
  */
-export interface SidebarTabContent {
+export type SidebarTabContent = {
+  /**
+   * Access control function. Called server-side with the current request.
+   * Return `false` to hide this tab (button + content) entirely.
+   */
+  access?: TabAccessFunction
   /**
    * Badge configuration for this tab.
    * Shows a badge on the tab icon in the tabs bar.
@@ -127,39 +198,40 @@ export interface SidebarTabContent {
    * Use global slugs.
    */
   globals?: GlobalSlug[]
-  /** Icon name from lucide-react */
-  icon: IconName
   /** Unique identifier for the tab */
   id: string
   /** Tooltip/label for the tab */
   label: LocalizedString
   type: 'tab'
-}
+} & TabIconConfig
 
-interface SidebarTabLinkBase {
+type SidebarTabLinkBase = {
+  /**
+   * Access control function. Called server-side with the current request.
+   * Return `false` to hide this link entirely.
+   */
+  access?: TabAccessFunction
   /**
    * Badge configuration for this link.
    * Shows a badge on the link icon in the tabs bar.
    */
   badge?: BadgeConfig
-  /** Icon name from lucide-react */
-  icon: IconName
   /** Unique identifier */
   id: string
   /** Tooltip/label */
   label: LocalizedString
   type: 'link'
-}
-interface SidebarTabLinkExternal extends SidebarTabLinkBase {
+} & TabIconConfig
+type SidebarTabLinkExternal = {
   /** Link href (absolute URL) */
   href: string
   isExternal: true
-}
-interface SidebarTabLinkInternal extends SidebarTabLinkBase {
+} & SidebarTabLinkBase
+type SidebarTabLinkInternal = {
   /** Link href (relative to admin route) */
   href: '' | `/${string}`
   isExternal?: false
-}
+} & SidebarTabLinkBase
 /**
  * Sidebar link that navigates to a URL (not a tab)
  */
@@ -171,14 +243,31 @@ export type SidebarTab = SidebarTabContent | SidebarTabLink
 
 interface BaseSidebarTabItem {
   /**
+   * Access control function. Called server-side with the current request.
+   * Return `false` to hide this item from the nav.
+   */
+  access?: ItemAccessFunction
+  /**
    * Group to add this item to.
    * If matches an existing collection group label, item will be merged into that group.
-   * If no match found, a new group will be created.
-   * If not specified, item will be shown at the bottom as ungrouped.
+   * If no match found, a new group will be created with this label.
+   * If not specified, item will be shown as ungrouped (position controlled by `position`).
    */
   group?: LocalizedString
   /** Display label */
   label: LocalizedString
+  /**
+   * Where to place this item relative to collection groups in the tab.
+   * - `'top'` — appears above all collection/global groups
+   * - `'bottom'` — appears below all groups (default)
+   *
+   * Has no effect on items that are merged into an existing collection group via `group`.
+   * For new custom groups (unmatched `group` label), controls whether the group appears
+   * at the top or bottom of the nav.
+   *
+   * @default 'bottom'
+   */
+  position?: 'bottom' | 'top'
   /** Unique slug for the item */
   slug: string
 }
@@ -200,6 +289,165 @@ interface InternalHrefItem extends BaseSidebarTabItem {
  */
 export type SidebarTabItem = ExternalHrefItem | InternalHrefItem
 
+// ============================================
+// Custom Component Types
+// ============================================
+
+/**
+ * Props received by a custom NavItem component registered via `customComponents.NavItem`.
+ *
+ * Use the `useNavItemState(href)` hook to get reactive `isActive` / `isCurrentPage` values.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import { useNavItemState } from '@veiag/payload-enhanced-sidebar'
+ * import type { CustomNavItemProps } from '@veiag/payload-enhanced-sidebar'
+ *
+ * export const MyNavItem: React.FC<CustomNavItemProps> = ({ entity, href, id, label, badgeConfig }) => {
+ *   const { isActive, isCurrentPage } = useNavItemState(href)
+ *   return <a href={href}>{label}</a>
+ * }
+ * ```
+ */
+export type CustomNavItemProps = {
+  /** Badge configuration as defined in the plugin config */
+  badgeConfig?: BadgeConfig
+  /** The entity (collection, global, or custom item) */
+  entity: ExtendedEntity
+  /** Computed href with admin route prefix applied */
+  href: string
+  /** DOM element id */
+  id: string
+  /** Pre-translated label string */
+  label: string
+}
+
+/**
+ * Props received by a custom NavGroup component registered via `customComponents.NavGroup`.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomNavGroupProps } from '@veiag/payload-enhanced-sidebar'
+ *
+ * export const MyNavGroup: React.FC<CustomNavGroupProps> = ({ label, isOpen, children }) => {
+ *   return <div><strong>{label}</strong>{children}</div>
+ * }
+ * ```
+ */
+export type CustomNavGroupProps = {
+  /** Nav items inside the group */
+  children: ReactNode
+  /** Initial open state from nav preferences */
+  isOpen?: boolean
+  /** Translated group label */
+  label: string
+}
+
+/**
+ * Props received by a custom tab icon component set via `iconComponent` on a tab or link.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomTabIconProps } from '@veiag/payload-enhanced-sidebar'
+ *
+ * export const MyIcon: React.FC<CustomTabIconProps> = ({ id, label }) => (
+ *   <img alt={label} src={`/icons/${id}.svg`} width={20} height={20} />
+ * )
+ * ```
+ */
+export type CustomTabIconProps = {
+  /** Tab/link id */
+  id: string
+  /** Pre-translated label */
+  label: string
+  /** Whether this item is a tab or a link */
+  type: 'link' | 'tab'
+}
+
+/**
+ * Props received by a custom TabButton component registered via `customComponents.TabButton`.
+ * Used for both `tab` and `link` type items in the tabs bar.
+ *
+ * Use `useTabState(id)` for tab active state, or `usePathname()` for link active state.
+ * Use `useEnhancedSidebar().onTabChange` to trigger tab switches.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomTabButtonProps } from '@veiag/payload-enhanced-sidebar'
+ * import { useTabState, useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar'
+ *
+ * export const MyTabButton: React.FC<CustomTabButtonProps> = ({ id, type, icon, label, href }) => {
+ *   const { isActive } = useTabState(id)
+ *   const { onTabChange } = useEnhancedSidebar()
+ *   if (type === 'link') return <a href={href}>{icon}{label}</a>
+ *   return <button onClick={() => onTabChange(id)}>{icon}{label}</button>
+ * }
+ * ```
+ */
+export type CustomTabButtonProps = {
+  /** Badge configuration as defined in the plugin config */
+  badge?: BadgeConfig
+  /** Computed href (for link type, with admin route prefix applied) */
+  href?: string
+  /** Pre-rendered icon — either from `iconComponent` or the default Lucide icon */
+  icon: ReactNode
+  /** Tab/link id */
+  id: string
+  /** Whether the link is external (only set for link type) */
+  isExternal?: boolean
+  /** Pre-translated label */
+  label: string
+  /** Item type — use to differentiate rendering */
+  type: 'link' | 'tab'
+}
+
+/**
+ * Props received by a custom NavContent component registered via `customComponents.NavContent`.
+ *
+ * Renders in place of the default `<nav>` content area. Use the `useTabState(id)` hook
+ * to determine which tab is active and show/hide content accordingly.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomNavContentProps } from '@veiag/payload-enhanced-sidebar'
+ * import { useTabState } from '@veiag/payload-enhanced-sidebar'
+ *
+ * const TabPanel = ({ id, content }: { id: string; content: React.ReactNode }) => {
+ *   const { isActive } = useTabState(id)
+ *   return <div style={{ display: isActive ? undefined : 'none' }}>{content}</div>
+ * }
+ *
+ * export const MyNavContent: React.FC<CustomNavContentProps> = ({
+ *   tabs, tabsContent, beforeNavLinks, afterNavLinks,
+ * }) => {
+ *   return (
+ *     <nav>
+ *       {beforeNavLinks}
+ *       {tabs.map(tab => <TabPanel key={tab.id} id={tab.id} content={tabsContent[tab.id]} />)}
+ *       {afterNavLinks}
+ *     </nav>
+ *   )
+ * }
+ * ```
+ */
+export type CustomNavContentProps = {
+  /** Rendered afterNavLinks from payload config */
+  afterNavLinks?: ReactNode
+  /** Content to show when no tabs are defined */
+  allContent?: ReactNode
+  /** Rendered beforeNavLinks from payload config */
+  beforeNavLinks?: ReactNode
+  /** Tab definitions (id only) for mapping over */
+  tabs: Array<{ id: string }>
+  /** Pre-rendered content per tab id */
+  tabsContent: Record<string, ReactNode>
+}
+
 /**
  * Configuration for the enhanced sidebar
  */
@@ -218,6 +466,38 @@ export interface EnhancedSidebarConfig {
    * ```
    */
   badges?: Record<string, BadgeConfig>
+
+  /**
+   * Custom components to replace the default NavItem, NavGroup, and/or NavContent rendering.
+   * Each field accepts a plain path string or a `SidebarComponent` object `{ path, clientProps }`
+   * to forward additional props. The plugin registers them in the import map automatically.
+   *
+   * @example
+   * ```typescript
+   * customComponents: {
+   *   // Plain path
+   *   NavItem: './components/MySidebar#MyNavItem',
+   *   // With extra client props forwarded to the component
+   *   NavGroup: { path: './components/MySidebar#MyNavGroup', clientProps: { collapsible: true } },
+   * }
+   * ```
+   */
+  customComponents?: {
+    /**
+     * Custom NavContent component. Replaces the default `<nav>` content area.
+     * Receives `CustomNavContentProps`. Use `useTabState(id)` to check if a tab is active.
+     */
+    NavContent?: SidebarComponent
+    /** Custom NavGroup component. Receives `CustomNavGroupProps`. */
+    NavGroup?: SidebarComponent
+    /** Custom NavItem component. Receives `CustomNavItemProps`. */
+    NavItem?: SidebarComponent
+    /**
+     * Custom tab button component. Used for both `tab` and `link` items in the tabs bar.
+     * Receives `CustomTabButtonProps`. Use `useTabState(id)` and `useEnhancedSidebar()` for state.
+     */
+    TabButton?: SidebarComponent
+  }
 
   /**
    * Disable the plugin

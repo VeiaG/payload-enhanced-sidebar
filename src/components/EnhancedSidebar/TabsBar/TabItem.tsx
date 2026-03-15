@@ -13,12 +13,13 @@ import { Icon } from '../Icon'
 const tabsBaseClass = 'tabs-bar'
 
 type TabButtonProps = {
+  icon?: React.ReactNode
   isActive: boolean
   onTabChange: (tabId: string) => void
   tab: SidebarTabContent
 }
 
-export const TabButton: React.FC<TabButtonProps> = ({ isActive, onTabChange, tab }) => {
+export const TabButton: React.FC<TabButtonProps> = ({ icon, isActive, onTabChange, tab }) => {
   const { i18n } = useTranslation()
   const label = getTranslation(tab.label, i18n)
   const { value } = useBadge(tab.badge, tab.id)
@@ -30,7 +31,7 @@ export const TabButton: React.FC<TabButtonProps> = ({ isActive, onTabChange, tab
       title={label}
       type="button"
     >
-      <Icon name={tab.icon} size={20} />
+      {icon ?? <Icon name={tab.icon!} size={20} />}
       {value !== undefined && <Badge color={tab.badge?.color} position="absolute" value={value} />}
     </button>
   )
@@ -38,11 +39,12 @@ export const TabButton: React.FC<TabButtonProps> = ({ isActive, onTabChange, tab
 
 type TabLinkProps = {
   href: string
+  icon?: React.ReactNode
   isActive: boolean
   link: SidebarTabLink
 }
 
-export const TabLink: React.FC<TabLinkProps> = ({ href, isActive, link }) => {
+export const TabLink: React.FC<TabLinkProps> = ({ href, icon, isActive, link }) => {
   const { i18n } = useTranslation()
   const label = getTranslation(link.label, i18n)
   const { value } = useBadge(link.badge, link.id)
@@ -55,7 +57,7 @@ export const TabLink: React.FC<TabLinkProps> = ({ href, isActive, link }) => {
       target={link.isExternal ? '_blank' : undefined}
       title={label}
     >
-      <Icon name={link.icon} size={20} />
+      {icon ?? <Icon name={link.icon!} size={20} />}
       {value !== undefined && <Badge color={link.badge?.color} position="absolute" value={value} />}
     </Link>
   )

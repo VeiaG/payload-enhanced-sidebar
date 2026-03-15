@@ -11,8 +11,9 @@ An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a
 - **Link Support** - Add navigation links (like Dashboard) alongside tabs
 - **Custom Items** - Add custom navigation items that can be merged into existing groups
 - **Badges** - Show notification badges on tabs and navigation items (API-based or reactive provider)
+- **Custom Components** - Replace any part of the sidebar with your own React components
 - **i18n Support** - Full localization support for labels and groups
-- **Lucide Icons** - Use any [Lucide icon](https://lucide.dev/icons) for tabs and links
+- **Lucide Icons** - Use any [Lucide icon](https://lucide.dev/icons) for tabs and links, or provide a custom icon component per tab
 
 ![Showcase](docs/showcase.gif)
 
@@ -101,6 +102,12 @@ export default buildConfig({
               label: { en: 'Analytics', uk: 'Аналітика' },
               group: 'E-commerce', // Merge into existing group
             },
+            {
+              slug: 'quick-add',
+              href: '/quick-add',
+              label: { en: 'Quick Add', uk: 'Швидке додавання' },
+              position: 'top', // Appears above all collection groups
+            },
           ],
         },
         // Settings tab with globals
@@ -150,13 +157,15 @@ Array of tabs and links to show in the sidebar.
 |----------|------|----------|-------------|
 | `id` | `string` | Yes | Unique identifier |
 | `type` | `'tab'` | Yes | Tab type |
-| `icon` | `string` | Yes | Lucide icon name |
+| `icon` | `IconName` | Yes* | Lucide icon name |
+| `iconComponent` | `SidebarComponent` | Yes* | Path to a custom icon component (string or `{ path, clientProps }`) |
 | `label` | `LocalizedString` | Yes | Tab tooltip/label |
 | `collections` | `CollectionSlug[]` | No | Collections to show in this tab |
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
-| `customItems` | `SidebarTabItem[]` | No | Custom navigation items |
+| `customItems` | `SidebarTabItem[]` | No | Custom navigation items (see below) |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
 
+> \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
 > If neither `collections` nor `globals` are specified, the tab shows all collections and globals.
 
 
@@ -166,11 +175,14 @@ Array of tabs and links to show in the sidebar.
 |----------|------|----------|-------------|
 | `id` | `string` | Yes | Unique identifier |
 | `type` | `'link'` | Yes | Link type |
-| `icon` | `string` | Yes | Lucide icon name |
+| `icon` | `IconName` | Yes* | Lucide icon name |
+| `iconComponent` | `SidebarComponent` | Yes* | Path to a custom icon component (string or `{ path, clientProps }`) |
 | `label` | `LocalizedString` | Yes | Link tooltip/label |
 | `href` | `string` | Yes | URL |
 | `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
 | `badge` | `BadgeConfig` | No | Badge configuration for the link icon |
+
+> \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
 
 
 ![Tab and Link active difference](docs/tab-link-active.png)
@@ -186,13 +198,19 @@ Custom items can be added to any tab:
   label: { en: 'Label' },        // Required: display label
   group: { en: 'Group Name' },   // Optional: merge into existing group or create new
   isExternal: true,              // Optional: if true, href is absolute URL
+  position: 'top',               // Optional: 'top' | 'bottom' (default: 'bottom')
 }
 ```
 
 **Group behavior:**
 - If `group` matches an existing collection group label, the item is added to that group
 - If `group` doesn't match any existing group, a new group is created
-- If `group` is not specified, the item appears at the bottom as ungrouped
+- If `group` is not specified, the item appears as ungrouped
+
+**Position behavior:**
+- `position: 'top'` — item (or new custom group) appears **above** all collection/global groups
+- `position: 'bottom'` — appears below all groups (default)
+- Has no effect on items that merge into an existing collection group via `group`
 
 
 ## Badges
@@ -362,6 +380,71 @@ Available colors: `default`, `primary`, `success`, `warning`, `error`
 - Zero or undefined values hide the badge
 - Provider values can also be React nodes for custom rendering
 
+## Access Control
+
+You can control visibility of tabs, links, and custom items using an `access` function. It runs **server-side** and receives the current `PayloadRequest`, so you have full access to `req.user`, roles, permissions, etc.
+
+### On tabs and links
+
+```typescript
+tabs: [
+  {
+    id: 'admin-panel',
+    type: 'tab',
+    icon: 'Shield',
+    label: 'Admin',
+    collections: ['users', 'tenants'],
+    access: ({ req, item }) => {
+      return req.user?.role === 'admin'
+    },
+  },
+  {
+    id: 'reports',
+    type: 'link',
+    href: '/reports',
+    icon: 'BarChart',
+    label: 'Reports',
+    access: async ({ req }) => {
+      // async is supported
+      return Boolean(req.user)
+    },
+  },
+]
+```
+
+If `access` returns `false`, the tab button is hidden from the tabs bar and its content is not rendered.
+
+### On custom items
+
+```typescript
+customItems: [
+  {
+    slug: 'admin-tools',
+    href: '/admin-tools',
+    label: 'Admin Tools',
+    access: ({ req }) => req.user?.role === 'admin',
+  },
+]
+```
+
+**Access function signatures:**
+
+```typescript
+// For tabs and links
+type TabAccessFunction = (args: {
+  item: SidebarTab       // full tab/link config
+  req: PayloadRequest
+}) => boolean | Promise<boolean>
+
+// For custom items
+type ItemAccessFunction = (args: {
+  item: SidebarTabItem   // full custom item config
+  req: PayloadRequest
+}) => boolean | Promise<boolean>
+```
+
+> Default collections and globals already respect Payload's built-in access control — they are filtered by `visibleEntities` automatically. The `access` function is only needed for tabs, links, and custom items.
+
 ### `showLogout`
 
 Show/hide the logout button at the bottom of the tabs bar.
@@ -375,6 +458,45 @@ Completely disable the plugin.
 
 - **Type:** `boolean`
 - **Default:** `false`
+
+## Custom Components
+
+You can replace any part of the sidebar with your own React components. The plugin registers them automatically in Payload's import map — no manual import map configuration needed.
+
+```typescript
+payloadEnhancedSidebar({
+  customComponents: {
+    // Replace individual nav items (collections, globals, custom links)
+    NavItem: './components/Sidebar#MyNavItem',
+    // Replace group headers
+    NavGroup: './components/Sidebar#MyNavGroup',
+    // Replace the entire nav scroll area
+    NavContent: './components/Sidebar#MyNavContent',
+    // Replace every button in the tabs bar (tabs and links)
+    TabButton: './components/Sidebar#MyTabButton',
+  },
+  tabs: [
+    {
+      id: 'dashboard',
+      type: 'link',
+      href: '/',
+      // Custom icon for just this tab/link (mutually exclusive with `icon`)
+      iconComponent: './components/Sidebar#DashboardIcon',
+      label: 'Dashboard',
+    },
+  ],
+})
+```
+
+All custom components are client components (`'use client'`). The plugin provides hooks to connect them to sidebar state:
+
+| Hook | Description |
+|------|-------------|
+| `useNavItemState(href)` | `{ isActive, isCurrentPage }` — for custom NavItem |
+| `useTabState(id)` | `{ isActive }` — for custom NavContent or TabButton |
+| `useEnhancedSidebar()` | `{ activeTabId, onTabChange }` — full tab context |
+
+**→ See [docs/custom-components.md](docs/custom-components.md) for full documentation, prop types, and examples for each slot.**
 
 ## Localization
 
