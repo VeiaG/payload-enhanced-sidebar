@@ -63,7 +63,7 @@ export const payloadEnhancedSidebar =
 
     const customComponentSlots = ['NavContent', 'NavGroup', 'NavItem', 'TabButton'] as const
     for (const slot of customComponentSlots) {
-      const component = pluginOptions.customComponents?.[slot]
+      const component = sidebarConfig.customComponents?.[slot]
       if (component) {
         const { path } = resolveSidebarComponent(component)
         config.admin.dependencies[`enhanced-sidebar-${slot.toLowerCase()}`] = {
@@ -73,7 +73,15 @@ export const payloadEnhancedSidebar =
       }
     }
 
+    const seenTabIds = new Set<string>()
     for (const tab of sidebarConfig.tabs ?? []) {
+      if (seenTabIds.has(tab.id)) {
+        throw new Error(
+          `[payload-enhanced-sidebar] Duplicate tab id "${tab.id}". Each tab must have a unique id.`,
+        )
+      }
+      seenTabIds.add(tab.id)
+
       if (tab.iconComponent) {
         const { path } = resolveSidebarComponent(tab.iconComponent)
         config.admin.dependencies[`enhanced-sidebar-icon-${tab.id}`] = {

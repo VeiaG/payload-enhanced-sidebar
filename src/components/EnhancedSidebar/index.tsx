@@ -73,9 +73,9 @@ const computeGroupsForTab = async (
         label: item.label,
       }) as ExtendedEntity
 
-    // Filter custom items by access
+    // Filter custom items by access — fail-closed: missing req denies access
     const accessResults = await Promise.all(
-      customItems.map((item) => (item.access && req ? item.access({ item, req }) : true)),
+      customItems.map((item) => (item.access ? (req ? item.access({ item, req }) : false) : true)),
     )
     const visibleItems = customItems.filter((_, i) => accessResults[i])
 
@@ -230,12 +230,12 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     ],
   }
 
-  // Filter all tab bar items by access
+  // Filter all tab bar items by access — fail-closed: missing req denies access
   const allConfigTabs = config.tabs ?? []
-  const accessResults = await Promise.all(
-    allConfigTabs.map((t) => (t.access && req ? t.access({ item: t, req }) : true)),
+  const tabAccessResults = await Promise.all(
+    allConfigTabs.map((t) => (t.access ? (req ? t.access({ item: t, req }) : false) : true)),
   )
-  const visibleTabItems = allConfigTabs.filter((_, i) => accessResults[i])
+  const visibleTabItems = allConfigTabs.filter((_, i) => tabAccessResults[i])
 
   // Read active tab from cookie
   const cookieStore = await cookies()
@@ -281,6 +281,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
         Component: path,
         importMap: payload.importMap,
         key,
+        serverProps,
       })
     }
 
@@ -315,6 +316,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
         Component: path,
         importMap: payload.importMap,
         key,
+        serverProps,
       })
     }
 
@@ -329,12 +331,16 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     )
   }
 
-  // Pre-render content for every tab on the server
+  // Pre-render content for every tab on the server (computed in parallel)
+  const tabGroupResults = await Promise.all(
+    tabs.map((tab) => computeGroupsForTab(tab, groups, currentLang, req)),
+  )
   const tabsContent: Record<string, React.ReactNode> = {}
-  for (const tab of tabs) {
-    const tabGroups = await computeGroupsForTab(tab, groups, currentLang, req)
+  for (let i = 0; i < tabs.length; i++) {
+    const tab = tabs[i]
+    const tabGroups = tabGroupResults[i]
     tabsContent[tab.id] = (
-      <Fragment>{tabGroups.map((group, i) => renderGroup(group, `${tab.id}-${i}`))}</Fragment>
+      <Fragment>{tabGroups.map((group, j) => renderGroup(group, `${tab.id}-${j}`))}</Fragment>
     )
   }
 
@@ -368,9 +374,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
           clientProps: { id: item.id, type: item.type, label, ...iconExtraProps },
           Component: iconPath,
           importMap: payload.importMap,
+          serverProps,
         })
       } else {
-        iconNode = <Icon name={item.icon!} size={20} />
+        iconNode = item.icon ? <Icon name={item.icon} size={20} /> : null
       }
 
       if (hasCustomTabButton) {
@@ -398,6 +405,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
             Component: tabBtnPath,
             importMap: payload.importMap,
             key: item.id,
+            serverProps,
           }),
         )
       } else if (item.iconComponent) {
@@ -423,6 +431,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
           Component: path,
           importMap: payload.importMap,
           key: 'enhanced-sidebar-nav-content',
+          serverProps,
         })
       })()
     : undefined
