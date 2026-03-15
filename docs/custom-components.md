@@ -268,23 +268,6 @@ const { activeTabId, onTabChange } = useEnhancedSidebar()
 
 Each tab or link can have a custom icon component that replaces the default Lucide icon. This is mutually exclusive with `icon` — use one or the other.
 
-```typescript
-payloadEnhancedSidebar({
-  tabs: [
-    {
-      id: 'dashboard',
-      type: 'link',
-      href: '/',
-      // Either icon:
-      icon: 'House',
-      // OR iconComponent:
-      iconComponent: './components/MySidebar#DashboardIcon',
-      label: 'Dashboard',
-    },
-  ],
-})
-```
-
 > TypeScript enforces the mutual exclusion — you'll get a compile error if you set both `icon` and `iconComponent` on the same tab.
 
 **Props (`CustomTabIconProps`):**
@@ -295,17 +278,193 @@ payloadEnhancedSidebar({
 | `label` | `string` | Pre-translated label |
 | `type` | `'tab' \| 'link'` | Item type |
 
-```tsx
-'use client'
+The `iconComponent` field accepts either a plain path string or a `SidebarComponent` object `{ path, clientProps }`. The object form lets you reuse a **single component** across all tabs and distinguish icons via `clientProps`.
 
+### One component per tab (simple)
+
+```typescript
+// components/Icons.tsx
+'use client'
 import type { CustomTabIconProps } from '@veiag/payload-enhanced-sidebar'
 
 export const DashboardIcon: React.FC<CustomTabIconProps> = ({ label }) => (
   <img src="/icons/dashboard.svg" alt={label} width={20} height={20} />
 )
+
+export const ShopIcon: React.FC<CustomTabIconProps> = ({ label }) => (
+  <img src="/icons/shop.svg" alt={label} width={20} height={20} />
+)
 ```
 
-The rendered icon is passed as the `icon` prop to `TabButton` (default or custom). So if you use both `iconComponent` and `customComponents.TabButton`, your custom tab button receives the pre-rendered custom icon as `icon: ReactNode`.
+```typescript
+// payload.config.ts
+payloadEnhancedSidebar({
+  tabs: [
+    {
+      id: 'dashboard',
+      type: 'link',
+      href: '/',
+      iconComponent: './components/Icons#DashboardIcon',
+      label: 'Dashboard',
+    },
+    {
+      id: 'shop',
+      type: 'tab',
+      iconComponent: './components/Icons#ShopIcon',
+      label: 'Shop',
+      collections: ['products', 'orders'],
+    },
+  ],
+})
+```
+
+### One shared component with `clientProps` (recommended for larger projects)
+
+Define a single component and pass a discriminator via `clientProps`. The component receives your custom props **merged with** the standard `CustomTabIconProps` (`id`, `label`, `type`).
+
+```typescript
+// components/TabIcon.tsx
+'use client'
+import type { CustomTabIconProps } from '@veiag/payload-enhanced-sidebar'
+
+// Extend the base props with your custom clientProps shape
+type TabIconProps = CustomTabIconProps & {
+  icon?: 'dashboard' | 'shop' | 'marketing' | 'settings'
+}
+
+const icons: Record<NonNullable<TabIconProps['icon']>, string> = {
+  dashboard: '/icons/dashboard.svg',
+  marketing: '/icons/megaphone.svg',
+  settings: '/icons/settings.svg',
+  shop: '/icons/cart.svg',
+}
+
+export const TabIcon: React.FC<TabIconProps> = ({ icon, label }) => {
+  const src = icon ? icons[icon] : undefined
+
+  if (!src) {
+    // Fallback: first letter of label
+    return (
+      <span style={{ fontSize: 12, fontWeight: 700 }}>{label[0]?.toUpperCase()}</span>
+    )
+  }
+
+  return <img alt={label} height={20} src={src} width={20} />
+}
+```
+
+```typescript
+// payload.config.ts
+payloadEnhancedSidebar({
+  tabs: [
+    {
+      id: 'dashboard',
+      type: 'link',
+      href: '/',
+      iconComponent: {
+        path: './components/TabIcon#TabIcon',
+        clientProps: { icon: 'dashboard' },
+      },
+      label: 'Dashboard',
+    },
+    {
+      id: 'shop',
+      type: 'tab',
+      iconComponent: {
+        path: './components/TabIcon#TabIcon',
+        clientProps: { icon: 'shop' },
+      },
+      label: 'Shop',
+      collections: ['products', 'orders'],
+    },
+    {
+      id: 'marketing',
+      type: 'tab',
+      iconComponent: {
+        path: './components/TabIcon#TabIcon',
+        clientProps: { icon: 'marketing' },
+      },
+      label: 'Marketing',
+      collections: ['campaigns', 'newsletters'],
+    },
+    {
+      id: 'settings',
+      type: 'tab',
+      iconComponent: {
+        path: './components/TabIcon#TabIcon',
+        clientProps: { icon: 'settings' },
+      },
+      label: 'Settings',
+      globals: ['site-settings'],
+    },
+  ],
+})
+```
+
+The `clientProps` you define are merged with the standard `CustomTabIconProps` props (`id`, `label`, `type`) before being passed to your component.
+
+The rendered icon is also passed as the `icon: ReactNode` prop to `TabButton` (default or custom). So if you combine `iconComponent` with `customComponents.TabButton`, your tab button receives the pre-rendered icon automatically.
+
+---
+
+## customItems `position`
+
+Custom items added to a tab via `customItems` normally appear **below** all collection/global groups. Use the `position` property to push items (or new custom groups) to the **top** instead.
+
+```typescript
+payloadEnhancedSidebar({
+  tabs: [
+    {
+      id: 'content',
+      type: 'tab',
+      icon: 'FileText',
+      label: 'Content',
+      collections: ['posts', 'pages'],
+      customItems: [
+        // Ungrouped, position: 'top' → single item appears above all groups
+        {
+          slug: 'drafts',
+          href: '/collections/posts?status=draft',
+          label: 'Drafts',
+          position: 'top',
+        },
+        // New group, position: 'top' → entire group appears at the top
+        {
+          slug: 'new-post',
+          group: 'Shortcuts',
+          href: '/collections/posts/create',
+          label: 'New Post',
+          position: 'top',
+        },
+        // Merged into existing 'Content' group → position has no effect
+        {
+          slug: 'scheduled',
+          group: 'Content',
+          href: '/collections/posts?status=scheduled',
+          label: 'Scheduled',
+          position: 'top', // ignored — merges into existing group
+        },
+        // Ungrouped, default → appears at the bottom
+        {
+          slug: 'import',
+          href: '/import',
+          label: 'Import Data',
+        },
+      ],
+    },
+  ],
+})
+```
+
+**Rules:**
+
+| Scenario | `position` effect |
+|----------|-------------------|
+| Item merged into an **existing** collection group (via `group`) | **Ignored** — item appears inside that group |
+| Item in a **new** custom group (unmatched `group` label) | Group placed at top or bottom |
+| **Ungrouped** item (no `group`) | Item placed at top or bottom as a flat list |
+
+Multiple top-positioned ungrouped items are collected into a single unlabelled group above everything else.
 
 ---
 

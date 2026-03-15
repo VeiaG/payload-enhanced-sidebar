@@ -433,7 +433,22 @@ const buildConfigWithMemoryDB = async () => {
                 href: '/seo',
                 label: 'SEO',
               },
-              // Ungrouped — appears at the bottom
+              // Ungrouped — position: 'top' → appears above all collection groups
+              {
+                slug: 'quick-links',
+                href: '/collections/posts?status=draft',
+                label: { en: 'Quick Links', uk: 'Швидкі посилання' },
+                position: 'top',
+              },
+              // New 'Shortcuts' group — position: 'top' → group appears at the top
+              {
+                slug: 'new-post',
+                group: { en: 'Shortcuts', uk: 'Ярлики' },
+                href: '/collections/posts/create',
+                label: { en: 'New Post', uk: 'Новий пост' },
+                position: 'top',
+              },
+              // Ungrouped — appears at the bottom (default)
               {
                 slug: 'import-data',
                 href: '/import',

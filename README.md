@@ -102,6 +102,12 @@ export default buildConfig({
               label: { en: 'Analytics', uk: 'Аналітика' },
               group: 'E-commerce', // Merge into existing group
             },
+            {
+              slug: 'quick-add',
+              href: '/quick-add',
+              label: { en: 'Quick Add', uk: 'Швидке додавання' },
+              position: 'top', // Appears above all collection groups
+            },
           ],
         },
         // Settings tab with globals
@@ -152,15 +158,14 @@ Array of tabs and links to show in the sidebar.
 | `id` | `string` | Yes | Unique identifier |
 | `type` | `'tab'` | Yes | Tab type |
 | `icon` | `IconName` | Yes* | Lucide icon name |
-| `iconComponent` | `string` | Yes* | Path to a custom icon component |
+| `iconComponent` | `SidebarComponent` | Yes* | Path to a custom icon component (string or `{ path, clientProps }`) |
 | `label` | `LocalizedString` | Yes | Tab tooltip/label |
 | `collections` | `CollectionSlug[]` | No | Collections to show in this tab |
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
-| `customItems` | `SidebarTabItem[]` | No | Custom navigation items |
+| `customItems` | `SidebarTabItem[]` | No | Custom navigation items (see below) |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
 
 > \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
-
 > If neither `collections` nor `globals` are specified, the tab shows all collections and globals.
 
 
@@ -171,7 +176,7 @@ Array of tabs and links to show in the sidebar.
 | `id` | `string` | Yes | Unique identifier |
 | `type` | `'link'` | Yes | Link type |
 | `icon` | `IconName` | Yes* | Lucide icon name |
-| `iconComponent` | `string` | Yes* | Path to a custom icon component |
+| `iconComponent` | `SidebarComponent` | Yes* | Path to a custom icon component (string or `{ path, clientProps }`) |
 | `label` | `LocalizedString` | Yes | Link tooltip/label |
 | `href` | `string` | Yes | URL |
 | `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
@@ -193,13 +198,19 @@ Custom items can be added to any tab:
   label: { en: 'Label' },        // Required: display label
   group: { en: 'Group Name' },   // Optional: merge into existing group or create new
   isExternal: true,              // Optional: if true, href is absolute URL
+  position: 'top',               // Optional: 'top' | 'bottom' (default: 'bottom')
 }
 ```
 
 **Group behavior:**
 - If `group` matches an existing collection group label, the item is added to that group
 - If `group` doesn't match any existing group, a new group is created
-- If `group` is not specified, the item appears at the bottom as ungrouped
+- If `group` is not specified, the item appears as ungrouped
+
+**Position behavior:**
+- `position: 'top'` — item (or new custom group) appears **above** all collection/global groups
+- `position: 'bottom'` — appears below all groups (default)
+- Has no effect on items that merge into an existing collection group via `group`
 
 
 ## Badges

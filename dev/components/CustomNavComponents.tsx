@@ -11,6 +11,7 @@ import type {
   CustomTabIconProps,
 } from '@veiag/payload-enhanced-sidebar'
 import { useEnhancedSidebar, useNavItemState, useTabState } from '@veiag/payload-enhanced-sidebar'
+import { useState } from 'react'
 
 export const CustomNavItem: React.FC<CustomNavItemProps> = ({ entity, href, id, label }) => {
   const { isActive, isCurrentPage } = useNavItemState(href)
@@ -201,22 +202,35 @@ export const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   )
 }
 
-export const CustomNavGroup: React.FC<CustomNavGroupProps> = ({ label, children }) => {
+export const CustomNavGroup: React.FC<CustomNavGroupProps> = ({ label, isOpen = true, children }) => {
+  const [open, setOpen] = useState(isOpen)
+
   return (
     <div style={{ marginBottom: '8px' }}>
-      <div
+      <button
+        onClick={() => setOpen(!open)}
         style={{
+          alignItems: 'center',
+          background: 'none',
+          border: 'none',
           color: 'var(--theme-elevation-400)',
+          cursor: 'pointer',
+          display: 'flex',
           fontSize: '10px',
           fontWeight: 700,
+          gap: '4px',
+          justifyContent: 'space-between',
           letterSpacing: '0.08em',
           padding: '8px 12px 4px',
           textTransform: 'uppercase',
+          width: '100%',
         }}
+        type="button"
       >
         {label}
-      </div>
-      {children}
+        <span style={{ fontSize: '8px' }}>{open ? '▲' : '▼'}</span>
+      </button>
+      {open && children}
     </div>
   )
 }

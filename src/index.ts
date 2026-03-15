@@ -3,6 +3,7 @@ import { type Config, deepMerge } from 'payload'
 import type { EnhancedSidebarConfig } from './types'
 
 import { sidebarTranslations } from './translations'
+import { resolveSidebarComponent } from './utils'
 
 /**
  * Default configuration for the enhanced sidebar
@@ -56,58 +57,29 @@ export const payloadEnhancedSidebar =
       }
     }
 
-    // Register custom components in the import map via admin.dependencies
-    if (pluginOptions.customComponents?.NavItem) {
-      if (!config.admin.dependencies) {
-        config.admin.dependencies = {}
-      }
-      config.admin.dependencies['enhanced-sidebar-nav-item'] = {
-        path: pluginOptions.customComponents.NavItem,
-        type: 'component',
+    // Register custom components and per-tab icons in the import map
+    if (!config.admin.dependencies) {
+      config.admin.dependencies = {}
+    }
+
+    const customComponentSlots = ['NavContent', 'NavGroup', 'NavItem', 'TabButton'] as const
+    for (const slot of customComponentSlots) {
+      const component = pluginOptions.customComponents?.[slot]
+      if (component) {
+        const { path } = resolveSidebarComponent(component)
+        config.admin.dependencies[`enhanced-sidebar-${slot.toLowerCase()}`] = {
+          type: 'component',
+          path,
+        }
       }
     }
 
-    if (pluginOptions.customComponents?.NavGroup) {
-      if (!config.admin.dependencies) {
-        config.admin.dependencies = {}
-      }
-      config.admin.dependencies['enhanced-sidebar-nav-group'] = {
-        path: pluginOptions.customComponents.NavGroup,
-        type: 'component',
-      }
-    }
-
-    if (pluginOptions.customComponents?.NavContent) {
-      if (!config.admin.dependencies) {
-        config.admin.dependencies = {}
-      }
-      config.admin.dependencies['enhanced-sidebar-nav-content'] = {
-        path: pluginOptions.customComponents.NavContent,
-        type: 'component',
-      }
-    }
-
-    if (pluginOptions.customComponents?.TabButton) {
-      if (!config.admin.dependencies) {
-        config.admin.dependencies = {}
-      }
-      config.admin.dependencies['enhanced-sidebar-tab-button'] = {
-        path: pluginOptions.customComponents.TabButton,
-        type: 'component',
-      }
-    }
-
-    // Register per-tab iconComponent paths
-    if (pluginOptions.tabs) {
-      if (!config.admin.dependencies) {
-        config.admin.dependencies = {}
-      }
-      for (const tab of pluginOptions.tabs) {
-        if (tab.iconComponent) {
-          config.admin.dependencies[`enhanced-sidebar-icon-${tab.id}`] = {
-            path: tab.iconComponent,
-            type: 'component',
-          }
+    for (const tab of sidebarConfig.tabs ?? []) {
+      if (tab.iconComponent) {
+        const { path } = resolveSidebarComponent(tab.iconComponent)
+        config.admin.dependencies[`enhanced-sidebar-icon-${tab.id}`] = {
+          type: 'component',
+          path,
         }
       }
     }
@@ -168,4 +140,5 @@ export type {
   CustomTabButtonProps,
   CustomTabIconProps,
   EnhancedSidebarConfig,
+  SidebarComponent,
 } from './types'

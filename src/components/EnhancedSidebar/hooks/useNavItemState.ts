@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation.js'
+import { usePathname } from 'next/navigation'
 
 /**
  * Hook to get the active state of a nav item based on the current pathname.

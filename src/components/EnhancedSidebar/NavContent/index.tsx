@@ -8,7 +8,7 @@ import { useTabState } from '../hooks/useTabState'
 
 const baseClass = 'enhanced-sidebar'
 
-const TabPanel: React.FC<{ children: React.ReactNode; id: string }> = ({ children, id }) => {
+const TabPanel: React.FC<{ id: string; children: React.ReactNode }> = ({ children, id }) => {
   const { isActive } = useTabState(id)
   return (
     <div aria-hidden={!isActive} style={{ display: isActive ? undefined : 'none' }}>

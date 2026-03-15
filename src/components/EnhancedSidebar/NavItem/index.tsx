@@ -2,13 +2,13 @@
 
 import { getTranslation } from '@payloadcms/translations'
 import { Link, useTranslation } from '@payloadcms/ui'
-import { usePathname } from 'next/navigation.js'
 import React from 'react'
 
 import type { BadgeConfig, ExtendedEntity } from '../../../types'
 
 import { Badge } from '../Badge'
 import { useBadge } from '../hooks/useBadge'
+import { useNavItemState } from '../hooks/useNavItemState'
 
 const baseClass = 'enhanced-sidebar'
 
@@ -22,10 +22,7 @@ export type NavItemProps = {
 export const NavItem: React.FC<NavItemProps> = ({ id, badgeConfig, entity, href }) => {
   const { i18n } = useTranslation()
   const { value: badgeValue } = useBadge(badgeConfig, entity.slug)
-  const pathname = usePathname()
-
-  const isActive = pathname.startsWith(href) && ['/', undefined].includes(pathname[href.length])
-  const isCurrentPage = pathname === href
+  const { isActive, isCurrentPage } = useNavItemState(href)
 
   const Label = (
     <>

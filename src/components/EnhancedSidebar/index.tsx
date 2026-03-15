@@ -20,7 +20,7 @@ import type {
   SidebarTabItem,
 } from '../../types'
 
-import { extractLocalizedValue } from '../../utils'
+import { extractLocalizedValue, resolveSidebarComponent } from '../../utils'
 import { getNavPrefs } from './getNavPrefs'
 import { Icon } from './Icon'
 import { NavItem } from './NavItem'
@@ -59,7 +59,18 @@ const computeGroupsForTab = (
   }
 
   if (customItems && customItems.length > 0) {
-    const ungroupedItems: SidebarTabItem[] = []
+    const topAdditions: ExtendedGroup[] = []
+    const topUngrouped: SidebarTabItem[] = []
+    const bottomUngrouped: SidebarTabItem[] = []
+
+    const toEntity = (item: SidebarTabItem): ExtendedEntity =>
+      ({
+        slug: item.slug,
+        type: 'custom',
+        href: item.href,
+        isExternal: item.isExternal,
+        label: item.label,
+      }) as ExtendedEntity
 
     for (const item of customItems) {
       if (item.group) {
@@ -70,44 +81,35 @@ const computeGroupsForTab = (
         })
 
         if (existingGroup) {
-          existingGroup.entities.push({
-            slug: item.slug,
-            type: 'custom',
-            href: item.href,
-            isExternal: item.isExternal,
-            label: item.label,
-          } as ExtendedEntity)
+          // Merged into existing collection group — position has no effect here
+          existingGroup.entities.push(toEntity(item))
         } else {
-          result.push({
-            entities: [
-              {
-                slug: item.slug,
-                type: 'custom',
-                href: item.href,
-                isExternal: item.isExternal,
-                label: item.label,
-              } as ExtendedEntity,
-            ],
-            label: item.group,
-          })
+          // New custom group — position controls top vs bottom
+          const newGroup: ExtendedGroup = { entities: [toEntity(item)], label: item.group }
+          if (item.position === 'top') {
+            topAdditions.push(newGroup)
+          } else {
+            result.push(newGroup)
+          }
         }
       } else {
-        ungroupedItems.push(item)
+        if (item.position === 'top') {
+          topUngrouped.push(item)
+        } else {
+          bottomUngrouped.push(item)
+        }
       }
     }
 
-    if (ungroupedItems.length > 0) {
-      result.push({
-        entities: ungroupedItems.map((item) => ({
-          slug: item.slug,
-          type: 'custom',
-          href: item.href,
-          isExternal: item.isExternal,
-          label: item.label,
-        })) as ExtendedEntity[],
-        label: '',
-      })
+    if (topUngrouped.length > 0) {
+      topAdditions.unshift({ entities: topUngrouped.map(toEntity), label: '' })
     }
+
+    if (bottomUngrouped.length > 0) {
+      result.push({ entities: bottomUngrouped.map(toEntity), label: '' })
+    }
+
+    result = [...topAdditions, ...result]
   }
 
   return result
@@ -257,11 +259,12 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
 
     if (config.customComponents?.NavItem) {
       const label = getTranslation(entity.label, i18n)
+      const { path, clientProps: extraProps } = resolveSidebarComponent(config.customComponents.NavItem)
       return RenderServerComponent({
-        Component: config.customComponents.NavItem,
+        Component: path,
         importMap: payload.importMap,
         key,
-        clientProps: { entity, href, id, badgeConfig, label },
+        clientProps: { entity, href, id, badgeConfig, label, ...extraProps },
       })
     }
 
@@ -283,14 +286,16 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     }
 
     if (config.customComponents?.NavGroup) {
+      const { path, clientProps: extraProps } = resolveSidebarComponent(config.customComponents.NavGroup)
       return RenderServerComponent({
-        Component: config.customComponents.NavGroup,
+        Component: path,
         importMap: payload.importMap,
         key,
         clientProps: {
           label: translatedLabel,
           isOpen: navPreferences?.groups?.[translatedLabel]?.open,
           children: items,
+          ...extraProps,
         },
       })
     }
@@ -336,13 +341,17 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       const label = getTranslation(item.label, i18n)
 
       // Resolve icon: custom iconComponent > default Lucide
-      const iconNode: React.ReactNode = item.iconComponent
-        ? RenderServerComponent({
-            Component: item.iconComponent,
-            importMap: payload.importMap,
-            clientProps: { id: item.id, label, type: item.type },
-          })
-        : <Icon name={item.icon!} size={20} />
+      let iconNode: React.ReactNode
+      if (item.iconComponent) {
+        const { path: iconPath, clientProps: iconExtraProps } = resolveSidebarComponent(item.iconComponent)
+        iconNode = RenderServerComponent({
+          Component: iconPath,
+          importMap: payload.importMap,
+          clientProps: { id: item.id, label, type: item.type, ...iconExtraProps },
+        })
+      } else {
+        iconNode = <Icon name={item.icon!} size={20} />
+      }
 
       if (hasCustomTabButton) {
         // Compute href for links
@@ -353,9 +362,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
             : formatAdminURL({ adminRoute, path: item.href })
         }
 
+        const { path: tabBtnPath, clientProps: tabBtnExtraProps } = resolveSidebarComponent(config.customComponents!.TabButton!)
         renderedTabItems.push(
           RenderServerComponent({
-            Component: config.customComponents!.TabButton!,
+            Component: tabBtnPath,
             importMap: payload.importMap,
             key: item.id,
             clientProps: {
@@ -366,6 +376,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
               isExternal: item.type === 'link' ? item.isExternal : undefined,
               label,
               type: item.type,
+              ...tabBtnExtraProps,
             },
           }),
         )
@@ -376,18 +387,22 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   }
 
   const customNavContent = config.customComponents?.NavContent
-    ? RenderServerComponent({
-        Component: config.customComponents.NavContent,
-        importMap: payload.importMap,
-        key: 'enhanced-sidebar-nav-content',
-        clientProps: {
-          afterNavLinks: afterNavLinksRendered,
-          allContent,
-          beforeNavLinks: beforeNavLinksRendered,
-          tabs: tabs.map((t) => ({ id: t.id })),
-          tabsContent,
-        },
-      })
+    ? (() => {
+        const { path, clientProps: extraProps } = resolveSidebarComponent(config.customComponents!.NavContent!)
+        return RenderServerComponent({
+          Component: path,
+          importMap: payload.importMap,
+          key: 'enhanced-sidebar-nav-content',
+          clientProps: {
+            afterNavLinks: afterNavLinksRendered,
+            allContent,
+            beforeNavLinks: beforeNavLinksRendered,
+            tabs: tabs.map((t) => ({ id: t.id })),
+            tabsContent,
+            ...extraProps,
+          },
+        })
+      })()
     : undefined
 
   return (
