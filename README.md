@@ -380,6 +380,71 @@ Available colors: `default`, `primary`, `success`, `warning`, `error`
 - Zero or undefined values hide the badge
 - Provider values can also be React nodes for custom rendering
 
+## Access Control
+
+You can control visibility of tabs, links, and custom items using an `access` function. It runs **server-side** and receives the current `PayloadRequest`, so you have full access to `req.user`, roles, permissions, etc.
+
+### On tabs and links
+
+```typescript
+tabs: [
+  {
+    id: 'admin-panel',
+    type: 'tab',
+    icon: 'Shield',
+    label: 'Admin',
+    collections: ['users', 'tenants'],
+    access: ({ req, item }) => {
+      return req.user?.role === 'admin'
+    },
+  },
+  {
+    id: 'reports',
+    type: 'link',
+    href: '/reports',
+    icon: 'BarChart',
+    label: 'Reports',
+    access: async ({ req }) => {
+      // async is supported
+      return Boolean(req.user)
+    },
+  },
+]
+```
+
+If `access` returns `false`, the tab button is hidden from the tabs bar and its content is not rendered.
+
+### On custom items
+
+```typescript
+customItems: [
+  {
+    slug: 'admin-tools',
+    href: '/admin-tools',
+    label: 'Admin Tools',
+    access: ({ req }) => req.user?.role === 'admin',
+  },
+]
+```
+
+**Access function signatures:**
+
+```typescript
+// For tabs and links
+type TabAccessFunction = (args: {
+  item: SidebarTab       // full tab/link config
+  req: PayloadRequest
+}) => boolean | Promise<boolean>
+
+// For custom items
+type ItemAccessFunction = (args: {
+  item: SidebarTabItem   // full custom item config
+  req: PayloadRequest
+}) => boolean | Promise<boolean>
+```
+
+> Default collections and globals already respect Payload's built-in access control — they are filtered by `visibleEntities` automatically. The `access` function is only needed for tabs, links, and custom items.
+
 ### `showLogout`
 
 Show/hide the logout button at the bottom of the tabs bar.

@@ -48,13 +48,12 @@ export const payloadEnhancedSidebar =
       config.admin.components = {}
     }
 
-    if (!config.admin.components.Nav) {
-      config.admin.components.Nav = {
-        path: '@veiag/payload-enhanced-sidebar/rsc#EnhancedSidebar',
-        serverProps: {
-          sidebarConfig,
-        },
-      }
+    // Always override Nav — user-defined Nav in config should use customComponents instead
+    config.admin.components.Nav = {
+      path: '@veiag/payload-enhanced-sidebar/rsc#EnhancedSidebar',
+      serverProps: {
+        sidebarConfig,
+      },
     }
 
     // Register custom components and per-tab icons in the import map
@@ -140,5 +139,7 @@ export type {
   CustomTabButtonProps,
   CustomTabIconProps,
   EnhancedSidebarConfig,
+  ItemAccessFunction,
   SidebarComponent,
+  TabAccessFunction,
 } from './types'

@@ -2,8 +2,8 @@ import type { EntityToGroup } from '@payloadcms/ui/shared'
 import type { PayloadRequest, ServerProps } from 'payload'
 
 import { getTranslation } from '@payloadcms/translations'
-import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
 import { NavGroup } from '@payloadcms/ui'
+import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
 import { EntityType, groupNavItems } from '@payloadcms/ui/shared'
 import { cookies } from 'next/headers'
 import { formatAdminURL } from 'payload/shared'
@@ -35,11 +35,12 @@ export type EnhancedSidebarProps = {
 /**
  * Computes filtered and merged groups for a specific tab (server-side).
  */
-const computeGroupsForTab = (
+const computeGroupsForTab = async (
   tab: SidebarTabContentType,
   groups: ExtendedGroup[],
   currentLang: string,
-): ExtendedGroup[] => {
+  req: PayloadRequest | undefined,
+): Promise<ExtendedGroup[]> => {
   const { collections: tabCollections, customItems, globals: tabGlobals } = tab
 
   const showAll = !tabCollections && !tabGlobals
@@ -72,7 +73,13 @@ const computeGroupsForTab = (
         label: item.label,
       }) as ExtendedEntity
 
-    for (const item of customItems) {
+    // Filter custom items by access
+    const accessResults = await Promise.all(
+      customItems.map((item) => (item.access && req ? item.access({ item, req }) : true)),
+    )
+    const visibleItems = customItems.filter((_, i) => accessResults[i])
+
+    for (const item of visibleItems) {
       if (item.group) {
         const itemGroupLabel = extractLocalizedValue(item.group, currentLang)
         const existingGroup = result.find((g) => {
@@ -117,6 +124,7 @@ const computeGroupsForTab = (
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => {
   const {
+    documentSubViewType,
     i18n,
     locale,
     params,
@@ -126,9 +134,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     searchParams,
     sidebarConfig,
     user,
-    visibleEntities,
-    documentSubViewType,
     viewType,
+    visibleEntities,
   } = props
 
   if (!payload?.config) {
@@ -186,28 +193,28 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   }
 
   const beforeNavLinksRendered = RenderServerComponent({
+    clientProps,
     Component: beforeNavLinks,
     importMap: payload.importMap,
     serverProps,
-    clientProps,
   })
 
   const afterNavLinksRendered = RenderServerComponent({
+    clientProps,
     Component: afterNavLinks,
     importMap: payload.importMap,
     serverProps,
-    clientProps,
   })
 
   const renderedSettingsMenu =
     settingsMenu && Array.isArray(settingsMenu)
       ? settingsMenu.map((item, index) =>
           RenderServerComponent({
+            clientProps,
             Component: item,
             importMap: payload.importMap,
             key: `settings-menu-item-${index}`,
             serverProps,
-            clientProps,
           }),
         )
       : []
@@ -223,10 +230,17 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     ],
   }
 
+  // Filter all tab bar items by access
+  const allConfigTabs = config.tabs ?? []
+  const accessResults = await Promise.all(
+    allConfigTabs.map((t) => (t.access && req ? t.access({ item: t, req }) : true)),
+  )
+  const visibleTabItems = allConfigTabs.filter((_, i) => accessResults[i])
+
   // Read active tab from cookie
   const cookieStore = await cookies()
   const storedTabId = cookieStore.get(COOKIE_KEY)?.value
-  const tabs = config.tabs?.filter((t) => t.type === 'tab') ?? []
+  const tabs = visibleTabItems.filter((t) => t.type === 'tab') as SidebarTabContentType[]
   const defaultTabId = tabs[0]?.id ?? 'default'
   const initialActiveTabId =
     storedTabId && tabs.some((t) => t.id === storedTabId) ? storedTabId : defaultTabId
@@ -259,16 +273,18 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
 
     if (config.customComponents?.NavItem) {
       const label = getTranslation(entity.label, i18n)
-      const { path, clientProps: extraProps } = resolveSidebarComponent(config.customComponents.NavItem)
+      const { clientProps: extraProps, path } = resolveSidebarComponent(
+        config.customComponents.NavItem,
+      )
       return RenderServerComponent({
+        clientProps: { id, badgeConfig, entity, href, label, ...extraProps },
         Component: path,
         importMap: payload.importMap,
         key,
-        clientProps: { entity, href, id, badgeConfig, label, ...extraProps },
       })
     }
 
-    return <NavItem key={key} badgeConfig={badgeConfig} entity={entity} href={href} id={id} />
+    return <NavItem badgeConfig={badgeConfig} entity={entity} href={href} id={id} key={key} />
   }
 
   /**
@@ -286,17 +302,19 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     }
 
     if (config.customComponents?.NavGroup) {
-      const { path, clientProps: extraProps } = resolveSidebarComponent(config.customComponents.NavGroup)
+      const { clientProps: extraProps, path } = resolveSidebarComponent(
+        config.customComponents.NavGroup,
+      )
       return RenderServerComponent({
+        clientProps: {
+          children: items,
+          isOpen: navPreferences?.groups?.[translatedLabel]?.open,
+          label: translatedLabel,
+          ...extraProps,
+        },
         Component: path,
         importMap: payload.importMap,
         key,
-        clientProps: {
-          label: translatedLabel,
-          isOpen: navPreferences?.groups?.[translatedLabel]?.open,
-          children: items,
-          ...extraProps,
-        },
       })
     }
 
@@ -314,7 +332,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   // Pre-render content for every tab on the server
   const tabsContent: Record<string, React.ReactNode> = {}
   for (const tab of tabs) {
-    const tabGroups = computeGroupsForTab(tab, groups, currentLang)
+    const tabGroups = await computeGroupsForTab(tab, groups, currentLang, req)
     tabsContent[tab.id] = (
       <Fragment>{tabGroups.map((group, i) => renderGroup(group, `${tab.id}-${i}`))}</Fragment>
     )
@@ -327,7 +345,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     ) : undefined
 
   // Build server-side icon and tab button rendering
-  const allTabItems = config.tabs ?? []
+  const allTabItems = visibleTabItems
   const hasCustomTabButton = !!config.customComponents?.TabButton
   const hasAnyIconComponent = allTabItems.some((t) => t.iconComponent)
 
@@ -343,11 +361,13 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       // Resolve icon: custom iconComponent > default Lucide
       let iconNode: React.ReactNode
       if (item.iconComponent) {
-        const { path: iconPath, clientProps: iconExtraProps } = resolveSidebarComponent(item.iconComponent)
+        const { clientProps: iconExtraProps, path: iconPath } = resolveSidebarComponent(
+          item.iconComponent,
+        )
         iconNode = RenderServerComponent({
+          clientProps: { id: item.id, type: item.type, label, ...iconExtraProps },
           Component: iconPath,
           importMap: payload.importMap,
-          clientProps: { id: item.id, label, type: item.type, ...iconExtraProps },
         })
       } else {
         iconNode = <Icon name={item.icon!} size={20} />
@@ -357,27 +377,27 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
         // Compute href for links
         let href: string | undefined
         if (item.type === 'link') {
-          href = item.isExternal
-            ? item.href
-            : formatAdminURL({ adminRoute, path: item.href })
+          href = item.isExternal ? item.href : formatAdminURL({ adminRoute, path: item.href })
         }
 
-        const { path: tabBtnPath, clientProps: tabBtnExtraProps } = resolveSidebarComponent(config.customComponents!.TabButton!)
+        const { clientProps: tabBtnExtraProps, path: tabBtnPath } = resolveSidebarComponent(
+          config.customComponents!.TabButton!,
+        )
         renderedTabItems.push(
           RenderServerComponent({
-            Component: tabBtnPath,
-            importMap: payload.importMap,
-            key: item.id,
             clientProps: {
+              id: item.id,
+              type: item.type,
               badge: item.badge,
               href,
               icon: iconNode,
-              id: item.id,
               isExternal: item.type === 'link' ? item.isExternal : undefined,
               label,
-              type: item.type,
               ...tabBtnExtraProps,
             },
+            Component: tabBtnPath,
+            importMap: payload.importMap,
+            key: item.id,
           }),
         )
       } else if (item.iconComponent) {
@@ -388,11 +408,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
 
   const customNavContent = config.customComponents?.NavContent
     ? (() => {
-        const { path, clientProps: extraProps } = resolveSidebarComponent(config.customComponents!.NavContent!)
+        const { clientProps: extraProps, path } = resolveSidebarComponent(
+          config.customComponents.NavContent,
+        )
         return RenderServerComponent({
-          Component: path,
-          importMap: payload.importMap,
-          key: 'enhanced-sidebar-nav-content',
           clientProps: {
             afterNavLinks: afterNavLinksRendered,
             allContent,
@@ -401,6 +420,9 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
             tabsContent,
             ...extraProps,
           },
+          Component: path,
+          importMap: payload.importMap,
+          key: 'enhanced-sidebar-nav-content',
         })
       })()
     : undefined

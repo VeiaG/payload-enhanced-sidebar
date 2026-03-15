@@ -1,5 +1,5 @@
 import type { icons, LucideIcon } from 'lucide-react'
-import type { CollectionSlug, GlobalSlug, Where } from 'payload'
+import type { CollectionSlug, GlobalSlug, PayloadRequest, Where } from 'payload'
 import type { ReactNode } from 'react'
 
 export type IconName = keyof typeof icons
@@ -97,6 +97,28 @@ export type BadgeConfig = BadgeConfigApi | BadgeConfigCollectionCount | BadgeCon
 export type BadgeValues = Record<string, number | ReactNode>
 
 // ============================================
+// Access Control Types
+// ============================================
+
+/**
+ * Access function for a tab or link in the tabs bar.
+ * Return `false` to hide the item entirely (both the button and its content).
+ */
+export type TabAccessFunction = (args: {
+  item: SidebarTab
+  req: PayloadRequest
+}) => boolean | Promise<boolean>
+
+/**
+ * Access function for a custom item inside a tab.
+ * Return `false` to hide the item from the nav.
+ */
+export type ItemAccessFunction = (args: {
+  item: SidebarTabItem
+  req: PayloadRequest
+}) => boolean | Promise<boolean>
+
+// ============================================
 // Enhanced Sidebar Types
 // ============================================
 
@@ -149,6 +171,11 @@ type TabIconConfig =
  */
 export type SidebarTabContent = {
   /**
+   * Access control function. Called server-side with the current request.
+   * Return `false` to hide this tab (button + content) entirely.
+   */
+  access?: TabAccessFunction
+  /**
    * Badge configuration for this tab.
    * Shows a badge on the tab icon in the tabs bar.
    */
@@ -180,6 +207,11 @@ export type SidebarTabContent = {
 
 type SidebarTabLinkBase = {
   /**
+   * Access control function. Called server-side with the current request.
+   * Return `false` to hide this link entirely.
+   */
+  access?: TabAccessFunction
+  /**
    * Badge configuration for this link.
    * Shows a badge on the link icon in the tabs bar.
    */
@@ -210,6 +242,11 @@ export type SidebarTabLink = SidebarTabLinkExternal | SidebarTabLinkInternal
 export type SidebarTab = SidebarTabContent | SidebarTabLink
 
 interface BaseSidebarTabItem {
+  /**
+   * Access control function. Called server-side with the current request.
+   * Return `false` to hide this item from the nav.
+   */
+  access?: ItemAccessFunction
   /**
    * Group to add this item to.
    * If matches an existing collection group label, item will be merged into that group.
