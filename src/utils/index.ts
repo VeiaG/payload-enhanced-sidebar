@@ -1,4 +1,4 @@
-import type { LocalizedString, SidebarComponent } from '../types'
+import type { EnhancedSidebarConfig, LocalizedString, SidebarComponent } from '../types'
 
 export const convertSlugToTitle = (slug: string): string => {
   return slug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
@@ -15,6 +15,24 @@ export const resolveSidebarComponent = (
   }
   return { clientProps: component.clientProps ?? {}, path: component.path }
 }
+
+/**
+ * Strips all non-serializable values (functions) from the sidebar config
+ * before passing it to client components.
+ */
+export const sanitizeSidebarConfig = (config: EnhancedSidebarConfig): EnhancedSidebarConfig => ({
+  ...config,
+  tabs: config.tabs?.map((tab) => {
+    const { access: _, ...tabRest } = tab
+    if (tabRest.type === 'tab' && tabRest.customItems) {
+      return {
+        ...tabRest,
+        customItems: tabRest.customItems.map(({ access: __, ...item }) => item),
+      }
+    }
+    return tabRest
+  }),
+})
 
 export const extractLocalizedValue = (
   value: LocalizedString | undefined,

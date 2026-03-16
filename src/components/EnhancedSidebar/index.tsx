@@ -20,7 +20,7 @@ import type {
   SidebarTabItem,
 } from '../../types'
 
-import { extractLocalizedValue, resolveSidebarComponent } from '../../utils'
+import { extractLocalizedValue, resolveSidebarComponent, sanitizeSidebarConfig } from '../../utils'
 import { getNavPrefs } from './getNavPrefs'
 import { Icon } from './Icon'
 import { NavItem } from './NavItem'
@@ -231,6 +231,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   }
 
   // Filter all tab bar items by access — fail-closed: missing req denies access
+  // Note: req can be undefined on 404 pages due to a Payload bug (NotFound view omits req from props)
   const allConfigTabs = config.tabs ?? []
   const tabAccessResults = await Promise.all(
     allConfigTabs.map((t) => (t.access ? (req ? t.access({ item: t, req }) : false) : true)),
@@ -256,10 +257,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     let href: string
     let id: string
 
-    if (type === 'collection') {
+    if (type === EntityType.collection) {
       href = formatAdminURL({ adminRoute, path: `/collections/${slug}` })
       id = `nav-${slug}`
-    } else if (type === 'global') {
+    } else if (type === EntityType.global) {
       href = formatAdminURL({ adminRoute, path: `/globals/${slug}` })
       id = `nav-global-${slug}`
     } else if (type === 'custom' && entity.href) {
@@ -436,6 +437,9 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       })()
     : undefined
 
+  // Strip access functions and use only visible tabs before passing to client component
+  const clientSidebarConfig = sanitizeSidebarConfig({ ...config, tabs: visibleTabItems })
+
   return (
     <SidebarContent
       afterNavLinks={afterNavLinksRendered}
@@ -445,7 +449,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       initialActiveTabId={initialActiveTabId}
       renderedTabItems={renderedTabItems.length > 0 ? renderedTabItems : undefined}
       settingsMenu={renderedSettingsMenu}
-      sidebarConfig={config}
+      sidebarConfig={clientSidebarConfig}
       tabIcons={Object.keys(tabIcons).length > 0 ? tabIcons : undefined}
       tabsContent={tabsContent}
     />

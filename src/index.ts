@@ -3,7 +3,7 @@ import { type Config, deepMerge } from 'payload'
 import type { EnhancedSidebarConfig } from './types'
 
 import { sidebarTranslations } from './translations'
-import { resolveSidebarComponent } from './utils'
+import { resolveSidebarComponent, sanitizeSidebarConfig } from './utils'
 
 /**
  * Default configuration for the enhanced sidebar
@@ -105,7 +105,7 @@ export const payloadEnhancedSidebar =
       // Add our internal provider at the beginning (so user providers can override)
       config.admin.components.providers.unshift({
         clientProps: {
-          sidebarConfig,
+          sidebarConfig: sanitizeSidebarConfig(sidebarConfig),
         },
         path: '@veiag/payload-enhanced-sidebar/client#InternalBadgeProvider',
       })

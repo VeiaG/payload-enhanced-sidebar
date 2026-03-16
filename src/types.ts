@@ -506,14 +506,6 @@ export interface EnhancedSidebarConfig {
   disabled?: boolean
 
   /**
-   * Custom icons for collections and globals in the default tab.
-   */
-  icons?: {
-    collections?: Partial<Record<CollectionSlug, IconName>>
-    globals?: Partial<Record<GlobalSlug, IconName>>
-  }
-
-  /**
    * Show logout button at the bottom of the tabs bar.
    * @default true
    */
@@ -540,7 +532,8 @@ export type GenericCollectionDocument = {
 interface BaseExtendedEntity {
   label: Record<string, string> | string
   slug: string
-  type: 'collection' | 'custom' | 'global'
+  // 'collections' | 'globals' are EntityType enum values from groupNavItems output; 'custom' is ours
+  type: 'collections' | 'custom' | 'globals'
 }
 
 interface InternalExtendedEntity extends BaseExtendedEntity {

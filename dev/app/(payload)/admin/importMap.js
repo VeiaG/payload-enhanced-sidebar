@@ -34,10 +34,6 @@ import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } fro
 import { InternalBadgeProvider as InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324 } from '@veiag/payload-enhanced-sidebar/client'
 import { TestBadgeProvider as TestBadgeProvider_bf163306dc8f99f46056a1312f80979d } from '../../../components/TestBadgeProvider'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
-import { CustomNavItem as CustomNavItem_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
-import { CustomNavGroup as CustomNavGroup_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
-import { CustomNavContent as CustomNavContent_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
-import { CustomTabButton as CustomTabButton_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 import { CustomTabIcon as CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 
 export const importMap = {
@@ -77,9 +73,5 @@ export const importMap = {
   "@veiag/payload-enhanced-sidebar/client#InternalBadgeProvider": InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324,
   "./components/TestBadgeProvider#TestBadgeProvider": TestBadgeProvider_bf163306dc8f99f46056a1312f80979d,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
-  "./components/CustomNavComponents#CustomNavItem": CustomNavItem_2d6fad3ce4c2c7169593aaf3566963f3,
-  "./components/CustomNavComponents#CustomNavGroup": CustomNavGroup_2d6fad3ce4c2c7169593aaf3566963f3,
-  "./components/CustomNavComponents#CustomNavContent": CustomNavContent_2d6fad3ce4c2c7169593aaf3566963f3,
-  "./components/CustomNavComponents#CustomTabButton": CustomTabButton_2d6fad3ce4c2c7169593aaf3566963f3,
   "./components/CustomNavComponents#CustomTabIcon": CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3
 }

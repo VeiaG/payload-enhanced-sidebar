@@ -386,10 +386,10 @@ const buildConfigWithMemoryDB = async () => {
           posts: { type: 'collection-count', color: 'primary' },
         },
         customComponents: {
-          NavContent: './components/CustomNavComponents#CustomNavContent',
-          NavGroup: './components/CustomNavComponents#CustomNavGroup',
-          NavItem: './components/CustomNavComponents#CustomNavItem',
-          TabButton: './components/CustomNavComponents#CustomTabButton',
+          // NavContent: './components/CustomNavComponents#CustomNavContent',
+          // NavGroup: './components/CustomNavComponents#CustomNavGroup',
+          // NavItem: './components/CustomNavComponents#CustomNavItem',
+          // TabButton: './components/CustomNavComponents#CustomTabButton',
         },
         tabs: [
           {
@@ -398,6 +398,8 @@ const buildConfigWithMemoryDB = async () => {
             href: '/',
             iconComponent: './components/CustomNavComponents#CustomTabIcon',
             label: { en: 'Dashboard', uk: 'Головна' },
+            // access: always granted — link is visible
+            access: ({ req }) => Boolean(req.user),
           },
           {
             id: 'content',
@@ -478,18 +480,24 @@ const buildConfigWithMemoryDB = async () => {
                 href: 'https://dashboard.stripe.com',
                 isExternal: true,
                 label: 'Stripe',
+                // access: always hidden — demonstrates item-level access denial
+                access: () => false,
               },
               {
                 slug: 'shipping',
                 group: 'Integrations',
                 href: '/shipping',
                 label: { en: 'Shipping', uk: 'Доставка' },
+                // access: async example — always granted
+                access: async ({ req }) => Boolean(req.user),
               },
               // Ungrouped
               {
                 slug: 'reports',
                 href: '/reports',
                 label: { en: 'Reports', uk: 'Звіти' },
+                // access: only users whose email includes 'admin'
+                access: ({ req }) => Boolean(req.user?.email?.includes('admin')),
               },
             ],
             icon: 'ShoppingCart',
@@ -498,6 +506,9 @@ const buildConfigWithMemoryDB = async () => {
           {
             id: 'marketing',
             type: 'tab',
+            // access: only users with 'admin' in their email see this tab
+            // change to () => false to always hide, or () => true to always show
+            access: ({ req }) => Boolean(req.user?.email?.includes('admin')),
             collections: ['campaigns', 'newsletters', 'subscribers'],
             customItems: [
               // New 'Email' group
