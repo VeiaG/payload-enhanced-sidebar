@@ -152,7 +152,9 @@ export const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   isExternal,
   label,
 }) => {
-  const { isActive } = useTabState(id)
+  const { isActive: isTabActive } = useTabState(id)
+  const { isActive: isLinkActive } = useNavItemState(href ?? '')
+  const isActive = type === 'link' ? isLinkActive : isTabActive
   const { onTabChange } = useEnhancedSidebar()
 
   const style: React.CSSProperties = {
@@ -236,6 +238,7 @@ export const CustomNavGroup: React.FC<CustomNavGroupProps> = ({
   return (
     <div style={{ marginBottom: '8px' }}>
       <button
+        aria-expanded={open}
         onClick={() => setOpen(!open)}
         style={{
           alignItems: 'center',

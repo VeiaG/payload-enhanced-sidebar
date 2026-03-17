@@ -73,9 +73,13 @@ const computeGroupsForTab = async (
         label: item.label,
       }) as ExtendedEntity
 
-    // Filter custom items by access — fail-closed: missing req denies access
+    // Filter custom items by access — fail-closed: missing req or thrown error denies access
     const accessResults = await Promise.all(
-      customItems.map((item) => (item.access ? (req ? item.access({ item, req }) : false) : true)),
+      customItems.map((item) =>
+        Promise.resolve()
+          .then(() => (item.access ? (req ? item.access({ item, req }) : false) : true))
+          .catch(() => false),
+      ),
     )
     const visibleItems = customItems.filter((_, i) => accessResults[i])
 
@@ -234,7 +238,11 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   // Note: req can be undefined on 404 pages due to a Payload bug (NotFound view omits req from props)
   const allConfigTabs = config.tabs ?? []
   const tabAccessResults = await Promise.all(
-    allConfigTabs.map((t) => (t.access ? (req ? t.access({ item: t, req }) : false) : true)),
+    allConfigTabs.map((t) =>
+      Promise.resolve()
+        .then(() => (t.access ? (req ? t.access({ item: t, req }) : false) : true))
+        .catch(() => false),
+    ),
   )
   const visibleTabItems = allConfigTabs.filter((_, i) => tabAccessResults[i])
 
@@ -242,7 +250,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   const cookieStore = await cookies()
   const storedTabId = cookieStore.get(COOKIE_KEY)?.value
   const tabs = visibleTabItems.filter((t) => t.type === 'tab') as SidebarTabContentType[]
-  const defaultTabId = tabs[0]?.id ?? 'default'
+  const defaultTabId = tabs[0]?.id ?? ''
   const initialActiveTabId =
     storedTabId && tabs.some((t) => t.id === storedTabId) ? storedTabId : defaultTabId
 
@@ -345,9 +353,11 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     )
   }
 
-  // For the no-tabs fallback
+  // For the no-tabs fallback — only show all content when the config has no tab-type items at all.
+  // If tabs exist but are all hidden by access control, show nothing instead of the full nav.
+  const configuredTabsCount = (config.tabs ?? []).filter((t) => t.type === 'tab').length
   const allContent =
-    tabs.length === 0 ? (
+    configuredTabsCount === 0 ? (
       <Fragment>{groups.map((group, i) => renderGroup(group, `all-${i}`))}</Fragment>
     ) : undefined
 

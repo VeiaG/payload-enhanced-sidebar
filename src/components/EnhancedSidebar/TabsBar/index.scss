@@ -50,6 +50,19 @@
           display: none;
         }
       }
+
+      // RTL: tooltip appears to the left of the button
+      [dir='rtl'] & .tooltip {
+        left: auto;
+        right: calc(100% + 8px);
+
+        &--position-top,
+        &--position-bottom {
+          bottom: auto;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+      }
     }
 
     &__tab,

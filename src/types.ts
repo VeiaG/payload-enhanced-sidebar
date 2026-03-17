@@ -328,6 +328,7 @@ export type SidebarTabItem = ExternalHrefItem | InternalHrefItem
  * @example
  * ```tsx
  * 'use client'
+ * import React from 'react'
  * import { useNavItemState } from '@veiag/payload-enhanced-sidebar'
  * import type { CustomNavItemProps } from '@veiag/payload-enhanced-sidebar'
  *
@@ -356,6 +357,7 @@ export type CustomNavItemProps = {
  * @example
  * ```tsx
  * 'use client'
+ * import React from 'react'
  * import type { CustomNavGroupProps } from '@veiag/payload-enhanced-sidebar'
  *
  * export const MyNavGroup: React.FC<CustomNavGroupProps> = ({ label, isOpen, children }) => {
@@ -378,6 +380,7 @@ export type CustomNavGroupProps = {
  * @example
  * ```tsx
  * 'use client'
+ * import React from 'react'
  * import type { CustomTabIconProps } from '@veiag/payload-enhanced-sidebar'
  *
  * export const MyIcon: React.FC<CustomTabIconProps> = ({ id, label }) => (
@@ -404,6 +407,7 @@ export type CustomTabIconProps = {
  * @example
  * ```tsx
  * 'use client'
+ * import React from 'react'
  * import type { CustomTabButtonProps } from '@veiag/payload-enhanced-sidebar'
  * import { useTabState, useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar'
  *

@@ -28,8 +28,11 @@ export const TabButton: React.FC<TabButtonProps> = ({ icon, isActive, onTabChang
   return (
     <>
       <button
+        aria-label={label}
         className={`${tabsBaseClass}__tab ${isActive ? `${tabsBaseClass}__tab--active` : ''}`}
+        onBlur={() => setHovered(false)}
         onClick={() => onTabChange(tab.id)}
+        onFocus={() => setHovered(true)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         type="button"
@@ -61,8 +64,11 @@ export const TabLink: React.FC<TabLinkProps> = ({ href, icon, isActive, link }) 
 
   return (
     <Link
+      aria-label={label}
       className={`${tabsBaseClass}__link ${isActive ? `${tabsBaseClass}__link--active` : ''}`}
       href={href}
+      onBlur={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       rel={link.isExternal ? 'noopener noreferrer' : undefined}
