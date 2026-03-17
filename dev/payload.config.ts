@@ -534,6 +534,12 @@ const buildConfigWithMemoryDB = async () => {
             icon: 'Megaphone',
             label: { en: 'Marketing', uk: 'Маркетинг' },
           },
+          // Custom separator between marketing and settings
+          {
+            id: 'separator-1',
+            type: 'custom',
+            component: './components/CustomNavComponents#TabSeparator',
+          },
           {
             id: 'settings',
             type: 'tab',

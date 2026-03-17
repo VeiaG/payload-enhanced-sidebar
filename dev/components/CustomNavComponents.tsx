@@ -1,19 +1,19 @@
 'use client'
 
-import { Link } from '@payloadcms/ui'
-import React from 'react'
-
 import type {
   CustomNavContentProps,
   CustomNavGroupProps,
   CustomNavItemProps,
   CustomTabButtonProps,
   CustomTabIconProps,
+  CustomTabsBarComponentProps,
 } from '@veiag/payload-enhanced-sidebar'
-import { useEnhancedSidebar, useNavItemState, useTabState } from '@veiag/payload-enhanced-sidebar'
-import { useState } from 'react'
 
-export const CustomNavItem: React.FC<CustomNavItemProps> = ({ entity, href, id, label }) => {
+import { Link } from '@payloadcms/ui'
+import { useEnhancedSidebar, useNavItemState, useTabState } from '@veiag/payload-enhanced-sidebar'
+import React, { useState } from 'react'
+
+export const CustomNavItem: React.FC<CustomNavItemProps> = ({ id, entity, href, label }) => {
   const { isActive, isCurrentPage } = useNavItemState(href)
 
   const content = (
@@ -144,13 +144,13 @@ export const CustomTabIcon: React.FC<CustomTabIconProps> = ({ id, label }) => {
 }
 
 export const CustomTabButton: React.FC<CustomTabButtonProps> = ({
+  id,
+  type,
   badge,
   href,
   icon,
-  id,
   isExternal,
   label,
-  type,
 }) => {
   const { isActive } = useTabState(id)
   const { onTabChange } = useEnhancedSidebar()
@@ -175,7 +175,16 @@ export const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   const content = (
     <>
       {icon}
-      <span style={{ fontSize: '8px', fontWeight: 700, maxWidth: '40px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <span
+        style={{
+          fontSize: '8px',
+          fontWeight: 700,
+          maxWidth: '40px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         {label}
       </span>
     </>
@@ -202,7 +211,26 @@ export const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   )
 }
 
-export const CustomNavGroup: React.FC<CustomNavGroupProps> = ({ label, isOpen = true, children }) => {
+export const TabSeparator: React.FC<CustomTabsBarComponentProps> = () => {
+  return (
+    <div
+      style={{
+        background: 'var(--theme-elevation-150)',
+        borderRadius: '2px',
+        height: '1px',
+        margin: '4px 8px',
+        width: 'calc(100% - 16px)',
+      }}
+      title="Separator"
+    />
+  )
+}
+
+export const CustomNavGroup: React.FC<CustomNavGroupProps> = ({
+  children,
+  isOpen = true,
+  label,
+}) => {
   const [open, setOpen] = useState(isOpen)
 
   return (

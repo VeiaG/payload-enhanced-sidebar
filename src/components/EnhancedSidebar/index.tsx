@@ -354,15 +354,39 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   // Build server-side icon and tab button rendering
   const allTabItems = visibleTabItems
   const hasCustomTabButton = !!config.customComponents?.TabButton
-  const hasAnyIconComponent = allTabItems.some((t) => t.iconComponent)
+  const hasAnyIconComponent = allTabItems.some((t) => t.type !== 'custom' && t.iconComponent)
 
   // tabIcons: per-id icon node (only built when no custom TabButton, just iconComponent overrides)
   const tabIcons: Record<string, React.ReactNode> = {}
   // renderedTabItems: fully custom tab button nodes (built when customComponents.TabButton is set)
   const renderedTabItems: React.ReactNode[] = []
+  // customTabComponents: server-rendered components for type:'custom' tab bar slots
+  const customTabComponents: Record<string, React.ReactNode> = {}
+
+  // Pre-render all type:'custom' items
+  for (const item of allTabItems) {
+    if (item.type === 'custom') {
+      const { clientProps: extraProps, path } = resolveSidebarComponent(item.component)
+      customTabComponents[item.id] = RenderServerComponent({
+        clientProps: { id: item.id, ...extraProps },
+        Component: path,
+        importMap: payload.importMap,
+        key: item.id,
+        serverProps,
+      })
+    }
+  }
 
   if (hasCustomTabButton || hasAnyIconComponent) {
     for (const item of allTabItems) {
+      if (item.type === 'custom') {
+        // Include pre-rendered custom slot in renderedTabItems when using custom TabButton
+        if (hasCustomTabButton) {
+          renderedTabItems.push(customTabComponents[item.id])
+        }
+        continue
+      }
+
       const label = getTranslation(item.label, i18n)
 
       // Resolve icon: custom iconComponent > default Lucide
@@ -446,6 +470,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       allContent={allContent}
       beforeNavLinks={beforeNavLinksRendered}
       customNavContent={customNavContent}
+      customTabComponents={Object.keys(customTabComponents).length > 0 ? customTabComponents : undefined}
       initialActiveTabId={initialActiveTabId}
       renderedTabItems={renderedTabItems.length > 0 ? renderedTabItems : undefined}
       settingsMenu={renderedSettingsMenu}

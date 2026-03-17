@@ -46,7 +46,7 @@ export const InternalBadgeProvider: React.FC<InternalBadgeProviderProps> = ({
     // From tabs
     if (sidebarConfig.tabs) {
       for (const tab of sidebarConfig.tabs) {
-        if (tab.badge && tab.badge.type !== 'provider') {
+        if (tab.type !== 'custom' && tab.badge && tab.badge.type !== 'provider') {
           badges.push({ slug: tab.id, config: tab.badge })
         }
       }

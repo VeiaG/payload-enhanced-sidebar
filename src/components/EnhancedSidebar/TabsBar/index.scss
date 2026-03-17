@@ -25,6 +25,33 @@
       padding-top: var(--app-header-height);
     }
 
+    // Override Payload Tooltip positioning — it defaults to top/bottom (for toolbars),
+    // but in a left sidebar we want it to appear to the right of the button.
+    &__tab,
+    &__link,
+    &__action {
+      .tooltip {
+        left: calc(100% + 8px);
+        top: 50%;
+        transform: translateY(-50%);
+        white-space: nowrap;
+
+        // Neutralize the top/bottom transform that Payload applies
+        &--position-top,
+        &--position-bottom {
+          bottom: auto;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+
+        // Hide the caret — it doesn't make sense for right-side positioning
+        &::before,
+        &::after {
+          display: none;
+        }
+      }
+    }
+
     &__tab,
     &__link {
       position: relative;

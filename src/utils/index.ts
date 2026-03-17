@@ -34,6 +34,7 @@ export const sanitizeSidebarConfig = (config: EnhancedSidebarConfig): EnhancedSi
   }),
 })
 
+
 export const extractLocalizedValue = (
   value: LocalizedString | undefined,
   locale: string,

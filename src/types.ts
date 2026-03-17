@@ -18,7 +18,7 @@ export type InternalIcon = IconName | LucideIcon
 export type BadgeColor = 'default' | 'error' | 'primary' | 'success' | 'warning'
 
 /**
- * Badge configuration Trr API-based fetching
+ * Badge configuration For API-based fetching
  */
 export interface BadgeConfigApi {
   /**
@@ -237,9 +237,36 @@ type SidebarTabLinkInternal = {
  */
 export type SidebarTabLink = SidebarTabLinkExternal | SidebarTabLinkInternal
 /**
- * A tab or link in the sidebar tabs bar
+ * A custom component rendered in the tabs bar (spacer, separator, badge, etc.).
+ * Does not open any content — it's purely a visual slot in the tabs column.
  */
-export type SidebarTab = SidebarTabContent | SidebarTabLink
+export type SidebarTabCustom = {
+  /**
+   * Access control function. Called server-side with the current request.
+   * Return `false` to hide this item entirely.
+   */
+  access?: TabAccessFunction
+  /**
+   * Component to render. Receives `{ id }` plus any `clientProps` you pass.
+   * Supports a plain string path or `{ path, clientProps }`.
+   */
+  component: SidebarComponent
+  /** Unique identifier */
+  id: string
+  type: 'custom'
+}
+
+/**
+ * Props passed to a custom tabs bar component (spacer, separator, etc.).
+ */
+export type CustomTabsBarComponentProps = {
+  id: string
+}
+
+/**
+ * A tab, link, or custom component in the sidebar tabs bar
+ */
+export type SidebarTab = SidebarTabContent | SidebarTabCustom | SidebarTabLink
 
 interface BaseSidebarTabItem {
   /**

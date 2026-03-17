@@ -1,8 +1,8 @@
 'use client'
 
 import { getTranslation } from '@payloadcms/translations'
-import { Link, useTranslation } from '@payloadcms/ui'
-import React from 'react'
+import { Link, Tooltip, useTranslation } from '@payloadcms/ui'
+import React, { useState } from 'react'
 
 import type { SidebarTabContent, SidebarTabLink } from '../../../types'
 
@@ -23,17 +23,26 @@ export const TabButton: React.FC<TabButtonProps> = ({ icon, isActive, onTabChang
   const { i18n } = useTranslation()
   const label = getTranslation(tab.label, i18n)
   const { value } = useBadge(tab.badge, tab.id)
+  const [hovered, setHovered] = useState(false)
 
   return (
-    <button
-      className={`${tabsBaseClass}__tab ${isActive ? `${tabsBaseClass}__tab--active` : ''}`}
-      onClick={() => onTabChange(tab.id)}
-      title={label}
-      type="button"
-    >
-      {icon ?? <Icon name={tab.icon!} size={20} />}
-      {value !== undefined && <Badge color={tab.badge?.color} position="absolute" value={value} />}
-    </button>
+    <>
+      <button
+        className={`${tabsBaseClass}__tab ${isActive ? `${tabsBaseClass}__tab--active` : ''}`}
+        onClick={() => onTabChange(tab.id)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        type="button"
+      >
+        {icon ?? <Icon name={tab.icon!} size={20} />}
+        {value !== undefined && (
+          <Badge color={tab.badge?.color} position="absolute" value={value} />
+        )}
+        <Tooltip alignCaret="left" show={hovered}>
+          {label}
+        </Tooltip>
+      </button>
+    </>
   )
 }
 
@@ -48,17 +57,22 @@ export const TabLink: React.FC<TabLinkProps> = ({ href, icon, isActive, link }) 
   const { i18n } = useTranslation()
   const label = getTranslation(link.label, i18n)
   const { value } = useBadge(link.badge, link.id)
+  const [hovered, setHovered] = useState(false)
 
   return (
     <Link
       className={`${tabsBaseClass}__link ${isActive ? `${tabsBaseClass}__link--active` : ''}`}
       href={href}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       rel={link.isExternal ? 'noopener noreferrer' : undefined}
       target={link.isExternal ? '_blank' : undefined}
-      title={label}
     >
       {icon ?? <Icon name={link.icon!} size={20} />}
       {value !== undefined && <Badge color={link.badge?.color} position="absolute" value={value} />}
+      <Tooltip alignCaret="left" show={hovered}>
+        {label}
+      </Tooltip>
     </Link>
   )
 }

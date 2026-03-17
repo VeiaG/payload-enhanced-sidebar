@@ -82,7 +82,13 @@ export const payloadEnhancedSidebar =
       }
       seenTabIds.add(tab.id)
 
-      if (tab.iconComponent) {
+      if (tab.type === 'custom') {
+        const { path } = resolveSidebarComponent(tab.component)
+        config.admin.dependencies[`enhanced-sidebar-custom-tab-${tab.id}`] = {
+          type: 'component',
+          path,
+        }
+      } else if (tab.iconComponent) {
         const { path } = resolveSidebarComponent(tab.iconComponent)
         config.admin.dependencies[`enhanced-sidebar-icon-${tab.id}`] = {
           type: 'component',
@@ -94,7 +100,9 @@ export const payloadEnhancedSidebar =
     // Check if we have any badges to fetch (api or collection-count)
     const hasBadgesToFetch =
       sidebarConfig.badges ||
-      sidebarConfig.tabs?.some((tab) => tab.badge && tab.badge.type !== 'provider')
+      sidebarConfig.tabs?.some(
+        (tab) => tab.type !== 'custom' && tab.badge && tab.badge.type !== 'provider',
+      )
 
     // Add InternalBadgeProvider if we have badges to fetch
     if (hasBadgesToFetch) {
@@ -146,8 +154,10 @@ export type {
   CustomNavItemProps,
   CustomTabButtonProps,
   CustomTabIconProps,
+  CustomTabsBarComponentProps,
   EnhancedSidebarConfig,
   ItemAccessFunction,
   SidebarComponent,
+  SidebarTabCustom,
   TabAccessFunction,
 } from './types'

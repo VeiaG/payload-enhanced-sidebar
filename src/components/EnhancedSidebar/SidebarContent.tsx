@@ -16,6 +16,7 @@ export type SidebarContentProps = {
   allContent?: React.ReactNode
   beforeNavLinks?: React.ReactNode
   customNavContent?: React.ReactNode
+  customTabComponents?: Record<string, React.ReactNode>
   initialActiveTabId: string
   renderedTabItems?: React.ReactNode[]
   settingsMenu?: React.ReactNode[]
@@ -35,6 +36,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   allContent,
   beforeNavLinks,
   customNavContent,
+  customTabComponents,
   initialActiveTabId,
   renderedTabItems,
   settingsMenu,
@@ -61,6 +63,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       <SidebarWrapper baseClass={baseClass}>
         <TabsBar
           activeTabId={activeTabId}
+          customTabComponents={customTabComponents}
           onTabChange={handleTabChange}
           renderedTabItems={renderedTabItems}
           settingsMenu={settingsMenu}

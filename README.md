@@ -164,6 +164,7 @@ Array of tabs and links to show in the sidebar.
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
 | `customItems` | `SidebarTabItem[]` | No | Custom navigation items (see below) |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
+| `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
 
 > \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
 > If neither `collections` nor `globals` are specified, the tab shows all collections and globals.
@@ -181,9 +182,30 @@ Array of tabs and links to show in the sidebar.
 | `href` | `string` | Yes | URL |
 | `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
 | `badge` | `BadgeConfig` | No | Badge configuration for the link icon |
+| `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
 
 > \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
 
+**Custom slot (`type: 'custom'`)**
+
+Renders an arbitrary component in the tabs bar — useful for spacers, separators, decorative elements, etc. Does not open any navigation content.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | `string` | Yes | Unique identifier |
+| `type` | `'custom'` | Yes | Custom slot type |
+| `component` | `SidebarComponent` | Yes | Component to render (string path or `{ path, clientProps }`) |
+| `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
+
+The component receives `{ id }` plus any `clientProps` you pass. See [Custom Components](docs/custom-components.md) for details.
+
+```typescript
+{
+  id: 'separator',
+  type: 'custom',
+  component: './components/Sidebar#TabSeparator',
+}
+```
 
 ![Tab and Link active difference](docs/tab-link-active.png)
 
@@ -444,6 +466,43 @@ type ItemAccessFunction = (args: {
 ```
 
 > Default collections and globals already respect Payload's built-in access control — they are filtered by `visibleEntities` automatically. The `access` function is only needed for tabs, links, and custom items.
+
+### Behavior when `req` is unavailable
+
+Access functions are **fail-closed**: if `req` is not available (e.g. on certain error pages), all items with an `access` function will be hidden. This is a known limitation caused by a [Payload bug](https://github.com/payloadcms/payload/issues) where `req` is not passed to the Nav component on 404 admin pages.
+
+### Custom views and access control
+
+If you have custom admin views, you must pass `req` to `DefaultTemplate` for access control to work correctly. Retrieve it from `props.initPageResult.req`:
+
+```tsx
+import type { AdminViewProps } from 'payload'
+import { DefaultTemplate } from '@payloadcms/next/templates'
+
+export async function MyCustomView(props: AdminViewProps) {
+  const { initPageResult, params, searchParams } = props
+  const { permissions, req, visibleEntities } = initPageResult
+  const { i18n, locale, payload, user } = req
+
+  return (
+    <DefaultTemplate
+      i18n={i18n}
+      locale={locale}
+      params={params}
+      payload={payload}
+      permissions={permissions}
+      req={req}
+      searchParams={searchParams}
+      user={user ?? undefined}
+      visibleEntities={visibleEntities}
+    >
+      {/* your view content */}
+    </DefaultTemplate>
+  )
+}
+```
+
+Without `req={req}`, the sidebar will treat the page as unauthenticated and hide all access-controlled items.
 
 ### `showLogout`
 

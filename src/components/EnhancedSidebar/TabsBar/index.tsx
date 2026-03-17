@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
-import type { EnhancedSidebarConfig, SidebarTabContent, SidebarTabLink } from '../../../types'
+import type { EnhancedSidebarConfig, SidebarTab, SidebarTabContent, SidebarTabLink } from '../../../types'
 
 import { Icon } from '../Icon'
 import { SettingsMenuButton } from '../SettingsMenuButton'
@@ -17,6 +17,7 @@ const tabsBaseClass = 'tabs-bar'
 
 export type TabsBarProps = {
   activeTabId: string
+  customTabComponents?: Record<string, React.ReactNode>
   onTabChange: (tabId: string) => void
   renderedTabItems?: React.ReactNode[]
   settingsMenu?: React.ReactNode[]
@@ -26,6 +27,7 @@ export type TabsBarProps = {
 
 export const TabsBar: React.FC<TabsBarProps> = ({
   activeTabId,
+  customTabComponents,
   onTabChange,
   renderedTabItems,
   settingsMenu,
@@ -54,7 +56,11 @@ export const TabsBar: React.FC<TabsBarProps> = ({
   })
   const isFoldersActive = pathname.startsWith(folderURL)
 
-  const renderTabItem = (item: SidebarTabContent | SidebarTabLink) => {
+  const renderTabItem = (item: SidebarTab) => {
+    if (item.type === 'custom') {
+      return customTabComponents?.[item.id] ?? null
+    }
+
     if (item.type === 'tab') {
       return (
         <TabButton

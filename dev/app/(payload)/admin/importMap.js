@@ -35,6 +35,7 @@ import { InternalBadgeProvider as InternalBadgeProvider_bb20d92177fcc2ccf9f674de
 import { TestBadgeProvider as TestBadgeProvider_bf163306dc8f99f46056a1312f80979d } from '../../../components/TestBadgeProvider'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { CustomTabIcon as CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
+import { TabSeparator as TabSeparator_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 
 export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
@@ -73,5 +74,6 @@ export const importMap = {
   "@veiag/payload-enhanced-sidebar/client#InternalBadgeProvider": InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324,
   "./components/TestBadgeProvider#TestBadgeProvider": TestBadgeProvider_bf163306dc8f99f46056a1312f80979d,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
-  "./components/CustomNavComponents#CustomTabIcon": CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3
+  "./components/CustomNavComponents#CustomTabIcon": CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3,
+  "./components/CustomNavComponents#TabSeparator": TabSeparator_2d6fad3ce4c2c7169593aaf3566963f3
 }

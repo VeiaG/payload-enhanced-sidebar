@@ -11,6 +11,7 @@ The plugin allows replacing every visual piece of the sidebar with your own Reac
 | Nav content area | `customComponents.NavContent` | `CustomNavContentProps` | Entire `<nav>` scroll area |
 | Tab/link button | `customComponents.TabButton` | `CustomTabButtonProps` | Every button in the vertical tabs bar |
 | Per-tab icon | `tab.iconComponent` | `CustomTabIconProps` | The icon for one specific tab or link |
+| Custom slot | `tab.type: 'custom'` | `CustomTabsBarComponentProps` | Arbitrary component in the tabs bar (spacer, separator, etc.) |
 
 All paths follow Payload's component format: `'./path/to/file#ExportName'`.
 
@@ -404,6 +405,66 @@ payloadEnhancedSidebar({
 The `clientProps` you define are merged with the standard `CustomTabIconProps` props (`id`, `label`, `type`) before being passed to your component.
 
 The rendered icon is also passed as the `icon: ReactNode` prop to `TabButton` (default or custom). So if you combine `iconComponent` with `customComponents.TabButton`, your tab button receives the pre-rendered icon automatically.
+
+---
+
+## Custom tabs bar slot (`type: 'custom'`)
+
+A `type: 'custom'` item places an arbitrary component directly in the tabs bar column — between other tab/link buttons. It has no nav content and opens nothing. Useful for visual separators, spacers, banners, or anything else you want to inject into the tab column.
+
+```typescript
+payloadEnhancedSidebar({
+  tabs: [
+    { id: 'dashboard', type: 'link', href: '/', icon: 'House', label: 'Dashboard' },
+    {
+      id: 'separator',
+      type: 'custom',
+      component: './components/Sidebar#TabSeparator',
+    },
+    { id: 'content', type: 'tab', icon: 'FileText', label: 'Content', collections: ['posts'] },
+  ],
+})
+```
+
+**Props (`CustomTabsBarComponentProps`):**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `id` | `string` | Item id from config |
+
+Any additional props come from `clientProps` in the `component` config object:
+
+```typescript
+{
+  id: 'separator',
+  type: 'custom',
+  component: {
+    path: './components/Sidebar#TabSeparator',
+    clientProps: { color: 'red' },
+  },
+}
+```
+
+**Example — separator:**
+
+```tsx
+'use client'
+
+import type { CustomTabsBarComponentProps } from '@veiag/payload-enhanced-sidebar'
+
+export const TabSeparator: React.FC<CustomTabsBarComponentProps> = () => (
+  <div
+    style={{
+      background: 'var(--theme-elevation-150)',
+      borderRadius: '2px',
+      height: '1px',
+      margin: '4px 8px',
+    }}
+  />
+)
+```
+
+Access control works the same as for tabs and links — return `false` from `access` to hide the slot entirely.
 
 ---
 
