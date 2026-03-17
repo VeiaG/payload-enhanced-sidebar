@@ -35,6 +35,8 @@
         top: 50%;
         transform: translateY(-50%);
         white-space: nowrap;
+        //Force z-index to very high value, to prevent it from being hidden by other elements
+        z-index: 1000;
 
         // Neutralize the top/bottom transform that Payload applies
         &--position-top,
