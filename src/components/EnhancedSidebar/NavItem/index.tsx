@@ -8,6 +8,7 @@ import type { BadgeConfig, ExtendedEntity } from '../../../types'
 
 import { Badge } from '../Badge'
 import { useBadge } from '../hooks/useBadge'
+import { useNavItemState } from '../hooks/useNavItemState'
 
 const baseClass = 'enhanced-sidebar'
 
@@ -16,20 +17,12 @@ export type NavItemProps = {
   entity: ExtendedEntity
   href: string
   id: string
-  isActive: boolean
-  isCurrentPage: boolean
 }
 
-export const NavItem: React.FC<NavItemProps> = ({
-  id,
-  badgeConfig,
-  entity,
-  href,
-  isActive,
-  isCurrentPage,
-}) => {
+export const NavItem: React.FC<NavItemProps> = ({ id, badgeConfig, entity, href }) => {
   const { i18n } = useTranslation()
   const { value: badgeValue } = useBadge(badgeConfig, entity.slug)
+  const { isActive, isCurrentPage } = useNavItemState(href)
 
   const Label = (
     <>

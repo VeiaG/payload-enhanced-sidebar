@@ -1,8 +1,8 @@
 'use client'
 
 import { getTranslation } from '@payloadcms/translations'
-import { Link, useTranslation } from '@payloadcms/ui'
-import React from 'react'
+import { Link, Tooltip, useTranslation } from '@payloadcms/ui'
+import React, { useState } from 'react'
 
 import type { SidebarTabContent, SidebarTabLink } from '../../../types'
 
@@ -13,50 +13,72 @@ import { Icon } from '../Icon'
 const tabsBaseClass = 'tabs-bar'
 
 type TabButtonProps = {
+  icon?: React.ReactNode
   isActive: boolean
   onTabChange: (tabId: string) => void
   tab: SidebarTabContent
 }
 
-export const TabButton: React.FC<TabButtonProps> = ({ isActive, onTabChange, tab }) => {
+export const TabButton: React.FC<TabButtonProps> = ({ icon, isActive, onTabChange, tab }) => {
   const { i18n } = useTranslation()
   const label = getTranslation(tab.label, i18n)
   const { value } = useBadge(tab.badge, tab.id)
+  const [hovered, setHovered] = useState(false)
 
   return (
-    <button
-      className={`${tabsBaseClass}__tab ${isActive ? `${tabsBaseClass}__tab--active` : ''}`}
-      onClick={() => onTabChange(tab.id)}
-      title={label}
-      type="button"
-    >
-      <Icon name={tab.icon} size={20} />
-      {value !== undefined && <Badge color={tab.badge?.color} position="absolute" value={value} />}
-    </button>
+    <>
+      <button
+        aria-label={label}
+        className={`${tabsBaseClass}__tab ${isActive ? `${tabsBaseClass}__tab--active` : ''}`}
+        onBlur={() => setHovered(false)}
+        onClick={() => onTabChange(tab.id)}
+        onFocus={() => setHovered(true)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        type="button"
+      >
+        {icon ?? <Icon name={tab.icon!} size={20} />}
+        {value !== undefined && (
+          <Badge color={tab.badge?.color} position="absolute" value={value} />
+        )}
+        <Tooltip alignCaret="left" show={hovered}>
+          {label}
+        </Tooltip>
+      </button>
+    </>
   )
 }
 
 type TabLinkProps = {
   href: string
+  icon?: React.ReactNode
   isActive: boolean
   link: SidebarTabLink
 }
 
-export const TabLink: React.FC<TabLinkProps> = ({ href, isActive, link }) => {
+export const TabLink: React.FC<TabLinkProps> = ({ href, icon, isActive, link }) => {
   const { i18n } = useTranslation()
   const label = getTranslation(link.label, i18n)
   const { value } = useBadge(link.badge, link.id)
+  const [hovered, setHovered] = useState(false)
 
   return (
     <Link
+      aria-label={label}
       className={`${tabsBaseClass}__link ${isActive ? `${tabsBaseClass}__link--active` : ''}`}
       href={href}
+      onBlur={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       rel={link.isExternal ? 'noopener noreferrer' : undefined}
       target={link.isExternal ? '_blank' : undefined}
-      title={label}
     >
-      <Icon name={link.icon} size={20} />
+      {icon ?? <Icon name={link.icon!} size={20} />}
       {value !== undefined && <Badge color={link.badge?.color} position="absolute" value={value} />}
+      <Tooltip alignCaret="left" show={hovered}>
+        {label}
+      </Tooltip>
     </Link>
   )
 }
