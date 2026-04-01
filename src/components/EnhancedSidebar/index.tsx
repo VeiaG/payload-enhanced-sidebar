@@ -148,7 +148,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
 
   const {
     admin: {
-      components: { afterNavLinks, beforeNavLinks, settingsMenu },
+      components: { afterNav, afterNavLinks, beforeNav, beforeNavLinks, settingsMenu },
     },
     collections,
     globals,
@@ -196,6 +196,13 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     viewType,
   }
 
+  const beforeNavRendered = RenderServerComponent({
+    clientProps,
+    Component: beforeNav,
+    importMap: payload.importMap,
+    serverProps,
+  })
+
   const beforeNavLinksRendered = RenderServerComponent({
     clientProps,
     Component: beforeNavLinks,
@@ -206,6 +213,13 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   const afterNavLinksRendered = RenderServerComponent({
     clientProps,
     Component: afterNavLinks,
+    importMap: payload.importMap,
+    serverProps,
+  })
+
+  const afterNavRendered = RenderServerComponent({
+    clientProps,
+    Component: afterNav,
     importMap: payload.importMap,
     serverProps,
   })
@@ -456,8 +470,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
         )
         return RenderServerComponent({
           clientProps: {
+            afterNav: afterNavRendered,
             afterNavLinks: afterNavLinksRendered,
             allContent,
+            beforeNav: beforeNavRendered,
             beforeNavLinks: beforeNavLinksRendered,
             tabs: tabs.map((t) => ({ id: t.id })),
             tabsContent,
@@ -476,8 +492,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
 
   return (
     <SidebarContent
+      afterNav={afterNavRendered}
       afterNavLinks={afterNavLinksRendered}
       allContent={allContent}
+      beforeNav={beforeNavRendered}
       beforeNavLinks={beforeNavLinksRendered}
       customNavContent={customNavContent}
       customTabComponents={Object.keys(customTabComponents).length > 0 ? customTabComponents : undefined}

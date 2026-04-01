@@ -141,8 +141,14 @@ payloadEnhancedSidebar({
 | `tabs` | `Array<{ id: string }>` | Tab definitions for mapping |
 | `tabsContent` | `Record<string, ReactNode>` | Pre-rendered content per tab id |
 | `allContent` | `ReactNode \| undefined` | Content when no tabs are defined |
+| `beforeNav` | `ReactNode \| undefined` | Payload's `admin.components.beforeNav` (rendered before `beforeNavLinks`) |
 | `beforeNavLinks` | `ReactNode \| undefined` | Payload's `admin.components.beforeNavLinks` |
 | `afterNavLinks` | `ReactNode \| undefined` | Payload's `admin.components.afterNavLinks` |
+| `afterNav` | `ReactNode \| undefined` | Payload's `admin.components.afterNav` (rendered after `afterNavLinks`) |
+
+> `beforeNav` and `afterNav` require Payload v3.75.0+.
+
+The default render order inside the nav area is: `beforeNav` → `beforeNavLinks` → tab content → `afterNavLinks` → `afterNav`.
 
 Use the `useTabState(id)` hook to know which tab is active:
 
@@ -155,17 +161,21 @@ import { useTabState } from '@veiag/payload-enhanced-sidebar'
 export const MyNavContent: React.FC<CustomNavContentProps> = ({
   tabs,
   tabsContent,
+  beforeNav,
   beforeNavLinks,
   afterNavLinks,
+  afterNav,
   allContent,
 }) => {
   return (
     <nav style={{ flexGrow: 1, overflowY: 'auto' }}>
+      {beforeNav}
       {beforeNavLinks}
       {tabs.length > 0
         ? tabs.map((tab) => <TabPanel key={tab.id} id={tab.id} tabsContent={tabsContent} />)
         : allContent}
       {afterNavLinks}
+      {afterNav}
     </nav>
   )
 }
