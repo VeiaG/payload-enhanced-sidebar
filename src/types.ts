@@ -467,10 +467,14 @@ export type CustomTabButtonProps = {
  * ```
  */
 export type CustomNavContentProps = {
+  /** Rendered afterNav from payload config (rendered after afterNavLinks) */
+  afterNav?: ReactNode
   /** Rendered afterNavLinks from payload config */
   afterNavLinks?: ReactNode
   /** Content to show when no tabs are defined */
   allContent?: ReactNode
+  /** Rendered beforeNav from payload config (rendered before beforeNavLinks) */
+  beforeNav?: ReactNode
   /** Rendered beforeNavLinks from payload config */
   beforeNavLinks?: ReactNode
   /** Tab definitions (id only) for mapping over */

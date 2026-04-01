@@ -18,8 +18,10 @@ const TabPanel: React.FC<{ children: React.ReactNode; id: string }> = ({ id, chi
 }
 
 export const NavContent: React.FC<CustomNavContentProps> = ({
+  afterNav,
   afterNavLinks,
   allContent,
+  beforeNav,
   beforeNavLinks,
   tabs,
   tabsContent,
@@ -29,6 +31,7 @@ export const NavContent: React.FC<CustomNavContentProps> = ({
   return (
     <nav className={`${baseClass}__content`}>
       <div className={`${baseClass}__content-scroll`}>
+        {beforeNav}
         {beforeNavLinks}
         {hasTabs
           ? tabs.map((tab) => (
@@ -38,6 +41,7 @@ export const NavContent: React.FC<CustomNavContentProps> = ({
             ))
           : allContent}
         {afterNavLinks}
+        {afterNav}
       </div>
     </nav>
   )

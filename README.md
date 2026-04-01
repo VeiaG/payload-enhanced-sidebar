@@ -575,6 +575,7 @@ label: {
 
 - **Browse by Folder Button** - Automatically shows folder view button when Payload folders are enabled (requires Payload v3.41.0+)
 - **Settings Menu Items** - Integrates with Payload's SettingsMenu components (requires Payload v3.60.0+)
+- **`beforeNav` / `afterNav` slots** - Supports Payload's `admin.components.beforeNav` and `admin.components.afterNav` slots (requires Payload v3.75.0+). Both slots are rendered inside the nav content area — `beforeNav` before `beforeNavLinks`, `afterNav` after `afterNavLinks`.
 
 ## Contributing
 

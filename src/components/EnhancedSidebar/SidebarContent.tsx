@@ -12,8 +12,10 @@ import { TabsBar } from './TabsBar'
 const baseClass = 'enhanced-sidebar'
 
 export type SidebarContentProps = {
+  afterNav?: React.ReactNode
   afterNavLinks?: React.ReactNode
   allContent?: React.ReactNode
+  beforeNav?: React.ReactNode
   beforeNavLinks?: React.ReactNode
   customNavContent?: React.ReactNode
   customTabComponents?: Record<string, React.ReactNode>
@@ -32,8 +34,10 @@ const setTabCookie = (tabId: string) => {
 }
 
 export const SidebarContent: React.FC<SidebarContentProps> = ({
+  afterNav,
   afterNavLinks,
   allContent,
+  beforeNav,
   beforeNavLinks,
   customNavContent,
   customTabComponents,
@@ -72,8 +76,10 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
         />
         {customNavContent ?? (
           <NavContent
+            afterNav={afterNav}
             afterNavLinks={afterNavLinks}
             allContent={allContent}
+            beforeNav={beforeNav}
             beforeNavLinks={beforeNavLinks}
             tabs={tabs}
             tabsContent={tabsContent}
