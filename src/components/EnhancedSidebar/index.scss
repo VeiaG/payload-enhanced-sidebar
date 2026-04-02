@@ -1,4 +1,6 @@
-@import '~@payloadcms/ui/scss';
+@import "../../../node_modules/@payloadcms/ui/dist/scss/vars";
+@import "../../../node_modules/@payloadcms/ui/dist/scss/queries.scss";
+
 
 @layer payload-default {
   .enhanced-sidebar {
