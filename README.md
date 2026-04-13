@@ -2,8 +2,6 @@
 
 An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a tabbed navigation system to organize collections and globals into logical groups.
 
-> **Note:** This plugin is in early development and has not been extensively tested. Use with caution in production environments.
-
 ## Features
 
 - **Tabbed Navigation** - Organize collections into separate tabs for cleaner navigation
@@ -26,6 +24,10 @@ yarn add @veiag/payload-enhanced-sidebar
 # or
 pnpm add @veiag/payload-enhanced-sidebar
 ```
+
+### Windows support
+
+See this comment if you have issues with scss : https://github.com/VeiaG/payload-enhanced-sidebar/issues/12#issuecomment-4229207755
 
 ## Quick Start
 
