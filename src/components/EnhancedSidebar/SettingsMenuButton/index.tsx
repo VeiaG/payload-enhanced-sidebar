@@ -2,7 +2,7 @@
 import { Popup, useTranslation } from '@payloadcms/ui'
 import React, { Fragment } from 'react'
 
-import { Icon } from '../Icon'
+import { Icon } from '../Icon.js'
 import './index.scss'
 
 const baseClass = 'settings-menu-button'

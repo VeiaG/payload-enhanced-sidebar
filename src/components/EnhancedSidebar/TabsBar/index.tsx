@@ -2,15 +2,15 @@
 
 import { getTranslation } from '@payloadcms/translations'
 import { Link, useConfig, useTranslation } from '@payloadcms/ui'
-import { usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation.js'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
-import type { EnhancedSidebarConfig, SidebarTab, SidebarTabContent, SidebarTabLink } from '../../../types'
+import type { EnhancedSidebarConfig, SidebarTab, SidebarTabContent, SidebarTabLink } from '../../../types.js'
 
-import { Icon } from '../Icon'
-import { SettingsMenuButton } from '../SettingsMenuButton'
-import { TabButton, TabLink } from './TabItem'
+import { Icon } from '../Icon.js'
+import { SettingsMenuButton } from '../SettingsMenuButton/index.js'
+import { TabButton, TabLink } from './TabItem.js'
 import './index.scss'
 
 const tabsBaseClass = 'tabs-bar'

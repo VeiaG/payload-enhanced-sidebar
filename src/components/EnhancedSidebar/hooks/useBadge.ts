@@ -2,9 +2,9 @@
 
 import type { ReactNode } from 'react'
 
-import type { BadgeConfig } from '../../../types'
+import type { BadgeConfig } from '../../../types.js'
 
-import { useBadgeValue } from '../BadgeProvider'
+import { useBadgeValue } from '../BadgeProvider/index.js'
 
 type UseBadgeResult = {
   value: number | ReactNode | undefined

@@ -4,9 +4,9 @@ import { useConfig } from '@payloadcms/ui'
 import { stringify } from 'qs-esm'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import type { BadgeConfig, BadgeValues, EnhancedSidebarConfig } from '../../../types'
+import type { BadgeConfig, BadgeValues, EnhancedSidebarConfig } from '../../../types.js'
 
-import { BadgeProvider } from '../BadgeProvider'
+import { BadgeProvider } from '../BadgeProvider/index.js'
 
 type BadgeToFetch = {
   config: BadgeConfig

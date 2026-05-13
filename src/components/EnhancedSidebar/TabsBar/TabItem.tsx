@@ -4,11 +4,11 @@ import { getTranslation } from '@payloadcms/translations'
 import { Link, Tooltip, useTranslation } from '@payloadcms/ui'
 import React, { useState } from 'react'
 
-import type { SidebarTabContent, SidebarTabLink } from '../../../types'
+import type { SidebarTabContent, SidebarTabLink } from '../../../types.js'
 
-import { Badge } from '../Badge'
-import { useBadge } from '../hooks/useBadge'
-import { Icon } from '../Icon'
+import { Badge } from '../Badge/index.js'
+import { useBadge } from '../hooks/useBadge.js'
+import { Icon } from '../Icon.js'
 
 const tabsBaseClass = 'tabs-bar'
 

@@ -5,7 +5,7 @@ import { getTranslation } from '@payloadcms/translations'
 import { NavGroup } from '@payloadcms/ui'
 import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
 import { EntityType, groupNavItems } from '@payloadcms/ui/shared'
-import { cookies } from 'next/headers'
+import { cookies } from 'next/headers.js'
 import { formatAdminURL } from 'payload/shared'
 import React, { Fragment } from 'react'
 
@@ -18,13 +18,13 @@ import type {
   SidebarTab,
   SidebarTabContent as SidebarTabContentType,
   SidebarTabItem,
-} from '../../types'
+} from '../../types.js'
 
-import { extractLocalizedValue, resolveSidebarComponent, sanitizeSidebarConfig } from '../../utils'
-import { getNavPrefs } from './getNavPrefs'
-import { Icon } from './Icon'
-import { NavItem } from './NavItem'
-import { SidebarContent } from './SidebarContent'
+import { extractLocalizedValue, resolveSidebarComponent, sanitizeSidebarConfig } from '../../utils/index.js'
+import { getNavPrefs } from './getNavPrefs.js'
+import { Icon } from './Icon.js'
+import { NavItem } from './NavItem/index.js'
+import { SidebarContent } from './SidebarContent.js'
 import './index.scss'
 
 export type EnhancedSidebarProps = {

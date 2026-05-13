@@ -4,11 +4,11 @@ import { getTranslation } from '@payloadcms/translations'
 import { Link, useTranslation } from '@payloadcms/ui'
 import React from 'react'
 
-import type { BadgeConfig, ExtendedEntity } from '../../../types'
+import type { BadgeConfig, ExtendedEntity } from '../../../types.js'
 
-import { Badge } from '../Badge'
-import { useBadge } from '../hooks/useBadge'
-import { useNavItemState } from '../hooks/useNavItemState'
+import { Badge } from '../Badge/index.js'
+import { useBadge } from '../hooks/useBadge.js'
+import { useNavItemState } from '../hooks/useNavItemState.js'
 
 const baseClass = 'enhanced-sidebar'
 

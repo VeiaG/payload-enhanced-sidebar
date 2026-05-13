@@ -1,6 +1,6 @@
 'use client'
 
-import { useEnhancedSidebar } from '../context'
+import { useEnhancedSidebar } from '../context.js'
 
 /**
  * Returns whether a sidebar tab is currently active.

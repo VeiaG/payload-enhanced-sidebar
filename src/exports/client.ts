@@ -1,2 +1,2 @@
 // Client components exported for Payload's component system
-export { InternalBadgeProvider } from '../components/EnhancedSidebar/InternalBadgeProvider'
+export { InternalBadgeProvider } from '../components/EnhancedSidebar/InternalBadgeProvider/index.js'

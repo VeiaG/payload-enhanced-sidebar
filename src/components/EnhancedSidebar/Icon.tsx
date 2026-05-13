@@ -3,7 +3,7 @@
 import { icons } from 'lucide-react'
 import React from 'react'
 
-import type { IconName } from '../../types'
+import type { IconName } from '../../types.js'
 
 export interface IconProps {
   className?: string

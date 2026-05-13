@@ -3,7 +3,7 @@
 import { useNav } from '@payloadcms/ui'
 import React from 'react'
 
-import { NavHamburger } from '../NavHamburger'
+import { NavHamburger } from '../NavHamburger/index.js'
 import './index.scss'
 
 export const SidebarWrapper: React.FC<{

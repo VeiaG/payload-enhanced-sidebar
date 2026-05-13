@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import type { BadgeColor } from '../../../types'
+import type { BadgeColor } from '../../../types.js'
 
 import './index.scss'
 

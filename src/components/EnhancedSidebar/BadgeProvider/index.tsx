@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useMemo } from 'react'
 
-import type { BadgeValues } from '../../../types'
+import type { BadgeValues } from '../../../types.js'
 
 type BadgeContextValue = {
   values: BadgeValues

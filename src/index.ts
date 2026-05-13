@@ -1,9 +1,9 @@
 import { type Config, deepMerge } from 'payload'
 
-import type { EnhancedSidebarConfig } from './types'
+import type { EnhancedSidebarConfig } from './types.js'
 
-import { sidebarTranslations } from './translations'
-import { resolveSidebarComponent, sanitizeSidebarConfig } from './utils'
+import { sidebarTranslations } from './translations/index.js'
+import { resolveSidebarComponent, sanitizeSidebarConfig } from './utils/index.js'
 
 /**
  * Default configuration for the enhanced sidebar
@@ -136,11 +136,11 @@ export {
   BadgeProvider,
   useBadgeContext,
   useBadgeValue,
-} from './components/EnhancedSidebar/BadgeProvider'
+} from './components/EnhancedSidebar/BadgeProvider/index.js'
 
-export { useEnhancedSidebar } from './components/EnhancedSidebar/context'
-export { useNavItemState } from './components/EnhancedSidebar/hooks/useNavItemState'
-export { useTabState } from './components/EnhancedSidebar/hooks/useTabState'
+export { useEnhancedSidebar } from './components/EnhancedSidebar/context.js'
+export { useNavItemState } from './components/EnhancedSidebar/hooks/useNavItemState.js'
+export { useTabState } from './components/EnhancedSidebar/hooks/useTabState.js'
 
 export type {
   BadgeColor,
@@ -160,4 +160,4 @@ export type {
   SidebarComponent,
   SidebarTabCustom,
   TabAccessFunction,
-} from './types'
+} from './types.js'

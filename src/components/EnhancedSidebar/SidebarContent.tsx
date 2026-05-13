@@ -2,12 +2,12 @@
 
 import React, { useCallback, useMemo, useState } from 'react'
 
-import type { EnhancedSidebarConfig } from '../../types'
+import type { EnhancedSidebarConfig } from '../../types.js'
 
-import { EnhancedSidebarContext } from './context'
-import { NavContent } from './NavContent'
-import { SidebarWrapper } from './SidebarWrapper'
-import { TabsBar } from './TabsBar'
+import { EnhancedSidebarContext } from './context.js'
+import { NavContent } from './NavContent/index.js'
+import { SidebarWrapper } from './SidebarWrapper/index.js'
+import { TabsBar } from './TabsBar/index.js'
 
 const baseClass = 'enhanced-sidebar'
 

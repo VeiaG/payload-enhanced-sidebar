@@ -2,9 +2,9 @@
 
 import React from 'react'
 
-import type { CustomNavContentProps } from '../../../types'
+import type { CustomNavContentProps } from '../../../types.js'
 
-import { useTabState } from '../hooks/useTabState'
+import { useTabState } from '../hooks/useTabState.js'
 
 const baseClass = 'enhanced-sidebar'
 

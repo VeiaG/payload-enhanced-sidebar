@@ -1,4 +1,4 @@
-import type { EnhancedSidebarConfig, LocalizedString, SidebarComponent } from '../types'
+import type { EnhancedSidebarConfig, LocalizedString, SidebarComponent } from '../types.js'
 
 export const convertSlugToTitle = (slug: string): string => {
   return slug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
