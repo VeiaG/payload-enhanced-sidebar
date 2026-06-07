@@ -159,5 +159,10 @@ export type {
   ItemAccessFunction,
   SidebarComponent,
   SidebarTabCustom,
+  SidebarTabContent,
+  SidebarTabLink,
+  SidebarTabItem,
+  IconName,
   TabAccessFunction,
+  TabIconConfig,
 } from './types.js'
