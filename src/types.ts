@@ -150,7 +150,7 @@ export type SidebarComponent =
 /**
  * Mutually exclusive icon config: either a Lucide icon name OR a custom icon component path.
  */
-type TabIconConfig =
+export type TabIconConfig =
   | {
       /** Icon name from lucide-react */
       icon: IconName
