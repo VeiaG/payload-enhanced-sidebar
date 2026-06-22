@@ -202,6 +202,14 @@ export type SidebarTabContent = {
   id: string
   /** Tooltip/label for the tab */
   label: LocalizedString
+  /**
+   * Where to render this item in the tabs bar:
+   * - `'top'` — with the main tabs at the top (default)
+   * - `'bottom'` — pinned to the bottom, just above the actions (folders/settings/logout)
+   *
+   * @default 'top'
+   */
+  position?: 'bottom' | 'top'
   type: 'tab'
 } & TabIconConfig
 
@@ -220,6 +228,14 @@ type SidebarTabLinkBase = {
   id: string
   /** Tooltip/label */
   label: LocalizedString
+  /**
+   * Where to render this item in the tabs bar:
+   * - `'top'` — with the main tabs at the top (default)
+   * - `'bottom'` — pinned to the bottom, just above the actions (folders/settings/logout)
+   *
+   * @default 'top'
+   */
+  position?: 'bottom' | 'top'
   type: 'link'
 } & TabIconConfig
 type SidebarTabLinkExternal = {
@@ -253,6 +269,14 @@ export type SidebarTabCustom = {
   component: SidebarComponent
   /** Unique identifier */
   id: string
+  /**
+   * Where to render this item in the tabs bar:
+   * - `'top'` — with the main tabs at the top (default)
+   * - `'bottom'` — pinned to the bottom, just above the actions (folders/settings/logout)
+   *
+   * @default 'top'
+   */
+  position?: 'bottom' | 'top'
   type: 'custom'
 }
 

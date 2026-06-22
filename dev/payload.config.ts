@@ -586,11 +586,12 @@ const buildConfigWithMemoryDB = async () => {
             icon: 'Megaphone',
             label: { en: 'Marketing', uk: 'Маркетинг' },
           },
-          // Custom separator between marketing and settings
+          // Custom separator — pinned to the bottom, just above the actions
           {
             id: 'separator-1',
             type: 'custom',
             component: './components/CustomNavComponents#TabSeparator',
+            position: 'bottom',
           },
           {
             id: 'settings',
@@ -611,6 +612,8 @@ const buildConfigWithMemoryDB = async () => {
             globals: ['site-settings', 'footer-settings'],
             icon: 'Settings',
             label: { en: 'Settings', uk: 'Налаштування' },
+            // Render this tab at the bottom of the bar, above folders/settings/logout
+            position: 'bottom',
           },
         ],
       }),

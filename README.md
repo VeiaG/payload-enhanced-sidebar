@@ -166,6 +166,7 @@ Array of tabs and links to show in the sidebar.
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
 | `customItems` | `SidebarTabItem[]` | No | Custom navigation items (see below) |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
+| `position` | `'top' \| 'bottom'` | No | `'bottom'` pins the tab to the bottom of the bar, above the actions (default `'top'`) |
 | `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
 
 > \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
@@ -184,6 +185,7 @@ Array of tabs and links to show in the sidebar.
 | `href` | `string` | Yes | URL |
 | `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
 | `badge` | `BadgeConfig` | No | Badge configuration for the link icon |
+| `position` | `'top' \| 'bottom'` | No | `'bottom'` pins the link to the bottom of the bar, above the actions (default `'top'`) |
 | `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
 
 > \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
@@ -197,6 +199,7 @@ Renders an arbitrary component in the tabs bar — useful for spacers, separator
 | `id` | `string` | Yes | Unique identifier |
 | `type` | `'custom'` | Yes | Custom slot type |
 | `component` | `SidebarComponent` | Yes | Component to render (string path or `{ path, clientProps }`) |
+| `position` | `'top' \| 'bottom'` | No | `'bottom'` pins the slot to the bottom of the bar, above the actions (default `'top'`) |
 | `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
 
 The component receives `{ id }` plus any `clientProps` you pass. See [Custom Components](docs/custom-components.md) for details.
@@ -210,6 +213,21 @@ The component receives `{ id }` plus any `clientProps` you pass. See [Custom Com
 ```
 
 ![Tab and Link active difference](docs/tab-link-active.png)
+
+**Tab bar position (`position`)**
+
+Any tab, link, or custom slot can be pinned to the bottom of the tabs bar with `position: 'bottom'`. Bottom items render in config order, just **above** the actions area (folders / settings / logout). Items default to `'top'`.
+
+```typescript
+tabs: [
+  { id: 'dashboard', type: 'link', href: '/', icon: 'House', label: 'Dashboard' },
+  { id: 'content', type: 'tab', icon: 'FileText', label: 'Content', collections: ['posts'] },
+  // pinned to the bottom, above the logout button
+  { id: 'settings', type: 'tab', icon: 'Settings', label: 'Settings', globals: ['site-settings'], position: 'bottom' },
+]
+```
+
+> The tab bar is not virtualized/scrolled — if you have a very large number of top tabs they may collide with the bottom group. `position` is intended for a small number of pinned items (settings, help, etc.).
 
 ### `customItems`
 

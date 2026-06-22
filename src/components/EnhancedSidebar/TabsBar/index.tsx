@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation.js'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
-import type { EnhancedSidebarConfig, SidebarTab, SidebarTabContent, SidebarTabLink } from '../../../types.js'
+import type { EnhancedSidebarConfig, SidebarTab } from '../../../types.js'
 
 import { Icon } from '../Icon.js'
 import { SettingsMenuButton } from '../SettingsMenuButton/index.js'
@@ -84,13 +84,30 @@ export const TabsBar: React.FC<TabsBarProps> = ({
 
   const tabItems = sidebarConfig.tabs ?? []
 
+  // `renderedTabItems` (set when a custom TabButton is used) is built server-side in the
+  // same order as `tabItems`, so we can zip by index. Otherwise we render the default item.
+  const topNodes: React.ReactNode[] = []
+  const bottomNodes: React.ReactNode[] = []
+  tabItems.forEach((item, index) => {
+    const node = renderedTabItems ? renderedTabItems[index] : renderTabItem(item)
+    const wrapped = <React.Fragment key={item.id}>{node}</React.Fragment>
+    if (item.position === 'bottom') {
+      bottomNodes.push(wrapped)
+    } else {
+      topNodes.push(wrapped)
+    }
+  })
+
   return (
     <div className={tabsBaseClass}>
-      <div className={`${tabsBaseClass}__tabs`}>
-        {renderedTabItems ?? tabItems.map(renderTabItem)}
-      </div>
+      <div className={`${tabsBaseClass}__tabs`}>{topNodes}</div>
 
-      <div className={`${tabsBaseClass}__actions`}>
+      <div className={`${tabsBaseClass}__bottom`}>
+        {bottomNodes.length > 0 && (
+          <div className={`${tabsBaseClass}__tabs-bottom`}>{bottomNodes}</div>
+        )}
+
+        <div className={`${tabsBaseClass}__actions`}>
         {showFolders && (
           <Link
             className={`${tabsBaseClass}__action ${isFoldersActive ? `${tabsBaseClass}__link--active` : ''}`}
@@ -114,6 +131,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({
             <Icon name="LogOut" size={20} />
           </Link>
         )}
+        </div>
       </div>
     </div>
   )
