@@ -202,6 +202,14 @@ export type SidebarTabContent = {
   id: string
   /** Tooltip/label for the tab */
   label: LocalizedString
+  /**
+   * Where to render this item in the tabs bar:
+   * - `'top'` — with the main tabs at the top (default)
+   * - `'bottom'` — pinned to the bottom, just above the actions (folders/settings/logout)
+   *
+   * @default 'top'
+   */
+  position?: 'bottom' | 'top'
   type: 'tab'
 } & TabIconConfig
 
@@ -220,6 +228,14 @@ type SidebarTabLinkBase = {
   id: string
   /** Tooltip/label */
   label: LocalizedString
+  /**
+   * Where to render this item in the tabs bar:
+   * - `'top'` — with the main tabs at the top (default)
+   * - `'bottom'` — pinned to the bottom, just above the actions (folders/settings/logout)
+   *
+   * @default 'top'
+   */
+  position?: 'bottom' | 'top'
   type: 'link'
 } & TabIconConfig
 type SidebarTabLinkExternal = {
@@ -253,6 +269,14 @@ export type SidebarTabCustom = {
   component: SidebarComponent
   /** Unique identifier */
   id: string
+  /**
+   * Where to render this item in the tabs bar:
+   * - `'top'` — with the main tabs at the top (default)
+   * - `'bottom'` — pinned to the bottom, just above the actions (folders/settings/logout)
+   *
+   * @default 'top'
+   */
+  position?: 'bottom' | 'top'
   type: 'custom'
 }
 
@@ -261,6 +285,28 @@ export type SidebarTabCustom = {
  */
 export type CustomTabsBarComponentProps = {
   id: string
+}
+
+/**
+ * Props passed to a per-item custom component set via `component` on a `customItems` entry.
+ * Rendered in the nav content area in place of a default link row.
+ *
+ * Deliberately minimal — only the item's `slug`. Anything else should be passed via
+ * `clientProps`. (For rich, shared link rendering use `customComponents.NavItem` instead.)
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomNavItemComponentProps } from '@veiag/payload-enhanced-sidebar'
+ *
+ * export const Banner: React.FC<CustomNavItemComponentProps> = ({ slug }) => (
+ *   <div id={`nav-${slug}`}>Custom content</div>
+ * )
+ * ```
+ */
+export type CustomNavItemComponentProps = {
+  /** The item's slug from config */
+  slug: string
 }
 
 /**
@@ -281,8 +327,6 @@ interface BaseSidebarTabItem {
    * If not specified, item will be shown as ungrouped (position controlled by `position`).
    */
   group?: LocalizedString
-  /** Display label */
-  label: LocalizedString
   /**
    * Where to place this item relative to collection groups in the tab.
    * - `'top'` — appears above all collection/global groups
@@ -299,22 +343,52 @@ interface BaseSidebarTabItem {
   slug: string
 }
 interface ExternalHrefItem extends BaseSidebarTabItem {
+  component?: never
   /** Link href (absolute URL or relative to root) */
   href: string
   /** Whether the link is external, without admin route prefix. */
   isExternal: true
+  /** Display label */
+  label: LocalizedString
 }
 
 interface InternalHrefItem extends BaseSidebarTabItem {
+  component?: never
   /** Link href (relative to admin route) */
   href: '' | `/${string}`
   /** Whether the link is external, without admin route prefix. */
   isExternal?: false
+  /** Display label */
+  label: LocalizedString
+}
+
+/**
+ * A custom item that renders an arbitrary component in place of a link row.
+ * The component is rendered server-side via Payload's component system, so both
+ * server and client components are supported. It receives `CustomNavItemComponentProps`
+ * (`{ slug }`) plus any `clientProps` you pass.
+ *
+ * Supports the same `group` / `position` placement rules as link items.
+ */
+interface CustomComponentItem extends BaseSidebarTabItem {
+  /**
+   * Component to render in place of a default link row.
+   * Supports a plain string path or `{ path, clientProps }`.
+   * Receives `{ slug }` plus any `clientProps`.
+   */
+  component: SidebarComponent
+  href?: never
+  isExternal?: never
+  /**
+   * Optional label. Unused for rendering — the component controls its own output —
+   * but kept for parity with link items (e.g. if you read it from `clientProps`).
+   */
+  label?: LocalizedString
 }
 /**
- * Custom item inside a sidebar tab
+ * Custom item inside a sidebar tab — either a link (`href`) or a custom component (`component`).
  */
-export type SidebarTabItem = ExternalHrefItem | InternalHrefItem
+export type SidebarTabItem = CustomComponentItem | ExternalHrefItem | InternalHrefItem
 
 // ============================================
 // Custom Component Types
@@ -547,6 +621,29 @@ export interface EnhancedSidebarConfig {
   showLogout?: boolean
 
   /**
+   * Per-tab control over the order of groups and items in the nav content area.
+   * Keyed by tab `id`. Functions run server-side and are applied as a final pass
+   * after the default ordering — so anything you don't assign a key to keeps its
+   * default position. Has no effect on tabs not listed here.
+   *
+   * @example
+   * ```typescript
+   * sort: {
+   *   shop: {
+   *     groups: (group) => {
+   *       if (group.isUngrouped && group.entities[0]?.slug === 'banner') return -100
+   *       if (typeof group.label !== 'string' && group.label.en === 'Featured') return 0
+   *     },
+   *     items: (item, group) => {
+   *       if (item.type === 'custom-component') return 10 // after collections
+   *     },
+   *   },
+   * }
+   * ```
+   */
+  sort?: Record<string, TabSortConfig>
+
+  /**
    * Tabs and links to show in the sidebar tabs bar.
    * Order matters - items are rendered top to bottom.
    *
@@ -581,9 +678,90 @@ interface ExternalExtendedEntity extends BaseExtendedEntity {
   isExternal: true
 }
 
-export type ExtendedEntity = ExternalExtendedEntity | InternalExtendedEntity
+/**
+ * A custom item that renders its own component instead of a link row.
+ * Carries the component reference through to server-side rendering.
+ */
+interface CustomComponentExtendedEntity {
+  component: SidebarComponent
+  href?: never
+  isExternal?: never
+  label: Record<string, string> | string
+  slug: string
+  type: 'custom-component'
+}
+
+export type ExtendedEntity =
+  | CustomComponentExtendedEntity
+  | ExternalExtendedEntity
+  | InternalExtendedEntity
 
 export type ExtendedGroup = {
   entities: ExtendedEntity[]
   label: Record<string, string> | string
+}
+
+// ============================================
+// Sort Types
+// ============================================
+
+/**
+ * A sort key returned by a sort function.
+ * - `number` — explicit order index (CSS `order`-like; lower comes first).
+ * - `string` — sorted lexicographically (`localeCompare`).
+ * - `undefined` — treated as `0`, i.e. keep the default position.
+ *
+ * Sorting is stable: elements with equal keys keep their original relative order,
+ * so anything you don't assign a key to stays where the default logic placed it.
+ * Avoid mixing numbers and strings in the same scope — numbers sort before strings.
+ */
+export type SidebarSortKey = number | string | undefined
+
+/**
+ * Context passed to sort functions. The tab id is implicit (it's the `sort` map key).
+ */
+export type SidebarSortContext = {
+  /** Current admin locale (i18n language) */
+  locale: string
+}
+
+/**
+ * A group as seen by sort functions. Labels are passed raw (not translated) —
+ * translate via `ctx.locale` yourself if you need to.
+ */
+export type SortableGroup = {
+  /** Group entities, in their current (pre-sort) order */
+  entities: ExtendedEntity[]
+  /** True for the synthetic group holding ungrouped items (no label) */
+  isUngrouped: boolean
+  /** Raw, non-translated group label */
+  label: LocalizedString
+}
+
+/**
+ * Orders the top-level groups within a tab. Return a {@link SidebarSortKey}.
+ *
+ * When a `groups` function is set, ungrouped items are treated as individual
+ * single-item units, so you can interleave them between real groups.
+ */
+export type GroupSortFunction = (group: SortableGroup, ctx: SidebarSortContext) => SidebarSortKey
+
+/**
+ * Orders the entities inside a single group. Return a {@link SidebarSortKey}.
+ * Sorts only within the group — it cannot move an item to a different group.
+ */
+export type ItemSortFunction = (
+  item: ExtendedEntity,
+  group: SortableGroup,
+  ctx: SidebarSortContext,
+) => SidebarSortKey
+
+/**
+ * Per-tab sort configuration. Both functions are optional and run server-side.
+ */
+export type TabSortConfig = {
+  /** Orders the top-level groups within the tab */
+  groups?: GroupSortFunction
+  /** Orders the entities inside each group */
+  items?: ItemSortFunction
 }

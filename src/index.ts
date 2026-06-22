@@ -95,6 +95,19 @@ export const payloadEnhancedSidebar =
           path,
         }
       }
+
+      // Register per-item custom components from a tab's customItems
+      if (tab.type === 'tab' && tab.customItems) {
+        for (const item of tab.customItems) {
+          if ('component' in item && item.component) {
+            const { path } = resolveSidebarComponent(item.component)
+            config.admin.dependencies[`enhanced-sidebar-custom-item-${tab.id}-${item.slug}`] = {
+              type: 'component',
+              path,
+            }
+          }
+        }
+      }
     }
 
     // Check if we have any badges to fetch (api or collection-count)
@@ -151,18 +164,27 @@ export type {
   BadgeValues,
   CustomNavContentProps,
   CustomNavGroupProps,
+  CustomNavItemComponentProps,
   CustomNavItemProps,
   CustomTabButtonProps,
   CustomTabIconProps,
   CustomTabsBarComponentProps,
   EnhancedSidebarConfig,
-  ItemAccessFunction,
-  SidebarComponent,
-  SidebarTabCustom,
-  SidebarTabContent,
-  SidebarTabLink,
-  SidebarTabItem,
+  ExtendedEntity,
+  ExtendedGroup,
+  GroupSortFunction,
   IconName,
+  ItemAccessFunction,
+  ItemSortFunction,
+  SidebarComponent,
+  SidebarSortContext,
+  SidebarSortKey,
+  SidebarTabContent,
+  SidebarTabCustom,
+  SidebarTabItem,
+  SidebarTabLink,
+  SortableGroup,
   TabAccessFunction,
   TabIconConfig,
+  TabSortConfig,
 } from './types.js'

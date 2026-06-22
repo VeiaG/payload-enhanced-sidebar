@@ -1,0 +1,14 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: payload-enhanced-sidebar-mongodb
+    ports:
+      - '3500:27017'
+    environment:
+      MONGO_INITDB_DATABASE: payload-enhanced-sidebar
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:

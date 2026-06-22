@@ -12,6 +12,7 @@ The plugin allows replacing every visual piece of the sidebar with your own Reac
 | Tab/link button | `customComponents.TabButton` | `CustomTabButtonProps` | Every button in the vertical tabs bar |
 | Per-tab icon | `tab.iconComponent` | `CustomTabIconProps` | The icon for one specific tab or link |
 | Custom slot | `tab.type: 'custom'` | `CustomTabsBarComponentProps` | Arbitrary component in the tabs bar (spacer, separator, etc.) |
+| Per-item component | `customItems[].component` | `CustomNavItemComponentProps` | A single nav row inside a tab (instead of a link) |
 
 All paths follow Payload's component format: `'./path/to/file#ExportName'`.
 
@@ -475,6 +476,95 @@ export const TabSeparator: React.FC<CustomTabsBarComponentProps> = () => (
 ```
 
 Access control works the same as for tabs and links — return `false` from `access` to hide the slot entirely.
+
+---
+
+## Per-item custom component (`customItems[].component`)
+
+A `customItems` entry normally renders a default link row (`slug` + `href` + `label`). Instead, you can give an entry a `component` and it will render **your component** in that nav row — no link markup, no default styling. Use it for inline widgets, status rows, banners, or CTAs at the top or bottom of a tab.
+
+Like the tabs bar slot and per-tab icon, the component is rendered through Payload's component system, so **both server and client components are supported**. The plugin registers it in the import map automatically.
+
+```typescript
+payloadEnhancedSidebar({
+  tabs: [
+    {
+      id: 'content',
+      type: 'tab',
+      icon: 'FileText',
+      label: 'Content',
+      collections: ['posts', 'pages'],
+      customItems: [
+        // A custom component instead of a link
+        {
+          slug: 'storage-meter',
+          component: './components/Sidebar#StorageMeter',
+          position: 'top',
+        },
+        // Regular link items still work alongside it
+        { slug: 'drafts', href: '/collections/posts?status=draft', label: 'Drafts' },
+      ],
+    },
+  ],
+})
+```
+
+**Props (`CustomNavItemComponentProps`):**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `slug` | `string` | The item's `slug` from config |
+
+The props are deliberately minimal — just `slug`. Anything else should be passed via `clientProps`. If you need rich link behavior shared across all nav rows (active state, badges, hrefs), use [`customComponents.NavItem`](#navitem) instead — this slot is for one-off, self-contained components.
+
+Pass extra props with the object form:
+
+```typescript
+{
+  slug: 'storage-meter',
+  component: {
+    path: './components/Sidebar#StorageMeter',
+    clientProps: { collection: 'media', max: 100 },
+  },
+}
+```
+
+**Placement:** A per-item component honors the same `group` and `position` rules as link items — it can merge into an existing group, form a new group, or sit at the top/bottom of the nav. See [customItems `position`](#customitems-position).
+
+> **Note:** `position` controls placement **relative to whole groups**, not within them. When an item merges into an existing group (via a matching `group` label), it is appended to the **bottom** of that group — there is no way to insert it between the existing collection/global entities. Multiple merged items keep their config order.
+
+**Access control:** Works the same as link items — return `false` from `access` to hide the row entirely.
+
+**Example — server component:**
+
+```tsx
+// No 'use client' — runs on the server
+import type { CustomNavItemComponentProps } from '@veiag/payload-enhanced-sidebar'
+
+export const StorageMeter: React.FC<CustomNavItemComponentProps> = ({ slug }) => (
+  <div id={`nav-${slug}`} style={{ padding: '4px 12px', fontSize: 12 }}>
+    Storage: 42% used
+  </div>
+)
+```
+
+**Example — client component:**
+
+```tsx
+'use client'
+
+import type { CustomNavItemComponentProps } from '@veiag/payload-enhanced-sidebar'
+import { useState } from 'react'
+
+export const Counter: React.FC<CustomNavItemComponentProps> = ({ slug }) => {
+  const [n, setN] = useState(0)
+  return (
+    <button id={`nav-${slug}`} onClick={() => setN(n + 1)} type="button">
+      Clicked {n} times
+    </button>
+  )
+}
+```
 
 ---
 

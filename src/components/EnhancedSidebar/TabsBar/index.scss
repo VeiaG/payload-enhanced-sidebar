@@ -118,6 +118,24 @@
       }
     }
 
+    // Wrapper that keeps bottom-positioned tabs and the actions pinned together
+    // at the bottom of the bar (the `.tabs-bar` uses `justify-content: space-between`).
+    &__bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: base(0.5);
+    }
+
+    // Tabs explicitly positioned at the bottom (`position: 'bottom'`).
+    // Same look as the main `__tabs` group but without the header offset.
+    &__tabs-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: base(0.25);
+    }
+
     &__actions {
       display: flex;
       flex-direction: column;
