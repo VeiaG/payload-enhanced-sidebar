@@ -236,6 +236,21 @@ Custom items can be added to any tab:
 - `position: 'bottom'` — appears below all groups (default)
 - Has no effect on items that merge into an existing collection group via `group`
 
+**Custom component item:**
+
+Instead of `href`/`label`, a custom item can render your own component (`slug` + `component`). It renders in the nav row via Payload's component system — both server and client components are supported — and honors the same `group`/`position` rules.
+
+```typescript
+{
+  slug: 'storage-meter',                       // Required: unique identifier
+  component: './components/Sidebar#StorageMeter', // Required: string path or { path, clientProps }
+  position: 'top',                             // Optional
+  group: 'Content',                            // Optional
+}
+```
+
+The component receives `CustomNavItemComponentProps` (`{ slug }`) plus any `clientProps`. See [Custom Components](docs/custom-components.md#per-item-custom-component-customitemscomponent) for details.
+
 
 ## Badges
 

@@ -264,6 +264,28 @@ export type CustomTabsBarComponentProps = {
 }
 
 /**
+ * Props passed to a per-item custom component set via `component` on a `customItems` entry.
+ * Rendered in the nav content area in place of a default link row.
+ *
+ * Deliberately minimal — only the item's `slug`. Anything else should be passed via
+ * `clientProps`. (For rich, shared link rendering use `customComponents.NavItem` instead.)
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomNavItemComponentProps } from '@veiag/payload-enhanced-sidebar'
+ *
+ * export const Banner: React.FC<CustomNavItemComponentProps> = ({ slug }) => (
+ *   <div id={`nav-${slug}`}>Custom content</div>
+ * )
+ * ```
+ */
+export type CustomNavItemComponentProps = {
+  /** The item's slug from config */
+  slug: string
+}
+
+/**
  * A tab, link, or custom component in the sidebar tabs bar
  */
 export type SidebarTab = SidebarTabContent | SidebarTabCustom | SidebarTabLink
@@ -281,8 +303,6 @@ interface BaseSidebarTabItem {
    * If not specified, item will be shown as ungrouped (position controlled by `position`).
    */
   group?: LocalizedString
-  /** Display label */
-  label: LocalizedString
   /**
    * Where to place this item relative to collection groups in the tab.
    * - `'top'` — appears above all collection/global groups
@@ -299,22 +319,52 @@ interface BaseSidebarTabItem {
   slug: string
 }
 interface ExternalHrefItem extends BaseSidebarTabItem {
+  component?: never
   /** Link href (absolute URL or relative to root) */
   href: string
   /** Whether the link is external, without admin route prefix. */
   isExternal: true
+  /** Display label */
+  label: LocalizedString
 }
 
 interface InternalHrefItem extends BaseSidebarTabItem {
+  component?: never
   /** Link href (relative to admin route) */
   href: '' | `/${string}`
   /** Whether the link is external, without admin route prefix. */
   isExternal?: false
+  /** Display label */
+  label: LocalizedString
+}
+
+/**
+ * A custom item that renders an arbitrary component in place of a link row.
+ * The component is rendered server-side via Payload's component system, so both
+ * server and client components are supported. It receives `CustomNavItemComponentProps`
+ * (`{ slug }`) plus any `clientProps` you pass.
+ *
+ * Supports the same `group` / `position` placement rules as link items.
+ */
+interface CustomComponentItem extends BaseSidebarTabItem {
+  /**
+   * Component to render in place of a default link row.
+   * Supports a plain string path or `{ path, clientProps }`.
+   * Receives `{ slug }` plus any `clientProps`.
+   */
+  component: SidebarComponent
+  href?: never
+  isExternal?: never
+  /**
+   * Optional label. Unused for rendering — the component controls its own output —
+   * but kept for parity with link items (e.g. if you read it from `clientProps`).
+   */
+  label?: LocalizedString
 }
 /**
- * Custom item inside a sidebar tab
+ * Custom item inside a sidebar tab — either a link (`href`) or a custom component (`component`).
  */
-export type SidebarTabItem = ExternalHrefItem | InternalHrefItem
+export type SidebarTabItem = CustomComponentItem | ExternalHrefItem | InternalHrefItem
 
 // ============================================
 // Custom Component Types
@@ -581,7 +631,23 @@ interface ExternalExtendedEntity extends BaseExtendedEntity {
   isExternal: true
 }
 
-export type ExtendedEntity = ExternalExtendedEntity | InternalExtendedEntity
+/**
+ * A custom item that renders its own component instead of a link row.
+ * Carries the component reference through to server-side rendering.
+ */
+interface CustomComponentExtendedEntity {
+  component: SidebarComponent
+  href?: never
+  isExternal?: never
+  label: Record<string, string> | string
+  slug: string
+  type: 'custom-component'
+}
+
+export type ExtendedEntity =
+  | CustomComponentExtendedEntity
+  | ExternalExtendedEntity
+  | InternalExtendedEntity
 
 export type ExtendedGroup = {
   entities: ExtendedEntity[]

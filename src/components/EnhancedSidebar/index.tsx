@@ -64,14 +64,23 @@ const computeGroupsForTab = async (
     const topUngrouped: SidebarTabItem[] = []
     const bottomUngrouped: SidebarTabItem[] = []
 
-    const toEntity = (item: SidebarTabItem): ExtendedEntity =>
-      ({
+    const toEntity = (item: SidebarTabItem): ExtendedEntity => {
+      if ('component' in item && item.component) {
+        return {
+          slug: item.slug,
+          type: 'custom-component',
+          component: item.component,
+          label: item.label ?? item.slug,
+        }
+      }
+      return {
         slug: item.slug,
         type: 'custom',
         href: item.href,
         isExternal: item.isExternal,
         label: item.label,
-      }) as ExtendedEntity
+      } as ExtendedEntity
+    }
 
     // Filter custom items by access — fail-closed: missing req or thrown error denies access
     const accessResults = await Promise.all(
@@ -276,6 +285,19 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
    */
   const renderEntity = (entity: ExtendedEntity, key: string): React.ReactNode => {
     const { slug, type } = entity
+
+    // Per-item custom component — render its own component, bypassing the NavItem override.
+    if (type === 'custom-component') {
+      const { clientProps: extraProps, path } = resolveSidebarComponent(entity.component)
+      return RenderServerComponent({
+        clientProps: { slug, ...extraProps },
+        Component: path,
+        importMap: payload.importMap,
+        key,
+        serverProps,
+      })
+    }
+
     let href: string
     let id: string
 
