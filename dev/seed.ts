@@ -1,7 +1,5 @@
 import type { Payload } from 'payload'
 
-import { devUser } from './helpers/credentials'
-
 export const seed = async (payload: Payload) => {
   // Check if data already exists
   const { totalDocs: existingUsers } = await payload.count({
@@ -18,7 +16,10 @@ export const seed = async (payload: Payload) => {
   // Create admin user
   await payload.create({
     collection: 'users',
-    data: devUser,
+    data: {
+      email: 'dev@payloadcms.com',
+      password: 'password',
+    },
   })
 
   // Seed Categories

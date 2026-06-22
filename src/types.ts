@@ -597,6 +597,29 @@ export interface EnhancedSidebarConfig {
   showLogout?: boolean
 
   /**
+   * Per-tab control over the order of groups and items in the nav content area.
+   * Keyed by tab `id`. Functions run server-side and are applied as a final pass
+   * after the default ordering — so anything you don't assign a key to keeps its
+   * default position. Has no effect on tabs not listed here.
+   *
+   * @example
+   * ```typescript
+   * sort: {
+   *   shop: {
+   *     groups: (group) => {
+   *       if (group.isUngrouped && group.entities[0]?.slug === 'banner') return -100
+   *       if (typeof group.label !== 'string' && group.label.en === 'Featured') return 0
+   *     },
+   *     items: (item, group) => {
+   *       if (item.type === 'custom-component') return 10 // after collections
+   *     },
+   *   },
+   * }
+   * ```
+   */
+  sort?: Record<string, TabSortConfig>
+
+  /**
    * Tabs and links to show in the sidebar tabs bar.
    * Order matters - items are rendered top to bottom.
    *
@@ -652,4 +675,69 @@ export type ExtendedEntity =
 export type ExtendedGroup = {
   entities: ExtendedEntity[]
   label: Record<string, string> | string
+}
+
+// ============================================
+// Sort Types
+// ============================================
+
+/**
+ * A sort key returned by a sort function.
+ * - `number` — explicit order index (CSS `order`-like; lower comes first).
+ * - `string` — sorted lexicographically (`localeCompare`).
+ * - `undefined` — treated as `0`, i.e. keep the default position.
+ *
+ * Sorting is stable: elements with equal keys keep their original relative order,
+ * so anything you don't assign a key to stays where the default logic placed it.
+ * Avoid mixing numbers and strings in the same scope — numbers sort before strings.
+ */
+export type SidebarSortKey = number | string | undefined
+
+/**
+ * Context passed to sort functions. The tab id is implicit (it's the `sort` map key).
+ */
+export type SidebarSortContext = {
+  /** Current admin locale (i18n language) */
+  locale: string
+}
+
+/**
+ * A group as seen by sort functions. Labels are passed raw (not translated) —
+ * translate via `ctx.locale` yourself if you need to.
+ */
+export type SortableGroup = {
+  /** Group entities, in their current (pre-sort) order */
+  entities: ExtendedEntity[]
+  /** True for the synthetic group holding ungrouped items (no label) */
+  isUngrouped: boolean
+  /** Raw, non-translated group label */
+  label: LocalizedString
+}
+
+/**
+ * Orders the top-level groups within a tab. Return a {@link SidebarSortKey}.
+ *
+ * When a `groups` function is set, ungrouped items are treated as individual
+ * single-item units, so you can interleave them between real groups.
+ */
+export type GroupSortFunction = (group: SortableGroup, ctx: SidebarSortContext) => SidebarSortKey
+
+/**
+ * Orders the entities inside a single group. Return a {@link SidebarSortKey}.
+ * Sorts only within the group — it cannot move an item to a different group.
+ */
+export type ItemSortFunction = (
+  item: ExtendedEntity,
+  group: SortableGroup,
+  ctx: SidebarSortContext,
+) => SidebarSortKey
+
+/**
+ * Per-tab sort configuration. Both functions are optional and run server-side.
+ */
+export type TabSortConfig = {
+  /** Orders the top-level groups within the tab */
+  groups?: GroupSortFunction
+  /** Orders the entities inside each group */
+  items?: ItemSortFunction
 }

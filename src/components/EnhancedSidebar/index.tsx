@@ -20,7 +20,12 @@ import type {
   SidebarTabItem,
 } from '../../types.js'
 
-import { extractLocalizedValue, resolveSidebarComponent, sanitizeSidebarConfig } from '../../utils/index.js'
+import {
+  extractLocalizedValue,
+  resolveSidebarComponent,
+  sanitizeSidebarConfig,
+  sortTabGroups,
+} from '../../utils/index.js'
 import { getNavPrefs } from './getNavPrefs.js'
 import { Icon } from './Icon.js'
 import { NavItem } from './NavItem/index.js'
@@ -383,7 +388,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   const tabsContent: Record<string, React.ReactNode> = {}
   for (let i = 0; i < tabs.length; i++) {
     const tab = tabs[i]
-    const tabGroups = tabGroupResults[i]
+    const tabGroups = sortTabGroups(tabGroupResults[i], config.sort?.[tab.id], currentLang)
     tabsContent[tab.id] = (
       <Fragment>{tabGroups.map((group, j) => renderGroup(group, `${tab.id}-${j}`))}</Fragment>
     )

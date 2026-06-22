@@ -3,6 +3,7 @@
 import type {
   CustomNavContentProps,
   CustomNavGroupProps,
+  CustomNavItemComponentProps,
   CustomNavItemProps,
   CustomTabButtonProps,
   CustomTabIconProps,
@@ -209,6 +210,65 @@ export const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   return (
     <button onClick={() => onTabChange(id)} style={style} title={label} type="button">
       {content}
+    </button>
+  )
+}
+
+/**
+ * Per-item custom component (`customItems[].component`).
+ * A live client component — receives only `{ slug }` plus any `clientProps`.
+ * Here we read a custom `variant` prop forwarded via `clientProps`.
+ */
+export const CustomNavItemComponent: React.FC<
+  { variant?: 'banner' | 'meter' } & CustomNavItemComponentProps
+> = ({ slug, variant = 'banner' }) => {
+  const [count, setCount] = useState(0)
+
+  if (variant === 'meter') {
+    return (
+      <div
+        id={`nav-${slug}`}
+        style={{
+          background: 'var(--theme-elevation-50)',
+          borderRadius: '4px',
+          fontSize: '11px',
+          margin: '4px 12px',
+          padding: '6px 8px',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span>Storage ({slug})</span>
+          <span>42%</span>
+        </div>
+        <div style={{ background: 'var(--theme-elevation-150)', borderRadius: 3, height: 4 }}>
+          <div style={{ background: '#22c55e', borderRadius: 3, height: 4, width: '42%' }} />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <button
+      id={`nav-${slug}`}
+      onClick={() => setCount((c) => c + 1)}
+      style={{
+        background: 'linear-gradient(90deg,#f59e0b22,#ef444422)',
+        border: '1px dashed #f59e0b',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        display: 'block',
+        fontSize: '11px',
+        margin: '4px 12px',
+        padding: '8px',
+        textAlign: 'left',
+        width: 'calc(100% - 24px)',
+      }}
+      type="button"
+    >
+      <span aria-label="fire" role="img">
+        🔥
+      </span>{' '}
+      Per-item component <strong>{slug}</strong> — clicked {count}×
     </button>
   )
 }

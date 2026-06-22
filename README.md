@@ -252,6 +252,51 @@ Instead of `href`/`label`, a custom item can render your own component (`slug` +
 The component receives `CustomNavItemComponentProps` (`{ slug }`) plus any `clientProps`. See [Custom Components](docs/custom-components.md#per-item-custom-component-customitemscomponent) for details.
 
 
+## Ordering groups and items (`sort`)
+
+By default, groups and items follow Payload's default order plus your `customItems` `position`/`group` rules. The `sort` option lets you take **full control of the order** per tab, without changing that default for tabs you don't configure.
+
+`sort` is keyed by tab `id`. Each entry has two optional functions that return a **sort key** (`number | string | undefined`):
+
+```typescript
+payloadEnhancedSidebar({
+  tabs: [
+    { id: 'shop', type: 'tab', icon: 'ShoppingCart', label: 'Shop', collections: ['products', 'orders'] },
+  ],
+  sort: {
+    shop: {
+      // Orders the top-level groups within the tab
+      groups: (group, ctx) => {
+        // ungrouped items become individual units you can place anywhere
+        if (group.isUngrouped && group.entities[0]?.slug === 'banner') return -100
+        if (typeof group.label !== 'string' && group.label.en === 'Featured') return 0
+        // everything else → default position
+      },
+      // Orders the entities inside each group
+      items: (item, group, ctx) => {
+        if (item.type === 'custom-component') return 10 // place after collections
+        if (item.slug === 'products') return -10        // pin products first
+      },
+    },
+  },
+})
+```
+
+**How sort keys work (like CSS `order`):**
+- `number` — explicit order index; lower comes first.
+- `string` — sorted lexicographically (`localeCompare`).
+- `undefined` — treated as `0`, i.e. keeps the default position.
+
+Sorting is **stable** — anything you don't assign a key to stays where the default logic placed it. Avoid mixing numbers and strings in the same scope (numbers sort before strings).
+
+**Notes:**
+- Labels are passed **raw** (not translated) — use `group.label.en` etc., or translate via `ctx.locale`.
+- `items` sorts **only within a group** — it can't move an item to a different group (use `group` for that).
+- When a `groups` function is set, ungrouped items become **individual single-item units** so you can interleave them between real groups (e.g. a banner above one group, a CTA below another).
+- `sort` is a final pass that overrides `position`.
+- Tab bar order (the icons on the left) is simply the order of the `tabs` array — `sort` only affects nav content.
+
+
 ## Badges
 
 Badges allow you to show notification counts on tabs and navigation items. There are three ways to configure badges:

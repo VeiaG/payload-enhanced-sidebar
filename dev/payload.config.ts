@@ -391,6 +391,40 @@ const buildConfigWithMemoryDB = async () => {
           // NavItem: './components/CustomNavComponents#CustomNavItem',
           // TabButton: './components/CustomNavComponents#CustomTabButton',
         },
+        // Demo of the `sort` feature. Comment this whole block out to compare
+        // against the default ordering.
+        sort: {
+          content: {
+            // Top-level group order: pin the 'promo' banner to the very top,
+            // bring the 'Tools' group up, push 'Blog' to the bottom.
+            // Everything else keeps its default position (undefined → 0).
+            groups: (group) => {
+              if (group.isUngrouped && group.entities.some((e) => e.slug === 'promo')) {
+                return -100
+              }
+              const label = typeof group.label === 'string' ? group.label : group.label.en
+              if (label === 'Tools') {
+                return -50
+              }
+              if (label === 'Blog') {
+                return 100
+              }
+            },
+            // Inside the 'Content' group: pin the custom component (storage meter)
+            // to the top, push 'categories' to the bottom.
+            items: (item, group) => {
+              const label = typeof group.label === 'string' ? group.label : group.label.en
+              if (label === 'Content') {
+                if (item.type === 'custom-component') {
+                  return -10
+                }
+                if (item.slug === 'categories') {
+                  return 10
+                }
+              }
+            },
+          },
+        },
         tabs: [
           {
             id: 'dashboard',
@@ -455,6 +489,24 @@ const buildConfigWithMemoryDB = async () => {
                 slug: 'import-data',
                 href: '/import',
                 label: { en: 'Import Data', uk: 'Імпорт' },
+              },
+              // Per-item custom component (ungrouped banner). Rendered server-side via
+              // Payload's component system — this one happens to be a client component.
+              {
+                slug: 'promo',
+                component: {
+                  clientProps: { variant: 'banner' },
+                  path: './components/CustomNavComponents#CustomNavItemComponent',
+                },
+              },
+              // Per-item custom component merged INTO the 'Content' group
+              {
+                slug: 'storage',
+                component: {
+                  clientProps: { variant: 'meter' },
+                  path: './components/CustomNavComponents#CustomNavItemComponent',
+                },
+                group: { en: 'Content', uk: 'Контент' },
               },
             ],
             icon: 'FileText',
