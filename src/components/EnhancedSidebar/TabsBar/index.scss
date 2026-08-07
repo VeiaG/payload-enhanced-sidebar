@@ -11,6 +11,14 @@
     padding: base(0.5) 0;
     border-right: 1px solid var(--theme-elevation-100);
     background: var(--theme-elevation-50);
+    // The whole bar owns a stacking context that sits above `.enhanced-sidebar__content`.
+    // Tooltips are absolutely positioned inside the tab buttons, and a button can gain its
+    // own stacking context at any time (composited transition, layer promotion), which traps
+    // the tooltip's own z-index. Lifting the bar itself keeps tooltips above the nav links
+    // no matter what happens inside. Scoped to the sidebar, since `.enhanced-sidebar` is
+    // `position: sticky` and therefore already a stacking context of its own.
+    position: relative;
+    z-index: 5;
 
     [dir='rtl'] & {
       border-right: none;
@@ -35,7 +43,9 @@
         top: 50%;
         transform: translateY(-50%);
         white-space: nowrap;
-        //Force z-index to very high value, to prevent it from being hidden by other elements
+        // Above siblings inside the button. Staying above the nav links is handled by the
+        // stacking context on `.tabs-bar` — this value alone is not enough, since the button
+        // can become a stacking context and scope it.
         z-index: 1000;
 
         // Neutralize the top/bottom transform that Payload applies
@@ -80,7 +90,12 @@
       background: transparent;
       color: var(--theme-elevation-500);
       cursor: pointer;
-      transition: all 150ms ease;
+      // Only the properties that actually change on hover — `all` also covers `transform`
+      // and `opacity`, which lets the browser promote the button to its own layer and trap
+      // the tooltip's z-index inside it.
+      transition:
+        background 150ms ease,
+        color 150ms ease;
       text-decoration: none;
 
       &:hover {
@@ -156,7 +171,9 @@
       background: transparent;
       color: var(--theme-elevation-500);
       cursor: pointer;
-      transition: all 150ms ease;
+      transition:
+        background 150ms ease,
+        color 150ms ease;
       text-decoration: none;
 
       &:hover {

@@ -29,7 +29,9 @@
       top: 0;
       width: 100vw;
       height: var(--app-header-height);
-      z-index: 1;
+      // Must stay above `.tabs-bar` (z-index: 5), otherwise the bar covers the mobile
+      // close button, which sits in this header over the left column.
+      z-index: 10;
     }
 
     &__mobile-close {
