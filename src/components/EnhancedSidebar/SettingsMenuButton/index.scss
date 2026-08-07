@@ -13,7 +13,9 @@
       background: transparent;
       color: var(--theme-elevation-500);
       cursor: pointer;
-      transition: all 150ms ease;
+      transition:
+        background 150ms ease,
+        color 150ms ease;
 
       &:hover {
         background: var(--theme-elevation-100);
