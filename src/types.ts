@@ -167,9 +167,45 @@ export type TabIconConfig =
     }
 
 /**
- * Sidebar tab that shows content when selected
+ * Href config for a `link` in the tabs bar.
+ * Split into external/internal so `href` can be typed strictly for each case.
  */
-export type SidebarTabContent = {
+type TabHrefExternal = {
+  /** Link href (absolute URL) */
+  href: string
+  isExternal: true
+}
+type TabHrefInternal = {
+  /** Link href (relative to admin route) */
+  href: '' | `/${string}`
+  isExternal?: false
+}
+
+/**
+ * Href config for a `tab`. Admin-relative only — an external href would open in a
+ * new browser tab, leaving this window (and therefore the tab's panel) untouched,
+ * so the panel could never be opened by clicking. Use `type: 'link'` for those.
+ */
+type TabHrefSelf = {
+  /**
+   * Optional href, relative to the admin route. When set, the tab doubles as a
+   * link: a plain click navigates **and** opens the tab's panel, so a Dashboard
+   * tab can open `/admin` while its child items stay visible.
+   *
+   * Modifier and middle clicks navigate only — they open a new tab/window and
+   * leave this window's panel untouched.
+   */
+  href: '' | `/${string}`
+  isExternal?: never
+}
+/** A tab with no href — clicking it only opens its panel. */
+type TabHrefNone = {
+  /** @see {@link TabHrefSelf.href} */
+  href?: never
+  isExternal?: never
+}
+
+type SidebarTabContentBase = {
   /**
    * Access control function. Called server-side with the current request.
    * Return `false` to hide this tab (button + content) entirely.
@@ -213,6 +249,13 @@ export type SidebarTabContent = {
   type: 'tab'
 } & TabIconConfig
 
+/**
+ * Sidebar tab that shows content when selected.
+ *
+ * With an optional `href` it also acts as a link — see {@link TabHrefSelf.href}.
+ */
+export type SidebarTabContent = SidebarTabContentBase & (TabHrefNone | TabHrefSelf)
+
 type SidebarTabLinkBase = {
   /**
    * Access control function. Called server-side with the current request.
@@ -238,20 +281,10 @@ type SidebarTabLinkBase = {
   position?: 'bottom' | 'top'
   type: 'link'
 } & TabIconConfig
-type SidebarTabLinkExternal = {
-  /** Link href (absolute URL) */
-  href: string
-  isExternal: true
-} & SidebarTabLinkBase
-type SidebarTabLinkInternal = {
-  /** Link href (relative to admin route) */
-  href: '' | `/${string}`
-  isExternal?: false
-} & SidebarTabLinkBase
 /**
  * Sidebar link that navigates to a URL (not a tab)
  */
-export type SidebarTabLink = SidebarTabLinkExternal | SidebarTabLinkInternal
+export type SidebarTabLink = SidebarTabLinkBase & (TabHrefExternal | TabHrefInternal)
 /**
  * A custom component rendered in the tabs bar (spacer, separator, badge, etc.).
  * Does not open any content — it's purely a visual slot in the tabs column.
@@ -403,7 +436,7 @@ export type SidebarTabItem = CustomComponentItem | ExternalHrefItem | InternalHr
  * ```tsx
  * 'use client'
  * import React from 'react'
- * import { useNavItemState } from '@veiag/payload-enhanced-sidebar'
+ * import { useNavItemState } from '@veiag/payload-enhanced-sidebar/client'
  * import type { CustomNavItemProps } from '@veiag/payload-enhanced-sidebar'
  *
  * export const MyNavItem: React.FC<CustomNavItemProps> = ({ entity, href, id, label, badgeConfig }) => {
@@ -478,17 +511,40 @@ export type CustomTabIconProps = {
  * Use `useTabState(id)` for tab active state, or `usePathname()` for link active state.
  * Use `useEnhancedSidebar().onTabChange` to trigger tab switches.
  *
+ * A `tab` may also carry an `href` — then it should navigate *and* open its panel.
+ * Render it as an anchor, and skip the tab switch on modifier/middle clicks: those
+ * land in a new tab/window, so this one keeps the panel it already has.
+ *
  * @example
  * ```tsx
  * 'use client'
  * import React from 'react'
  * import type { CustomTabButtonProps } from '@veiag/payload-enhanced-sidebar'
- * import { useTabState, useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar'
+ * import { useTabState, useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar/client'
  *
- * export const MyTabButton: React.FC<CustomTabButtonProps> = ({ id, type, icon, label, href }) => {
+ * export const MyTabButton: React.FC<CustomTabButtonProps> = ({
+ *   href, icon, id, isExternal, label, type,
+ * }) => {
  *   const { isActive } = useTabState(id)
  *   const { onTabChange } = useEnhancedSidebar()
- *   if (type === 'link') return <a href={href}>{icon}{label}</a>
+ *
+ *   if (href) {
+ *     return (
+ *       <a
+ *         href={href}
+ *         onClick={(e) => {
+ *           const elsewhere =
+ *             e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey
+ *           if (type === 'tab' && !elsewhere) { onTabChange(id) }
+ *         }}
+ *         rel={isExternal ? 'noopener noreferrer' : undefined}
+ *         target={isExternal ? '_blank' : undefined}
+ *       >
+ *         {icon}{label}
+ *       </a>
+ *     )
+ *   }
+ *
  *   return <button onClick={() => onTabChange(id)}>{icon}{label}</button>
  * }
  * ```
@@ -496,13 +552,16 @@ export type CustomTabIconProps = {
 export type CustomTabButtonProps = {
   /** Badge configuration as defined in the plugin config */
   badge?: BadgeConfig
-  /** Computed href (for link type, with admin route prefix applied) */
+  /**
+   * Computed href, with the admin route prefix applied.
+   * Always set for `link` items; set for `tab` items only when they declare an `href`.
+   */
   href?: string
   /** Pre-rendered icon — either from `iconComponent` or the default Lucide icon */
   icon: ReactNode
   /** Tab/link id */
   id: string
-  /** Whether the link is external (only set for link type) */
+  /** Whether the link is external. Only ever set for `link` items — a tab's `href` is admin-relative */
   isExternal?: boolean
   /** Pre-translated label */
   label: string
@@ -520,7 +579,7 @@ export type CustomTabButtonProps = {
  * ```tsx
  * 'use client'
  * import type { CustomNavContentProps } from '@veiag/payload-enhanced-sidebar'
- * import { useTabState } from '@veiag/payload-enhanced-sidebar'
+ * import { useTabState } from '@veiag/payload-enhanced-sidebar/client'
  *
  * const TabPanel = ({ id, content }: { id: string; content: React.ReactNode }) => {
  *   const { isActive } = useTabState(id)

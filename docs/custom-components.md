@@ -16,6 +16,25 @@ The plugin allows replacing every visual piece of the sidebar with your own Reac
 
 All paths follow Payload's component format: `'./path/to/file#ExportName'`.
 
+## Importing hooks and providers
+
+Inside a `'use client'` file, import from the `/client` subpath:
+
+```tsx
+'use client'
+
+import {
+  BadgeProvider,
+  useBadgeContext,
+  useBadgeValue,
+  useEnhancedSidebar,
+  useNavItemState,
+  useTabState,
+} from '@veiag/payload-enhanced-sidebar/client'
+```
+
+The same names are re-exported from the package root, but the root entry also carries the plugin itself (and with it `payload`), which does not belong in a client bundle. Prop types (`CustomNavItemProps`, `CustomTabButtonProps`, …) are available from both.
+
 ---
 
 ## NavItem
@@ -46,7 +65,7 @@ Use the `useNavItemState(href)` hook to get reactive active state:
 'use client'
 
 import type { CustomNavItemProps } from '@veiag/payload-enhanced-sidebar'
-import { useNavItemState } from '@veiag/payload-enhanced-sidebar'
+import { useNavItemState } from '@veiag/payload-enhanced-sidebar/client'
 import { Link } from '@payloadcms/ui'
 
 export const MyNavItem: React.FC<CustomNavItemProps> = ({ entity, href, id, label }) => {
@@ -72,7 +91,7 @@ export const MyNavItem: React.FC<CustomNavItemProps> = ({ entity, href, id, labe
 **`useNavItemState(href)`**
 
 ```typescript
-import { useNavItemState } from '@veiag/payload-enhanced-sidebar'
+import { useNavItemState } from '@veiag/payload-enhanced-sidebar/client'
 
 const { isActive, isCurrentPage } = useNavItemState(href)
 // isActive      — true when current path starts with href (e.g. /admin/collections/posts/*)
@@ -157,7 +176,7 @@ Use the `useTabState(id)` hook to know which tab is active:
 'use client'
 
 import type { CustomNavContentProps } from '@veiag/payload-enhanced-sidebar'
-import { useTabState } from '@veiag/payload-enhanced-sidebar'
+import { useTabState } from '@veiag/payload-enhanced-sidebar/client'
 
 export const MyNavContent: React.FC<CustomNavContentProps> = ({
   tabs,
@@ -196,7 +215,7 @@ const TabPanel = ({ id, tabsContent }) => {
 **`useTabState(id)`**
 
 ```typescript
-import { useTabState } from '@veiag/payload-enhanced-sidebar'
+import { useTabState } from '@veiag/payload-enhanced-sidebar/client'
 
 const { isActive } = useTabState('my-tab-id')
 // true when this tab is the currently selected one
@@ -225,8 +244,10 @@ payloadEnhancedSidebar({
 | `label` | `string` | Pre-translated label |
 | `icon` | `ReactNode` | Pre-rendered icon (from `iconComponent` or default Lucide) |
 | `badge` | `BadgeConfig \| undefined` | Badge config |
-| `href` | `string \| undefined` | Computed href (only for `link` type) |
-| `isExternal` | `boolean \| undefined` | Whether link is external (only for `link` type) |
+| `href` | `string \| undefined` | Computed href. Always set for `link` items; set for `tab` items only when they declare an `href` |
+| `isExternal` | `boolean \| undefined` | Whether the link is external. Only ever set for `link` items — a tab's `href` is admin-relative |
+
+Since a `tab` [can also carry an `href`](../README.md#tabs), `href` — not `type` — decides whether you render an anchor or a button. A `tab` with an `href` must do both: navigate and switch the panel. Skip the tab switch on modifier and middle clicks — those land in a new tab/window, and the current one must keep the panel it already has.
 
 Use `useTabState` and `useEnhancedSidebar` for state:
 
@@ -234,7 +255,7 @@ Use `useTabState` and `useEnhancedSidebar` for state:
 'use client'
 
 import type { CustomTabButtonProps } from '@veiag/payload-enhanced-sidebar'
-import { useEnhancedSidebar, useTabState } from '@veiag/payload-enhanced-sidebar'
+import { useEnhancedSidebar, useTabState } from '@veiag/payload-enhanced-sidebar/client'
 
 export const MyTabButton: React.FC<CustomTabButtonProps> = ({
   id, type, label, icon, href, isExternal,
@@ -242,14 +263,22 @@ export const MyTabButton: React.FC<CustomTabButtonProps> = ({
   const { isActive } = useTabState(id)
   const { onTabChange } = useEnhancedSidebar()
 
-  if (type === 'link' && href) {
+  if (href) {
     return (
       <a
         href={href}
+        onClick={(e) => {
+          // Lands in a new tab/window? Then don't touch this window's panel
+          const opensElsewhere =
+            e.button !== 0 || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey
+          if (type === 'tab' && !opensElsewhere) {
+            onTabChange(id)
+          }
+        }}
         rel={isExternal ? 'noopener noreferrer' : undefined}
         target={isExternal ? '_blank' : undefined}
         title={label}
-        style={{ opacity: isActive ? 1 : 0.5 }}
+        style={{ opacity: type === 'tab' && isActive ? 1 : 0.5 }}
       >
         {icon}
       </a>
@@ -257,7 +286,12 @@ export const MyTabButton: React.FC<CustomTabButtonProps> = ({
   }
 
   return (
-    <button onClick={() => onTabChange(id)} title={label} type="button">
+    <button
+      onClick={() => onTabChange(id)}
+      title={label}
+      type="button"
+      style={{ opacity: isActive ? 1 : 0.5 }}
+    >
       {icon}
     </button>
   )
@@ -267,7 +301,7 @@ export const MyTabButton: React.FC<CustomTabButtonProps> = ({
 **`useEnhancedSidebar()`**
 
 ```typescript
-import { useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar'
+import { useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar/client'
 
 const { activeTabId, onTabChange } = useEnhancedSidebar()
 // activeTabId  — currently selected tab id
@@ -658,7 +692,7 @@ payloadEnhancedSidebar({
 
 | Hook | Import | Description |
 |------|--------|-------------|
-| `useNavItemState(href)` | `@veiag/payload-enhanced-sidebar` | `{ isActive, isCurrentPage }` for a nav item |
-| `useTabState(id)` | `@veiag/payload-enhanced-sidebar` | `{ isActive }` for a tab id |
-| `useEnhancedSidebar()` | `@veiag/payload-enhanced-sidebar` | `{ activeTabId, onTabChange }` context |
-| `useBadgeValue(slug)` | `@veiag/payload-enhanced-sidebar` | Current badge value from BadgeProvider |
+| `useNavItemState(href)` | `@veiag/payload-enhanced-sidebar/client` | `{ isActive, isCurrentPage }` for a nav item |
+| `useTabState(id)` | `@veiag/payload-enhanced-sidebar/client` | `{ isActive }` for a tab id |
+| `useEnhancedSidebar()` | `@veiag/payload-enhanced-sidebar/client` | `{ activeTabId, onTabChange }` context |
+| `useBadgeValue(slug)` | `@veiag/payload-enhanced-sidebar/client` | Current badge value from BadgeProvider |

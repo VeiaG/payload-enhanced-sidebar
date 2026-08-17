@@ -6,7 +6,7 @@ An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a
 
 - **Tabbed Navigation** - Organize collections into separate tabs for cleaner navigation
 - **Vertical Tab Bar** - Icon-based tabs on the left side of the sidebar
-- **Link Support** - Add navigation links (like Dashboard) alongside tabs
+- **Link Support** - Add navigation links (like Dashboard) alongside tabs, or give a tab its own `href` so it navigates *and* opens its panel
 - **Custom Items** - Add custom navigation items that can be merged into existing groups
 - **Badges** - Show notification badges on tabs and navigation items (API-based or reactive provider)
 - **Custom Components** - Replace any part of the sidebar with your own React components
@@ -166,11 +166,44 @@ Array of tabs and links to show in the sidebar.
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
 | `customItems` | `SidebarTabItem[]` | No | Custom navigation items (see below) |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
+| `href` | `string` | No | Makes the tab navigate as well as open its panel. Relative to the admin route (see below) |
 | `position` | `'top' \| 'bottom'` | No | `'bottom'` pins the tab to the bottom of the bar, above the actions (default `'top'`) |
 | `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
 
 > \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
 > If neither `collections` nor `globals` are specified, the tab shows all collections and globals.
+
+**Tabs that are also links (`href` on a tab)**
+
+By default a `tab` opens a panel and a `link` navigates — one or the other. Give a tab an `href` and it does both: a click navigates **and** opens the tab's panel, so its child items stay visible. This is what you want for a Dashboard tab that should open `/admin` while still showing its own shortcuts.
+
+```typescript
+tabs: [
+  {
+    id: 'dashboard',
+    type: 'tab',
+    href: '/',                 // relative to the admin route → /admin
+    icon: 'House',
+    label: 'Dashboard',
+    customItems: [
+      { slug: 'new-post', href: '/collections/posts/create', label: 'New Post' },
+    ],
+  },
+]
+```
+
+Click behavior:
+
+| Click | Result |
+|-------|--------|
+| Plain left-click | Navigates to `href` **and** opens the tab's panel |
+| ⌘ / Ctrl / Shift / Alt click, middle-click | Navigates only — a click that lands in a new tab/window leaves the current window's panel exactly as it was |
+
+A tab's `href` is always relative to the admin route — there is no `isExternal` here. An external href opens in a new browser tab, which would leave this window untouched and the tab's panel unreachable. Use `type: 'link'` for external destinations.
+
+The tab renders as a real anchor, so "Open in new tab", link previews and keyboard activation all work as expected.
+
+Such a tab shows two independent states: the background highlight marks the **open panel**, while the left-edge bar marks the **current route** — so it stays visible as the active panel even after you navigate away.
 
 
 **Link (`type: 'link'`)**
@@ -416,7 +449,7 @@ For reactive badges (real-time updates, websockets, etc.), use the `BadgeProvide
 // components/MyBadgeProvider.tsx
 'use client'
 
-import { BadgeProvider } from '@veiag/payload-enhanced-sidebar'
+import { BadgeProvider } from '@veiag/payload-enhanced-sidebar/client'
 import { useEffect, useState } from 'react'
 
 export const MyBadgeProvider = ({ children }) => {

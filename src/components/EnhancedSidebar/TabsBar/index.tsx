@@ -6,7 +6,12 @@ import { usePathname } from 'next/navigation.js'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
-import type { EnhancedSidebarConfig, SidebarTab } from '../../../types.js'
+import type {
+  EnhancedSidebarConfig,
+  SidebarTab,
+  SidebarTabContent,
+  SidebarTabLink,
+} from '../../../types.js'
 
 import { Icon } from '../Icon.js'
 import { SettingsMenuButton } from '../SettingsMenuButton/index.js'
@@ -56,16 +61,38 @@ export const TabsBar: React.FC<TabsBarProps> = ({
   })
   const isFoldersActive = pathname.startsWith(folderURL)
 
+  /**
+   * Resolves a configured href to a full URL and whether it matches the current route.
+   * `href` is required on links and optional on tabs (a tab with an href both
+   * navigates and opens its panel).
+   */
+  const resolveHref = (
+    item: SidebarTabContent | SidebarTabLink,
+  ): { href: string; isCurrentPage: boolean } | undefined => {
+    if (item.href === undefined) {
+      return undefined
+    }
+    const href = item.isExternal ? item.href : formatAdminURL({ adminRoute, path: item.href })
+    return {
+      href,
+      isCurrentPage: pathname === href || (item.href === '/' && pathname === adminRoute),
+    }
+  }
+
   const renderTabItem = (item: SidebarTab) => {
     if (item.type === 'custom') {
       return customTabComponents?.[item.id] ?? null
     }
 
+    const resolved = resolveHref(item)
+
     if (item.type === 'tab') {
       return (
         <TabButton
+          href={resolved?.href}
           icon={tabIcons?.[item.id]}
           isActive={activeTabId === item.id}
+          isCurrentPage={resolved?.isCurrentPage}
           key={item.id}
           onTabChange={onTabChange}
           tab={item}
@@ -73,13 +100,15 @@ export const TabsBar: React.FC<TabsBarProps> = ({
       )
     }
 
-    // Check if link is active
-    const href = item.isExternal
-      ? item.href
-      : formatAdminURL({ adminRoute, path: item.href })
-    const isActive = pathname === href || (item.href === '/' && pathname === adminRoute)
-
-    return <TabLink href={href} icon={tabIcons?.[item.id]} isActive={isActive} key={item.id} link={item} />
+    return (
+      <TabLink
+        href={resolved!.href}
+        icon={tabIcons?.[item.id]}
+        isActive={resolved!.isCurrentPage}
+        key={item.id}
+        link={item}
+      />
+    )
   }
 
   const tabItems = sidebarConfig.tabs ?? []

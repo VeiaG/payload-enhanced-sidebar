@@ -426,13 +426,29 @@ const buildConfigWithMemoryDB = async () => {
           },
         },
         tabs: [
+          // Tab + href: clicking it opens the dashboard *and* the tab's own panel,
+          // so the shortcuts below stay visible. Cmd/Ctrl-click only navigates.
           {
             id: 'dashboard',
-            type: 'link',
+            type: 'tab',
             href: '/',
+            customItems: [
+              {
+                slug: 'dashboard-new-post',
+                group: { en: 'Shortcuts', uk: 'Ярлики' },
+                href: '/collections/posts/create',
+                label: { en: 'New Post', uk: 'Новий пост' },
+              },
+              {
+                slug: 'dashboard-account',
+                group: { en: 'Shortcuts', uk: 'Ярлики' },
+                href: '/account',
+                label: { en: 'My Account', uk: 'Мій акаунт' },
+              },
+            ],
             iconComponent: './components/CustomNavComponents#CustomTabIcon',
             label: { en: 'Dashboard', uk: 'Головна' },
-            // access: always granted — link is visible
+            // access: always granted — tab is visible
             access: ({ req }) => Boolean(req.user),
           },
           {
@@ -613,6 +629,16 @@ const buildConfigWithMemoryDB = async () => {
             icon: 'Settings',
             label: { en: 'Settings', uk: 'Налаштування' },
             // Render this tab at the bottom of the bar, above folders/settings/logout
+            position: 'bottom',
+          },
+          // Plain link — navigates only, opens no panel
+          {
+            id: 'docs',
+            type: 'link',
+            href: 'https://payload.veiag.dev/',
+            icon: 'BookOpen',
+            isExternal: true,
+            label: { en: 'Docs', uk: 'Документація' },
             position: 'bottom',
           },
         ],
