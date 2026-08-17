@@ -692,7 +692,7 @@ payloadEnhancedSidebar({
 
 | Hook | Import | Description |
 |------|--------|-------------|
-| `useNavItemState(href)` | `@veiag/payload-enhanced-sidebar` | `{ isActive, isCurrentPage }` for a nav item |
-| `useTabState(id)` | `@veiag/payload-enhanced-sidebar` | `{ isActive }` for a tab id |
-| `useEnhancedSidebar()` | `@veiag/payload-enhanced-sidebar` | `{ activeTabId, onTabChange }` context |
-| `useBadgeValue(slug)` | `@veiag/payload-enhanced-sidebar` | Current badge value from BadgeProvider |
+| `useNavItemState(href)` | `@veiag/payload-enhanced-sidebar/client` | `{ isActive, isCurrentPage }` for a nav item |
+| `useTabState(id)` | `@veiag/payload-enhanced-sidebar/client` | `{ isActive }` for a tab id |
+| `useEnhancedSidebar()` | `@veiag/payload-enhanced-sidebar/client` | `{ activeTabId, onTabChange }` context |
+| `useBadgeValue(slug)` | `@veiag/payload-enhanced-sidebar/client` | Current badge value from BadgeProvider |

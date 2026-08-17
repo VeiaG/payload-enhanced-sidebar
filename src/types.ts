@@ -198,16 +198,9 @@ type TabHrefSelf = {
   href: '' | `/${string}`
   isExternal?: never
 }
-/** No href at all — the tab only opens its panel. */
+/** A tab with no href — clicking it only opens its panel. */
 type TabHrefNone = {
-  /**
-   * Optional href, relative to the admin route. When set, the tab doubles as a
-   * link: a plain click navigates **and** opens the tab's panel, so a Dashboard
-   * tab can open `/admin` while its child items stay visible.
-   *
-   * Modifier and middle clicks navigate only — they open a new tab/window and
-   * leave this window's panel untouched.
-   */
+  /** @see {@link TabHrefSelf.href} */
   href?: never
   isExternal?: never
 }
