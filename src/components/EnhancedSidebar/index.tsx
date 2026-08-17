@@ -457,9 +457,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       }
 
       if (hasCustomTabButton) {
-        // Compute href for links
+        // Compute href — required on links, optional on tabs (a tab with an href
+        // both navigates and opens its panel).
         let href: string | undefined
-        if (item.type === 'link') {
+        if (item.href !== undefined) {
           href = item.isExternal ? item.href : formatAdminURL({ adminRoute, path: item.href })
         }
 
@@ -474,7 +475,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
               badge: item.badge,
               href,
               icon: iconNode,
-              isExternal: item.type === 'link' ? item.isExternal : undefined,
+              isExternal: item.isExternal,
               label,
               ...tabBtnExtraProps,
             },

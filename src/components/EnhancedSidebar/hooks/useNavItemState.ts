@@ -9,7 +9,7 @@ import { usePathname } from 'next/navigation.js'
  * @example
  * ```tsx
  * 'use client'
- * import { useNavItemState } from '@veiag/payload-enhanced-sidebar'
+ * import { useNavItemState } from '@veiag/payload-enhanced-sidebar/client'
  *
  * export const MyNavItem = ({ href, label }) => {
  *   const { isActive, isCurrentPage } = useNavItemState(href)

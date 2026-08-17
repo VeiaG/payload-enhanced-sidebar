@@ -41,7 +41,7 @@ export type BadgeProviderProps = {
  * @example
  * ```tsx
  * // In your admin.components.providers
- * import { BadgeProvider } from '@veiag/payload-enhanced-sidebar'
+ * import { BadgeProvider } from '@veiag/payload-enhanced-sidebar/client'
  *
  * export const MyProvider = ({ children }) => {
  *   const [counts, setCounts] = useState({ orders: 0 })
