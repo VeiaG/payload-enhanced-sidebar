@@ -10,10 +10,15 @@
     }
 
     &__content-scroll {
+      // Exposed as a variable because `__link-indicator` has to hang exactly this far
+      // outside the content box to land on the panel edge. Hard-coding the offset makes
+      // the indicator slide under the tabs bar once the padding shrinks at `mid-break`.
+      --enhanced-sidebar-content-padding-inline: #{base(1)};
+
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: var(--app-header-height) base(1) base(2) base(1);
+      padding: var(--app-header-height) var(--enhanced-sidebar-content-padding-inline) base(2);
       overflow-y: auto;
 
       &::-webkit-scrollbar {
@@ -54,7 +59,7 @@
     &__link-indicator {
       position: absolute;
       display: block;
-      inset-inline-start: base(-1);
+      inset-inline-start: calc(var(--enhanced-sidebar-content-padding-inline, #{base(1)}) * -1);
       width: 2px;
       height: 16px;
       border-start-end-radius: 2px;
@@ -83,13 +88,13 @@
 
     @include mid-break {
       &__content-scroll {
-        padding-inline: base(0.5);
+        --enhanced-sidebar-content-padding-inline: #{base(0.5)};
       }
     }
 
     @include small-break {
       &__content-scroll {
-        padding-inline: var(--gutter-h);
+        --enhanced-sidebar-content-padding-inline: var(--gutter-h);
       }
 
       &__link {

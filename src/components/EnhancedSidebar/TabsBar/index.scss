@@ -6,8 +6,8 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    width: 48px;
-    min-width: 48px;
+    width: var(--enhanced-sidebar-tabs-bar-width, 48px);
+    min-width: var(--enhanced-sidebar-tabs-bar-width, 48px);
     padding: base(0.5) 0;
     border-right: 1px solid var(--theme-elevation-100);
     background: var(--theme-elevation-50);

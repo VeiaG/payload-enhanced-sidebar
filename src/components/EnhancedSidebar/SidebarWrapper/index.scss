@@ -1,6 +1,12 @@
 @import '~@payloadcms/ui/scss';
 
 @layer payload-default {
+  :root {
+    // Width of the tabs rail. Shared with `.tabs-bar`, and with the override below that
+    // lines Payload's nav toggler up with it.
+    --enhanced-sidebar-tabs-bar-width: 48px;
+  }
+
   .enhanced-sidebar {
     position: sticky;
     top: 0;
@@ -60,6 +66,24 @@
           padding-right: var(--gutter-h);
         }
       }
+    }
+  }
+}
+
+// Payload centres its nav toggler inside a `var(--gutter-h)` wide column, sized for the
+// default nav. Our rail is a fixed 48px, so with the sidebar closed the hamburger sits
+// off-centre from the icons it turns into once you open it.
+//
+// `payload` is declared after `payload-default` in Payload's layer order, so this wins over
+// the template's own rule no matter which stylesheet the bundler emits first — and unlayered
+// project CSS can still override it.
+@layer payload {
+  .template-default__nav-toggler-wrapper {
+    width: var(--enhanced-sidebar-tabs-bar-width, 48px);
+
+    @include small-break {
+      // Payload drops the column and hides the hamburger on mobile — stay out of the way.
+      width: unset;
     }
   }
 }
