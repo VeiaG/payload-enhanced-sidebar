@@ -4,6 +4,10 @@
   "description": "An enhanced sidebar plugin for Payload CMS with tabbed navigation to organize collections and globals.",
   "author": "VeiaG",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VeiaG/payload-enhanced-sidebar.git"
+  },
   "type": "module",
   "exports": {
     ".": {
