@@ -48,7 +48,9 @@ const computeGroupsForTab = async (
 ): Promise<ExtendedGroup[]> => {
   const { collections: tabCollections, customItems, globals: tabGlobals } = tab
 
-  const showAll = !tabCollections && !tabGlobals
+  // A tab with its own contentComponent opts out of the "show everything" fallback —
+  // its `content` prop only holds what the tab explicitly lists.
+  const showAll = !tabCollections && !tabGlobals && !tab.contentComponent
   const allowedSlugs = new Set([...(tabCollections ?? []), ...(tabGlobals ?? [])])
 
   let result: ExtendedGroup[] = []
@@ -394,6 +396,23 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     )
   }
 
+  // Per-tab contentComponent views — replace the whole nav area while their tab is active
+  const tabViews: Record<string, React.ReactNode> = {}
+  for (const tab of tabs) {
+    if (!tab.contentComponent) {
+      continue
+    }
+    const { clientProps: extraProps, path } = resolveSidebarComponent(tab.contentComponent)
+    tabViews[tab.id] = RenderServerComponent({
+      clientProps: { id: tab.id, content: tabsContent[tab.id], ...extraProps },
+      Component: path,
+      importMap: payload.importMap,
+      key: `tab-view-${tab.id}`,
+      serverProps,
+    })
+  }
+  const hasTabViews = Object.keys(tabViews).length > 0
+
   // For the no-tabs fallback — only show all content when the config has no tab-type items at all.
   // If tabs exist but are all hidden by access control, show nothing instead of the full nav.
   const configuredTabsCount = (config.tabs ?? []).filter((t) => t.type === 'tab').length
@@ -404,17 +423,15 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
 
   // Build server-side icon and tab button rendering
   const allTabItems = visibleTabItems
-  const hasCustomTabButton = !!config.customComponents?.TabButton
-  const hasAnyIconComponent = allTabItems.some((t) => t.type !== 'custom' && t.iconComponent)
+  const globalTabButton = config.customComponents?.TabButton
 
-  // tabIcons: per-id icon node (only built when no custom TabButton, just iconComponent overrides)
+  // tabIcons: per-id server-rendered icon node for the default buttons
   const tabIcons: Record<string, React.ReactNode> = {}
-  // renderedTabItems: fully custom tab button nodes (built when customComponents.TabButton is set)
-  const renderedTabItems: React.ReactNode[] = []
+  // tabButtons: per-id custom button nodes — from an item's buttonComponent or the global TabButton
+  const tabButtons: Record<string, React.ReactNode> = {}
   // customTabComponents: server-rendered components for type:'custom' tab bar slots
   const customTabComponents: Record<string, React.ReactNode> = {}
 
-  // Pre-render all type:'custom' items
   for (const item of allTabItems) {
     if (item.type === 'custom') {
       const { clientProps: extraProps, path } = resolveSidebarComponent(item.component)
@@ -425,70 +442,61 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
         key: item.id,
         serverProps,
       })
+      continue
     }
-  }
 
-  if (hasCustomTabButton || hasAnyIconComponent) {
-    for (const item of allTabItems) {
-      if (item.type === 'custom') {
-        // Include pre-rendered custom slot in renderedTabItems when using custom TabButton
-        if (hasCustomTabButton) {
-          renderedTabItems.push(customTabComponents[item.id])
-        }
-        continue
-      }
+    // Per-item buttonComponent takes precedence over the global TabButton
+    const buttonComponent = item.buttonComponent ?? globalTabButton
 
-      const label = getTranslation(item.label, i18n)
+    const label = getTranslation(item.label, i18n)
 
-      // Resolve icon: custom iconComponent > default Lucide
-      let iconNode: React.ReactNode
-      if (item.iconComponent) {
-        const { clientProps: iconExtraProps, path: iconPath } = resolveSidebarComponent(
-          item.iconComponent,
-        )
-        iconNode = RenderServerComponent({
-          clientProps: { id: item.id, type: item.type, label, ...iconExtraProps },
-          Component: iconPath,
-          importMap: payload.importMap,
-          serverProps,
-        })
-      } else {
-        iconNode = item.icon ? <Icon name={item.icon} size={20} /> : null
-      }
-
-      if (hasCustomTabButton) {
-        // Compute href — required on links, optional on tabs (a tab with an href
-        // both navigates and opens its panel).
-        let href: string | undefined
-        if (item.href !== undefined) {
-          href = item.isExternal ? item.href : formatAdminURL({ adminRoute, path: item.href })
-        }
-
-        const { clientProps: tabBtnExtraProps, path: tabBtnPath } = resolveSidebarComponent(
-          config.customComponents!.TabButton!,
-        )
-        renderedTabItems.push(
-          RenderServerComponent({
-            clientProps: {
-              id: item.id,
-              type: item.type,
-              badge: item.badge,
-              href,
-              icon: iconNode,
-              isExternal: item.isExternal,
-              label,
-              ...tabBtnExtraProps,
-            },
-            Component: tabBtnPath,
-            importMap: payload.importMap,
-            key: item.id,
-            serverProps,
-          }),
-        )
-      } else if (item.iconComponent) {
-        tabIcons[item.id] = iconNode
-      }
+    // Resolve icon: custom iconComponent > default Lucide. Always rendered here on the
+    // server, so the Lucide icon map never reaches the client bundle — only the SVG does.
+    let iconNode: React.ReactNode
+    if (item.iconComponent) {
+      const { clientProps: iconExtraProps, path: iconPath } = resolveSidebarComponent(
+        item.iconComponent,
+      )
+      iconNode = RenderServerComponent({
+        clientProps: { id: item.id, type: item.type, label, ...iconExtraProps },
+        Component: iconPath,
+        importMap: payload.importMap,
+        serverProps,
+      })
+    } else {
+      iconNode = item.icon ? <Icon name={item.icon} size={20} /> : null
     }
+
+    if (!buttonComponent) {
+      tabIcons[item.id] = iconNode
+      continue
+    }
+
+    // Compute href — required on links, optional on tabs (a tab with an href
+    // both navigates and opens its panel).
+    let href: string | undefined
+    if (item.href !== undefined) {
+      href = item.isExternal ? item.href : formatAdminURL({ adminRoute, path: item.href })
+    }
+
+    const { clientProps: tabBtnExtraProps, path: tabBtnPath } =
+      resolveSidebarComponent(buttonComponent)
+    tabButtons[item.id] = RenderServerComponent({
+      clientProps: {
+        id: item.id,
+        type: item.type,
+        badge: item.badge,
+        href,
+        icon: iconNode,
+        isExternal: item.isExternal,
+        label,
+        ...tabBtnExtraProps,
+      },
+      Component: tabBtnPath,
+      importMap: payload.importMap,
+      key: item.id,
+      serverProps,
+    })
   }
 
   const customNavContent = config.customComponents?.NavContent
@@ -505,6 +513,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
             beforeNavLinks: beforeNavLinksRendered,
             tabs: tabs.map((t) => ({ id: t.id })),
             tabsContent,
+            tabViews: hasTabViews ? tabViews : undefined,
             ...extraProps,
           },
           Component: path,
@@ -528,11 +537,12 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       customNavContent={customNavContent}
       customTabComponents={Object.keys(customTabComponents).length > 0 ? customTabComponents : undefined}
       initialActiveTabId={initialActiveTabId}
-      renderedTabItems={renderedTabItems.length > 0 ? renderedTabItems : undefined}
       settingsMenu={renderedSettingsMenu}
       sidebarConfig={clientSidebarConfig}
+      tabButtons={Object.keys(tabButtons).length > 0 ? tabButtons : undefined}
       tabIcons={Object.keys(tabIcons).length > 0 ? tabIcons : undefined}
       tabsContent={tabsContent}
+      tabViews={hasTabViews ? tabViews : undefined}
     />
   )
 }

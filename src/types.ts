@@ -217,11 +217,34 @@ type SidebarTabContentBase = {
    */
   badge?: BadgeConfig
   /**
-   * Collections to show in this tab.
-   * If not specified, no collections are shown (unless items are specified).
-   * Use collection slugs.
+   * Path to a custom button component for this item only. Replaces the default
+   * button (and `customComponents.TabButton`, if set) for this one item.
+   * Receives `CustomTabButtonProps` plus any `clientProps` you pass.
+   *
+   * Useful when a single item needs different click behavior — e.g. a linked tab
+   * that keeps the current URL's search params.
+   * Registered automatically in the import map.
+   */
+  buttonComponent?: SidebarComponent
+  /**
+   * Collections to show in this tab, by slug.
+   *
+   * If **neither** `collections` nor `globals` is set, the tab shows all collections
+   * and globals (except tabs with a `contentComponent`). Once either is set, only the
+   * listed slugs are shown. To show none, pass an empty array: `collections: []`.
    */
   collections?: CollectionSlug[]
+  /**
+   * Path to a component that replaces the whole nav content area (`<nav>`) while this
+   * tab is active — for tabs whose panel isn't a list of links (a chat list, a search
+   * panel, …). Receives `CustomTabContentProps` plus any `clientProps`.
+   *
+   * Payload's `beforeNav` / `beforeNavLinks` / `afterNavLinks` / `afterNav` slots are
+   * not shown on this tab. Wrap your output in `NavContentShell` to keep the default
+   * layout and scrolling. Rendered server-side, so server components work too.
+   * Registered automatically in the import map.
+   */
+  contentComponent?: SidebarComponent
   /**
    * Custom items to add to this tab.
    * Items with `group` will be merged into matching collection groups.
@@ -229,9 +252,11 @@ type SidebarTabContentBase = {
    */
   customItems?: SidebarTabItem[]
   /**
-   * Globals to show in this tab.
-   * If not specified, no globals are shown.
-   * Use global slugs.
+   * Globals to show in this tab, by slug.
+   *
+   * If **neither** `collections` nor `globals` is set, the tab shows all collections
+   * and globals (except tabs with a `contentComponent`). Once either is set, only the
+   * listed slugs are shown. To show none, pass an empty array: `globals: []`.
    */
   globals?: GlobalSlug[]
   /** Unique identifier for the tab */
@@ -267,6 +292,16 @@ type SidebarTabLinkBase = {
    * Shows a badge on the link icon in the tabs bar.
    */
   badge?: BadgeConfig
+  /**
+   * Path to a custom button component for this item only. Replaces the default
+   * button (and `customComponents.TabButton`, if set) for this one item.
+   * Receives `CustomTabButtonProps` plus any `clientProps` you pass.
+   *
+   * Useful when a single item needs different click behavior — e.g. a linked tab
+   * that keeps the current URL's search params.
+   * Registered automatically in the import map.
+   */
+  buttonComponent?: SidebarComponent
   /** Unique identifier */
   id: string
   /** Tooltip/label */
@@ -505,7 +540,8 @@ export type CustomTabIconProps = {
 }
 
 /**
- * Props received by a custom TabButton component registered via `customComponents.TabButton`.
+ * Props received by a custom TabButton component — registered globally via
+ * `customComponents.TabButton`, or for a single item via its `buttonComponent`.
  * Used for both `tab` and `link` type items in the tabs bar.
  *
  * Use `useTabState(id)` for tab active state, or `usePathname()` for link active state.
@@ -614,6 +650,41 @@ export type CustomNavContentProps = {
   tabs: Array<{ id: string }>
   /** Pre-rendered content per tab id */
   tabsContent: Record<string, ReactNode>
+  /**
+   * Pre-rendered `contentComponent` output, keyed by tab id — only for tabs that set one.
+   * The default NavContent shows it in place of the whole nav area while that tab is
+   * active; a custom NavContent decides for itself what to do with it.
+   */
+  tabViews?: Record<string, ReactNode>
+}
+
+/**
+ * Props received by a per-tab content component set via `contentComponent` on a tab.
+ * It replaces the whole nav content area while the tab is active.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomTabContentProps } from '@veiag/payload-enhanced-sidebar'
+ * import { NavContentShell } from '@veiag/payload-enhanced-sidebar/client'
+ *
+ * export const ChatsPanel: React.FC<CustomTabContentProps> = ({ content }) => (
+ *   <NavContentShell>
+ *     <ChatList />
+ *     {content}
+ *   </NavContentShell>
+ * )
+ * ```
+ */
+export type CustomTabContentProps = {
+  /**
+   * The tab's pre-rendered groups (collections, globals, customItems) — the same
+   * nodes the default panel would show. Empty when the tab defines none — unlike a
+   * regular tab, a tab with `contentComponent` does not fall back to showing everything.
+   */
+  content: ReactNode
+  /** Tab id */
+  id: string
 }
 
 /**

@@ -1,8 +1,8 @@
 'use client'
 import { Popup, useTranslation } from '@payloadcms/ui'
+import { Settings } from 'lucide-react'
 import React, { Fragment } from 'react'
 
-import { Icon } from '../Icon.js'
 import './index.scss'
 
 const baseClass = 'settings-menu-button'
@@ -22,7 +22,7 @@ export const SettingsMenuButton: React.FC<SettingsMenuButtonProps> = ({ settings
     <Popup
       button={
         <span aria-label={t('general:menu')} className={`${baseClass}__button`}>
-          <Icon name="Settings" size={20} />
+          <Settings size={20} />
         </span>
       }
       className={baseClass}

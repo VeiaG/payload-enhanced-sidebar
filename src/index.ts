@@ -88,9 +88,26 @@ export const payloadEnhancedSidebar =
           type: 'component',
           path,
         }
-      } else if (tab.iconComponent) {
-        const { path } = resolveSidebarComponent(tab.iconComponent)
-        config.admin.dependencies[`enhanced-sidebar-icon-${tab.id}`] = {
+      } else {
+        if (tab.iconComponent) {
+          const { path } = resolveSidebarComponent(tab.iconComponent)
+          config.admin.dependencies[`enhanced-sidebar-icon-${tab.id}`] = {
+            type: 'component',
+            path,
+          }
+        }
+        if (tab.buttonComponent) {
+          const { path } = resolveSidebarComponent(tab.buttonComponent)
+          config.admin.dependencies[`enhanced-sidebar-button-${tab.id}`] = {
+            type: 'component',
+            path,
+          }
+        }
+      }
+
+      if (tab.type === 'tab' && tab.contentComponent) {
+        const { path } = resolveSidebarComponent(tab.contentComponent)
+        config.admin.dependencies[`enhanced-sidebar-content-${tab.id}`] = {
           type: 'component',
           path,
         }
@@ -145,15 +162,25 @@ export const payloadEnhancedSidebar =
     return config
   }
 
+// Hooks, providers and default components (to wrap in custom components).
+// In 'use client' files prefer `@veiag/payload-enhanced-sidebar/client`.
+export { Badge } from './components/EnhancedSidebar/Badge/index.js'
+export type { BadgeProps } from './components/EnhancedSidebar/Badge/index.js'
 export {
   BadgeProvider,
   useBadgeContext,
   useBadgeValue,
 } from './components/EnhancedSidebar/BadgeProvider/index.js'
-
 export { useEnhancedSidebar } from './components/EnhancedSidebar/context.js'
+export { useBadge } from './components/EnhancedSidebar/hooks/useBadge.js'
 export { useNavItemState } from './components/EnhancedSidebar/hooks/useNavItemState.js'
 export { useTabState } from './components/EnhancedSidebar/hooks/useTabState.js'
+export { NavContentShell } from './components/EnhancedSidebar/NavContent/index.js'
+export type { NavContentShellProps } from './components/EnhancedSidebar/NavContent/index.js'
+export { NavItem } from './components/EnhancedSidebar/NavItem/index.js'
+export type { NavItemProps } from './components/EnhancedSidebar/NavItem/index.js'
+export { TabButton } from './components/EnhancedSidebar/TabsBar/TabItem.js'
+export type { TabButtonProps } from './components/EnhancedSidebar/TabsBar/TabItem.js'
 
 export type {
   BadgeColor,
@@ -167,6 +194,7 @@ export type {
   CustomNavItemComponentProps,
   CustomNavItemProps,
   CustomTabButtonProps,
+  CustomTabContentProps,
   CustomTabIconProps,
   CustomTabsBarComponentProps,
   EnhancedSidebarConfig,

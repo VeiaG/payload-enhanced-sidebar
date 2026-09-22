@@ -432,6 +432,8 @@ const buildConfigWithMemoryDB = async () => {
             id: 'dashboard',
             type: 'tab',
             href: '/',
+            // Per-item button: keeps the current URL's search params when navigating
+            buttonComponent: './components/CustomNavComponents#KeepQueryTabButton',
             customItems: [
               {
                 slug: 'dashboard-new-post',
@@ -601,6 +603,18 @@ const buildConfigWithMemoryDB = async () => {
             ],
             icon: 'Megaphone',
             label: { en: 'Marketing', uk: 'Маркетинг' },
+          },
+          // Tab with its own content component — replaces the whole nav area while
+          // active (no Payload before/after slots), e.g. a chat list instead of links
+          {
+            id: 'chats',
+            type: 'tab',
+            contentComponent: {
+              clientProps: { title: 'Chats' },
+              path: './components/CustomNavComponents#ChatListPanel',
+            },
+            icon: 'MessagesSquare',
+            label: { en: 'Chats', uk: 'Чати' },
           },
           // Custom separator — pinned to the bottom, just above the actions
           {

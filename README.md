@@ -161,17 +161,19 @@ Array of tabs and links to show in the sidebar.
 | `type` | `'tab'` | Yes | Tab type |
 | `icon` | `IconName` | Yes* | Lucide icon name |
 | `iconComponent` | `SidebarComponent` | Yes* | Path to a custom icon component (string or `{ path, clientProps }`) |
+| `buttonComponent` | `SidebarComponent` | No | Custom button for this item only — overrides `customComponents.TabButton` (see [docs](docs/custom-components.md#buttoncomponent-per-item-button)) |
 | `label` | `LocalizedString` | Yes | Tab tooltip/label |
 | `collections` | `CollectionSlug[]` | No | Collections to show in this tab |
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
 | `customItems` | `SidebarTabItem[]` | No | Custom navigation items (see below) |
+| `contentComponent` | `SidebarComponent` | No | Replaces the whole nav area while this tab is active — e.g. a chat list (see [docs](docs/custom-components.md#contentcomponent-per-tab-content)) |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
 | `href` | `string` | No | Makes the tab navigate as well as open its panel. Relative to the admin route (see below) |
 | `position` | `'top' \| 'bottom'` | No | `'bottom'` pins the tab to the bottom of the bar, above the actions (default `'top'`) |
 | `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
 
 > \* Exactly one of `icon` or `iconComponent` is required — they are mutually exclusive.
-> If neither `collections` nor `globals` are specified, the tab shows all collections and globals.
+> If neither `collections` nor `globals` is specified, the tab shows all collections and globals (except tabs with a `contentComponent`). Once either is set, only the listed slugs are shown — pass `collections: []` / `globals: []` to show none.
 
 **Tabs that are also links (`href` on a tab)**
 
@@ -214,6 +216,7 @@ Such a tab shows two independent states: the background highlight marks the **op
 | `type` | `'link'` | Yes | Link type |
 | `icon` | `IconName` | Yes* | Lucide icon name |
 | `iconComponent` | `SidebarComponent` | Yes* | Path to a custom icon component (string or `{ path, clientProps }`) |
+| `buttonComponent` | `SidebarComponent` | No | Custom button for this item only — overrides `customComponents.TabButton` (see [docs](docs/custom-components.md#buttoncomponent-per-item-button)) |
 | `label` | `LocalizedString` | Yes | Link tooltip/label |
 | `href` | `string` | Yes | URL |
 | `isExternal` | `boolean` | No | If true, `href` is absolute URL, if not, `href` is relative to admin route |
@@ -656,17 +659,29 @@ payloadEnhancedSidebar({
       iconComponent: './components/Sidebar#DashboardIcon',
       label: 'Dashboard',
     },
+    {
+      id: 'chats',
+      type: 'tab',
+      icon: 'MessagesSquare',
+      label: 'Chats',
+      // Custom button for just this tab/link (overrides TabButton)
+      buttonComponent: './components/Sidebar#ChatsTabButton',
+      // Replace the whole nav area while this tab is active
+      contentComponent: './components/Sidebar#ChatListPanel',
+    },
   ],
 })
 ```
 
-All custom components are client components (`'use client'`). The plugin provides hooks to connect them to sidebar state:
+Custom components can be client or server components. Everything is pre-rendered on the server on each page load — including tabs that aren't open — so fetch lazily in a client component if that matters (see [Rendering](docs/custom-components.md#rendering-everything-is-pre-rendered-on-the-server)). The plugin provides hooks to connect them to sidebar state:
 
 | Hook | Description |
 |------|-------------|
 | `useNavItemState(href)` | `{ isActive, isCurrentPage }` — for custom NavItem |
 | `useTabState(id)` | `{ isActive }` — for custom NavContent or TabButton |
 | `useEnhancedSidebar()` | `{ activeTabId, onTabChange }` — full tab context |
+
+The default building blocks — `NavItem`, `TabButton`, `NavContentShell`, `Badge` and `useBadge` — are exported too, so a custom component can wrap them instead of rebuilding badges, tooltips and active states.
 
 **→ See [docs/custom-components.md](docs/custom-components.md) for full documentation, prop types, and examples for each slot.**
 

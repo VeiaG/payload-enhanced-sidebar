@@ -6,12 +6,20 @@ import type {
   CustomNavItemComponentProps,
   CustomNavItemProps,
   CustomTabButtonProps,
+  CustomTabContentProps,
   CustomTabIconProps,
   CustomTabsBarComponentProps,
 } from '@veiag/payload-enhanced-sidebar'
 
 import { Link } from '@payloadcms/ui'
-import { useEnhancedSidebar, useNavItemState, useTabState } from '@veiag/payload-enhanced-sidebar'
+import {
+  NavContentShell,
+  TabButton,
+  useEnhancedSidebar,
+  useNavItemState,
+  useTabState,
+} from '@veiag/payload-enhanced-sidebar'
+import { useSearchParams } from 'next/navigation.js'
 import React, { useState } from 'react'
 
 export const CustomNavItem: React.FC<CustomNavItemProps> = ({ id, entity, href, label }) => {
@@ -325,3 +333,54 @@ export const CustomNavGroup: React.FC<CustomNavGroupProps> = ({
     </div>
   )
 }
+
+/**
+ * Per-item `buttonComponent` example: a linked tab that carries the current URL's
+ * search params along, so clicking it doesn't drop filters/pagination.
+ * Wraps the plugin's default `TabButton` and only changes the href.
+ */
+export const KeepQueryTabButton: React.FC<CustomTabButtonProps> = (props) => {
+  const query = useSearchParams().toString()
+  return <TabButton {...props} href={props.href && query ? `${props.href}?${query}` : props.href} />
+}
+
+const DEMO_CHATS = [
+  { id: '1', name: 'Design review', preview: 'Can we ship the new sidebar?' },
+  { id: '2', name: 'Support', preview: 'Customer asks about invoices' },
+  { id: '3', name: 'Marketing', preview: 'Newsletter draft is ready' },
+]
+
+/**
+ * Per-tab `contentComponent` example: a chat list instead of nav links.
+ * Replaces the whole nav area while the tab is active — no Payload before/after slots.
+ * `NavContentShell` keeps the default layout; the padding is tweaked via the CSS variable.
+ */
+export const ChatListPanel: React.FC<{ title?: string } & CustomTabContentProps> = ({
+  content,
+  title,
+}) => (
+  <NavContentShell
+    style={{ '--enhanced-sidebar-content-padding-inline': '8px' } as React.CSSProperties}
+  >
+    <strong style={{ padding: '0 8px 8px' }}>{title}</strong>
+    {DEMO_CHATS.map((chat) => (
+      <button
+        key={chat.id}
+        style={{
+          background: 'none',
+          border: 0,
+          borderRadius: 6,
+          color: 'inherit',
+          cursor: 'pointer',
+          padding: '8px',
+          textAlign: 'left',
+        }}
+        type="button"
+      >
+        <div style={{ fontWeight: 600 }}>{chat.name}</div>
+        <div style={{ fontSize: 12, opacity: 0.6 }}>{chat.preview}</div>
+      </button>
+    ))}
+    {content}
+  </NavContentShell>
+)

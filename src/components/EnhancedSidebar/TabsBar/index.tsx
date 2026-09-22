@@ -2,41 +2,33 @@
 
 import { getTranslation } from '@payloadcms/translations'
 import { Link, useConfig, useTranslation } from '@payloadcms/ui'
+import { Folder, LogOut } from 'lucide-react'
 import { usePathname } from 'next/navigation.js'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
-import type {
-  EnhancedSidebarConfig,
-  SidebarTab,
-  SidebarTabContent,
-  SidebarTabLink,
-} from '../../../types.js'
+import type { EnhancedSidebarConfig, SidebarTab } from '../../../types.js'
 
-import { Icon } from '../Icon.js'
 import { SettingsMenuButton } from '../SettingsMenuButton/index.js'
-import { TabButton, TabLink } from './TabItem.js'
+import { TabButton } from './TabItem.js'
 import './index.scss'
 
 const tabsBaseClass = 'tabs-bar'
 
 export type TabsBarProps = {
-  activeTabId: string
   customTabComponents?: Record<string, React.ReactNode>
-  onTabChange: (tabId: string) => void
-  renderedTabItems?: React.ReactNode[]
   settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
+  /** Server-rendered custom buttons, keyed by item id (buttonComponent or global TabButton) */
+  tabButtons?: Record<string, React.ReactNode>
   tabIcons?: Record<string, React.ReactNode>
 }
 
 export const TabsBar: React.FC<TabsBarProps> = ({
-  activeTabId,
   customTabComponents,
-  onTabChange,
-  renderedTabItems,
   settingsMenu,
   sidebarConfig,
+  tabButtons,
   tabIcons,
 }) => {
   const { i18n } = useTranslation()
@@ -61,64 +53,43 @@ export const TabsBar: React.FC<TabsBarProps> = ({
   })
   const isFoldersActive = pathname.startsWith(folderURL)
 
-  /**
-   * Resolves a configured href to a full URL and whether it matches the current route.
-   * `href` is required on links and optional on tabs (a tab with an href both
-   * navigates and opens its panel).
-   */
-  const resolveHref = (
-    item: SidebarTabContent | SidebarTabLink,
-  ): { href: string; isCurrentPage: boolean } | undefined => {
-    if (item.href === undefined) {
-      return undefined
-    }
-    const href = item.isExternal ? item.href : formatAdminURL({ adminRoute, path: item.href })
-    return {
-      href,
-      isCurrentPage: pathname === href || (item.href === '/' && pathname === adminRoute),
-    }
-  }
-
   const renderTabItem = (item: SidebarTab) => {
     if (item.type === 'custom') {
       return customTabComponents?.[item.id] ?? null
     }
 
-    const resolved = resolveHref(item)
-
-    if (item.type === 'tab') {
-      return (
-        <TabButton
-          href={resolved?.href}
-          icon={tabIcons?.[item.id]}
-          isActive={activeTabId === item.id}
-          isCurrentPage={resolved?.isCurrentPage}
-          key={item.id}
-          onTabChange={onTabChange}
-          tab={item}
-        />
-      )
+    // `href` is required on links and optional on tabs (a tab with an href both
+    // navigates and opens its panel).
+    let href: string | undefined
+    let isCurrentPage: boolean | undefined
+    if (item.href !== undefined) {
+      href = item.isExternal ? item.href : formatAdminURL({ adminRoute, path: item.href })
+      isCurrentPage = pathname === href || (item.href === '/' && pathname === adminRoute)
     }
 
     return (
-      <TabLink
-        href={resolved!.href}
+      <TabButton
+        badge={item.badge}
+        href={href}
         icon={tabIcons?.[item.id]}
-        isActive={resolved!.isCurrentPage}
+        id={item.id}
+        isCurrentPage={isCurrentPage}
+        isExternal={item.isExternal}
         key={item.id}
-        link={item}
+        label={getTranslation(item.label, i18n)}
+        type={item.type}
       />
     )
   }
 
   const tabItems = sidebarConfig.tabs ?? []
 
-  // `renderedTabItems` (set when a custom TabButton is used) is built server-side in the
-  // same order as `tabItems`, so we can zip by index. Otherwise we render the default item.
+  // Items with a custom button (per-item `buttonComponent` or global `TabButton`) are
+  // rendered server-side into `tabButtons`; everything else gets the default rendering.
   const topNodes: React.ReactNode[] = []
   const bottomNodes: React.ReactNode[] = []
-  tabItems.forEach((item, index) => {
-    const node = renderedTabItems ? renderedTabItems[index] : renderTabItem(item)
+  tabItems.forEach((item) => {
+    const node = tabButtons?.[item.id] ?? renderTabItem(item)
     const wrapped = <React.Fragment key={item.id}>{node}</React.Fragment>
     if (item.position === 'bottom') {
       bottomNodes.push(wrapped)
@@ -143,7 +114,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({
             href={folderURL}
             title={getTranslation({ en: 'Browse by Folder', uk: 'Переглянути по папках' }, i18n)}
           >
-            <Icon name="Folder" size={20} />
+            <Folder size={20} />
           </Link>
         )}
         <SettingsMenuButton settingsMenu={settingsMenu} />
@@ -157,7 +128,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({
             title={getTranslation({ en: 'Logout', uk: 'Вийти' }, i18n)}
             type="button"
           >
-            <Icon name="LogOut" size={20} />
+            <LogOut size={20} />
           </Link>
         )}
         </div>

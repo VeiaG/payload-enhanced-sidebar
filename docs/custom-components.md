@@ -1,6 +1,6 @@
 # Custom Components
 
-The plugin allows replacing every visual piece of the sidebar with your own React components. All custom components are **client components** (`'use client'`) registered automatically in Payload's import map — no extra setup needed.
+The plugin allows replacing every visual piece of the sidebar with your own React components. Components are registered automatically in Payload's import map — no extra setup needed. Most examples here are client components (`'use client'`), but every slot is rendered through Payload's `RenderServerComponent`, so server components work too.
 
 ## Overview
 
@@ -10,11 +10,45 @@ The plugin allows replacing every visual piece of the sidebar with your own Reac
 | Navigation group | `customComponents.NavGroup` | `CustomNavGroupProps` | Default collapsible group header |
 | Nav content area | `customComponents.NavContent` | `CustomNavContentProps` | Entire `<nav>` scroll area |
 | Tab/link button | `customComponents.TabButton` | `CustomTabButtonProps` | Every button in the vertical tabs bar |
+| Per-tab content | `tab.contentComponent` | `CustomTabContentProps` | The whole nav area while one specific tab is active |
+| Per-item button | `tab.buttonComponent` | `CustomTabButtonProps` | The button for one specific tab or link (overrides `TabButton`) |
 | Per-tab icon | `tab.iconComponent` | `CustomTabIconProps` | The icon for one specific tab or link |
 | Custom slot | `tab.type: 'custom'` | `CustomTabsBarComponentProps` | Arbitrary component in the tabs bar (spacer, separator, etc.) |
 | Per-item component | `customItems[].component` | `CustomNavItemComponentProps` | A single nav row inside a tab (instead of a link) |
 
 All paths follow Payload's component format: `'./path/to/file#ExportName'`.
+
+## Rendering: everything is pre-rendered on the server
+
+The sidebar renders **all** of its content on the server up front — every tab's panel, every custom component, every icon — and the client only shows or hides panels when you switch tabs. That keeps tab switching instant and state intact, but it has a cost to be aware of:
+
+> **Any work in a custom component runs on every page load, whether its tab is open or not.** A server component that fetches data (e.g. a `contentComponent` loading a chat list) performs that fetch on every admin navigation, even while its tab is hidden.
+
+If that matters, make the component a client component and fetch based on the tab's state, so the request only happens once the tab is opened:
+
+```tsx
+'use client'
+
+import type { CustomTabContentProps } from '@veiag/payload-enhanced-sidebar'
+import { NavContentShell, useTabState } from '@veiag/payload-enhanced-sidebar/client'
+import { useEffect, useState } from 'react'
+
+export const ChatListPanel: React.FC<CustomTabContentProps> = ({ id }) => {
+  const { isActive } = useTabState(id)
+  const [chats, setChats] = useState<Chat[] | null>(null)
+
+  useEffect(() => {
+    // Fetch lazily, the first time the tab is opened
+    if (isActive && chats === null) {
+      void fetch('/api/chats').then((res) => res.json()).then((data) => setChats(data.docs))
+    }
+  }, [isActive, chats])
+
+  return <NavContentShell>{chats ? <ChatList chats={chats} /> : <Spinner />}</NavContentShell>
+}
+```
+
+The same applies to `customItems[].component`, `type: 'custom'` slots, `iconComponent`, `buttonComponent` and the global overrides.
 
 ## Importing hooks and providers
 
@@ -160,6 +194,7 @@ payloadEnhancedSidebar({
 |------|------|-------------|
 | `tabs` | `Array<{ id: string }>` | Tab definitions for mapping |
 | `tabsContent` | `Record<string, ReactNode>` | Pre-rendered content per tab id |
+| `tabViews` | `Record<string, ReactNode> \| undefined` | Rendered [`contentComponent`](#contentcomponent-per-tab-content) per tab id — only for tabs that set one |
 | `allContent` | `ReactNode \| undefined` | Content when no tabs are defined |
 | `beforeNav` | `ReactNode \| undefined` | Payload's `admin.components.beforeNav` (rendered before `beforeNavLinks`) |
 | `beforeNavLinks` | `ReactNode \| undefined` | Payload's `admin.components.beforeNavLinks` |
@@ -220,6 +255,73 @@ import { useTabState } from '@veiag/payload-enhanced-sidebar/client'
 const { isActive } = useTabState('my-tab-id')
 // true when this tab is the currently selected one
 ```
+
+---
+
+## contentComponent (per-tab content)
+
+Replaces the **whole nav content area** while one tab is active. Meant for tabs whose panel isn't a list of links — a chat list, a search panel, a tree view.
+
+```typescript
+tabs: [
+  {
+    id: 'chats',
+    type: 'tab',
+    icon: 'MessagesSquare',
+    label: 'Chats',
+    contentComponent: './components/Sidebar#ChatListPanel',
+    // or: { path: './components/Sidebar#ChatListPanel', clientProps: { ... } }
+  },
+]
+```
+
+**Props (`CustomTabContentProps`):**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `id` | `string` | Tab id |
+| `content` | `ReactNode` | The tab's pre-rendered groups (`collections`, `globals`, `customItems`) — what the default panel would show. Empty if the tab defines none (no "show all collections" fallback here) |
+
+Payload's `beforeNav` / `beforeNavLinks` / `afterNavLinks` / `afterNav` slots are **not** shown on such a tab and not passed in. If you need them there, use a [per-item component](#per-item-custom-component-customitemscomponent) inside the default panel, or replace the whole [NavContent](#navcontent).
+
+The component is rendered server-side, so a server component works too. It stays mounted while other tabs are active — only hidden — so its state survives tab switches. Because it is pre-rendered even while its tab is closed, see [Rendering](#rendering-everything-is-pre-rendered-on-the-server) before putting data fetching in it.
+
+Wrap the output in `NavContentShell` to keep the default layout, padding and scrolling without copying class names. It already has the default padding — nothing to set for the standard look:
+
+```tsx
+'use client'
+
+import type { CustomTabContentProps } from '@veiag/payload-enhanced-sidebar'
+import { NavContentShell } from '@veiag/payload-enhanced-sidebar/client'
+
+export const ChatListPanel: React.FC<CustomTabContentProps> = ({ content }) => (
+  <NavContentShell>
+    <ChatList />
+    {content}
+  </NavContentShell>
+)
+```
+
+To change the horizontal padding for just this tab, override the `--enhanced-sidebar-content-padding-inline` variable on the scroll container via `style` (use this variable rather than `padding`, so the active-link indicator stays aligned with the panel edge):
+
+```tsx
+<NavContentShell
+  style={{ '--enhanced-sidebar-content-padding-inline': '8px' } as React.CSSProperties}
+>
+  <ChatList />
+</NavContentShell>
+```
+
+**`NavContentShell` props:**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Content |
+| `className` | `string \| undefined` | Extra class for the outer `<nav>` |
+| `scrollClassName` | `string \| undefined` | Extra class for the inner scroll container |
+| `style` | `CSSProperties \| undefined` | Inline style for the inner scroll container (where the padding lives) |
+
+With a custom [NavContent](#navcontent), the rendered views arrive as its `tabViews` prop (`Record<tabId, ReactNode>`) — what to do with them is up to you.
 
 ---
 
@@ -307,6 +409,45 @@ const { activeTabId, onTabChange } = useEnhancedSidebar()
 // activeTabId  — currently selected tab id
 // onTabChange  — call to switch tab and persist to cookie
 ```
+
+---
+
+## buttonComponent (per-item button)
+
+Replaces the button of **one** tab or link. Takes precedence over `customComponents.TabButton` for that item; every other item keeps the default (or global) button. Receives the same `CustomTabButtonProps`, plus any `clientProps`.
+
+Use it when a single item needs different behavior — for anything that isn't a tab or link at all (spacers, overlays, …) use a [`type: 'custom'`](#custom-tabs-bar-slot-type-custom) slot instead.
+
+```typescript
+tabs: [
+  {
+    id: 'orders',
+    type: 'tab',
+    href: '/collections/orders',
+    icon: 'ShoppingCart',
+    label: 'Orders',
+    buttonComponent: './components/Sidebar#KeepQueryTabButton',
+    // or: { path: './components/Sidebar#KeepQueryTabButton', clientProps: { ... } }
+  },
+]
+```
+
+Example — a linked tab that keeps the current URL's search params. It wraps the [default `TabButton`](#default-components) and only changes the `href`:
+
+```tsx
+'use client'
+
+import type { CustomTabButtonProps } from '@veiag/payload-enhanced-sidebar'
+import { TabButton } from '@veiag/payload-enhanced-sidebar/client'
+import { useSearchParams } from 'next/navigation'
+
+export const KeepQueryTabButton: React.FC<CustomTabButtonProps> = (props) => {
+  const query = useSearchParams().toString()
+  return <TabButton {...props} href={props.href && query ? `${props.href}?${query}` : props.href} />
+}
+```
+
+The current-page indicator ignores the query string, so it still lights up on the tab's route.
 
 ---
 
@@ -685,6 +826,36 @@ payloadEnhancedSidebar({
   ],
 })
 ```
+
+---
+
+## Default components
+
+The built-in pieces are exported from `/client`, so a custom component can wrap them and change only what it needs — no rebuilding badges, tooltips or active states.
+
+| Export | Props | What it is |
+|--------|-------|------------|
+| `NavItem` | `NavItemProps` — same as `CustomNavItemProps` (`label` optional) | Default nav row: link, active indicator, badge |
+| `TabButton` | `TabButtonProps` — `CustomTabButtonProps` + optional `isCurrentPage` | Default tabs bar button for `tab` and `link` items: tooltip, badge, active/current states, tab switching |
+| `NavContentShell` | `NavContentShellProps` | Default nav area wrapper: layout, padding, scrolling |
+| `Badge` | `BadgeProps` (`value`, `color`, `position`) | Badge pill (`99+` for large numbers, hidden for `0`) |
+| `useBadge(config, slug)` | — | `{ value }` for a `BadgeConfig`, read from the badge context |
+
+```tsx
+'use client'
+
+import type { CustomNavItemProps } from '@veiag/payload-enhanced-sidebar'
+import { NavItem } from '@veiag/payload-enhanced-sidebar/client'
+
+// Custom NavItem that only adds a tooltip around the default row
+export const MyNavItem: React.FC<CustomNavItemProps> = (props) => (
+  <div title={props.entity.slug}>
+    <NavItem {...props} />
+  </div>
+)
+```
+
+`TabButton` computes `isCurrentPage` from the pathname (query string and trailing slash ignored). Pass `isCurrentPage` to override it.
 
 ---
 
