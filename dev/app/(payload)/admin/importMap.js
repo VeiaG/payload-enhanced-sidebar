@@ -36,7 +36,9 @@ import { TestBadgeProvider as TestBadgeProvider_bf163306dc8f99f46056a1312f80979d
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { CustomTabIcon as CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
+import { KeepQueryTabButton as KeepQueryTabButton_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 import { CustomNavItemComponent as CustomNavItemComponent_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
+import { ChatListPanel as ChatListPanel_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 import { TabSeparator as TabSeparator_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 
 export const importMap = {
@@ -78,6 +80,8 @@ export const importMap = {
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "./components/CustomNavComponents#CustomTabIcon": CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3,
+  "./components/CustomNavComponents#KeepQueryTabButton": KeepQueryTabButton_2d6fad3ce4c2c7169593aaf3566963f3,
   "./components/CustomNavComponents#CustomNavItemComponent": CustomNavItemComponent_2d6fad3ce4c2c7169593aaf3566963f3,
+  "./components/CustomNavComponents#ChatListPanel": ChatListPanel_2d6fad3ce4c2c7169593aaf3566963f3,
   "./components/CustomNavComponents#TabSeparator": TabSeparator_2d6fad3ce4c2c7169593aaf3566963f3
 }

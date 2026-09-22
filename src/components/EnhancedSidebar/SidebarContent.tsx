@@ -20,11 +20,12 @@ export type SidebarContentProps = {
   customNavContent?: React.ReactNode
   customTabComponents?: Record<string, React.ReactNode>
   initialActiveTabId: string
-  renderedTabItems?: React.ReactNode[]
   settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
+  tabButtons?: Record<string, React.ReactNode>
   tabIcons?: Record<string, React.ReactNode>
   tabsContent: Record<string, React.ReactNode>
+  tabViews?: Record<string, React.ReactNode>
 }
 
 const COOKIE_KEY = 'payload-enhanced-sidebar-active-tab'
@@ -42,11 +43,12 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   customNavContent,
   customTabComponents,
   initialActiveTabId,
-  renderedTabItems,
   settingsMenu,
   sidebarConfig,
+  tabButtons,
   tabIcons,
   tabsContent,
+  tabViews,
 }) => {
   const [activeTabId, setActiveTabId] = useState(initialActiveTabId)
 
@@ -66,12 +68,10 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
     <EnhancedSidebarContext.Provider value={contextValue}>
       <SidebarWrapper baseClass={baseClass}>
         <TabsBar
-          activeTabId={activeTabId}
           customTabComponents={customTabComponents}
-          onTabChange={handleTabChange}
-          renderedTabItems={renderedTabItems}
           settingsMenu={settingsMenu}
           sidebarConfig={sidebarConfig}
+          tabButtons={tabButtons}
           tabIcons={tabIcons}
         />
         {customNavContent ?? (
@@ -83,6 +83,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
             beforeNavLinks={beforeNavLinks}
             tabs={tabs}
             tabsContent={tabsContent}
+            tabViews={tabViews}
           />
         )}
       </SidebarWrapper>

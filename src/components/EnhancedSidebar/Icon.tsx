@@ -1,5 +1,6 @@
-'use client'
-
+// Server-only on purpose: `icons` is the full Lucide map. Imported from a client
+// component it would ship every icon to the browser — render icons on the server
+// (see EnhancedSidebar) and pass the nodes down instead.
 import { icons } from 'lucide-react'
 import React from 'react'
 
