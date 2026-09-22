@@ -1,7 +1,8 @@
 // Hooks, providers and default components for your own client components.
-// Also exported from the package root, but importing them from there pulls the
-// plugin (and `payload` itself) into the client bundle — import from
-// `@veiag/payload-enhanced-sidebar/client` inside `'use client'` files.
+// The hooks and providers are also exported from the package root, but importing them
+// from there pulls the plugin (and `payload` itself) into the client bundle — import
+// from `@veiag/payload-enhanced-sidebar/client` inside `'use client'` files.
+// The default components live here only: they import .scss (see src/index.ts).
 //
 // The default components (Badge, NavItem, NavContentShell, TabButton) are meant to be
 // wrapped by your custom components instead of rebuilt. InternalBadgeProvider is
