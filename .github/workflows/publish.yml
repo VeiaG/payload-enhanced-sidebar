@@ -35,6 +35,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Check package root loads in Node
+        run: pnpm check:exports
+
       # Trusted publishing needs npm >= 11.5.1; Node 22 ships with npm 10.
       # pnpm hands the actual publish over to the npm CLI. Pinned to the 11.x line:
       # `latest` can jump to a major that drops support for this Node version.
