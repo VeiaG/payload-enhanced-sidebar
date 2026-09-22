@@ -59,12 +59,11 @@ export const TabsBar: React.FC<TabsBarProps> = ({
     }
 
     // `href` is required on links and optional on tabs (a tab with an href both
-    // navigates and opens its panel).
+    // navigates and opens its panel). The current-page check is left to TabButton,
+    // which ignores trailing slashes — so `/` still matches the admin root.
     let href: string | undefined
-    let isCurrentPage: boolean | undefined
     if (item.href !== undefined) {
       href = item.isExternal ? item.href : formatAdminURL({ adminRoute, path: item.href })
-      isCurrentPage = pathname === href || (item.href === '/' && pathname === adminRoute)
     }
 
     return (
@@ -73,7 +72,6 @@ export const TabsBar: React.FC<TabsBarProps> = ({
         href={href}
         icon={tabIcons?.[item.id]}
         id={item.id}
-        isCurrentPage={isCurrentPage}
         isExternal={item.isExternal}
         key={item.id}
         label={getTranslation(item.label, i18n)}
