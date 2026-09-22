@@ -18,7 +18,7 @@ import {
   useEnhancedSidebar,
   useNavItemState,
   useTabState,
-} from '@veiag/payload-enhanced-sidebar'
+} from '@veiag/payload-enhanced-sidebar/client'
 import { useSearchParams } from 'next/navigation.js'
 import React, { useState } from 'react'
 

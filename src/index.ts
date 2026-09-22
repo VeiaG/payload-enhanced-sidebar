@@ -162,9 +162,11 @@ export const payloadEnhancedSidebar =
     return config
   }
 
-// Hooks, providers and default components (to wrap in custom components).
-// In 'use client' files prefer `@veiag/payload-enhanced-sidebar/client`.
-export { Badge } from './components/EnhancedSidebar/Badge/index.js'
+// Hooks and providers. In 'use client' files prefer `@veiag/payload-enhanced-sidebar/client`.
+//
+// Default components (Badge, NavItem, NavContentShell, TabButton) are exported from
+// `/client` only: they import .scss, and the package root is loaded by plain Node
+// (payload.config.ts, import map generation), which can't handle stylesheet imports.
 export type { BadgeProps } from './components/EnhancedSidebar/Badge/index.js'
 export {
   BadgeProvider,
@@ -175,11 +177,8 @@ export { useEnhancedSidebar } from './components/EnhancedSidebar/context.js'
 export { useBadge } from './components/EnhancedSidebar/hooks/useBadge.js'
 export { useNavItemState } from './components/EnhancedSidebar/hooks/useNavItemState.js'
 export { useTabState } from './components/EnhancedSidebar/hooks/useTabState.js'
-export { NavContentShell } from './components/EnhancedSidebar/NavContent/index.js'
 export type { NavContentShellProps } from './components/EnhancedSidebar/NavContent/index.js'
-export { NavItem } from './components/EnhancedSidebar/NavItem/index.js'
 export type { NavItemProps } from './components/EnhancedSidebar/NavItem/index.js'
-export { TabButton } from './components/EnhancedSidebar/TabsBar/TabItem.js'
 export type { TabButtonProps } from './components/EnhancedSidebar/TabsBar/TabItem.js'
 
 export type {

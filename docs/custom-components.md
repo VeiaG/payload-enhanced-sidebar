@@ -67,7 +67,9 @@ import {
 } from '@veiag/payload-enhanced-sidebar/client'
 ```
 
-The same names are re-exported from the package root, but the root entry also carries the plugin itself (and with it `payload`), which does not belong in a client bundle. Prop types (`CustomNavItemProps`, `CustomTabButtonProps`, …) are available from both.
+The hooks and providers are also re-exported from the package root, but the root entry also carries the plugin itself (and with it `payload`), which does not belong in a client bundle. Prop types (`CustomNavItemProps`, `CustomTabButtonProps`, …) are available from both.
+
+The [default components](#default-components) (`NavItem`, `TabButton`, `NavContentShell`, `Badge`) are exported from `/client` **only**. They import stylesheets, and the package root is loaded by plain Node (your `payload.config.ts`, import map generation), which can't handle `.scss` imports.
 
 ---
 
@@ -831,7 +833,7 @@ payloadEnhancedSidebar({
 
 ## Default components
 
-The built-in pieces are exported from `/client`, so a custom component can wrap them and change only what it needs — no rebuilding badges, tooltips or active states.
+The built-in pieces are exported from `/client` (not from the package root — see [Importing hooks and providers](#importing-hooks-and-providers)), so a custom component can wrap them and change only what it needs — no rebuilding badges, tooltips or active states.
 
 | Export | Props | What it is |
 |--------|-------|------------|
