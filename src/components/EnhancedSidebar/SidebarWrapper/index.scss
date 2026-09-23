@@ -55,6 +55,18 @@
       flex-direction: row;
     }
 
+    @include mid-break {
+      // Payload's NavProvider sets `overscroll-behavior: contain` inline on `navRef` (this
+      // element) while the nav is open as a modal, so a swipe on the nav never scrolls the
+      // page behind it. That only applies to a scroll container, and without this a swipe on
+      // the tabs bar chains straight to the page. The content never overflows here — the
+      // inner `__content-scroll` does the scrolling. Kept to mobile so it can't clip tooltips
+      // or popovers from the tabs bar on desktop.
+      &__scroll {
+        overflow-y: auto;
+      }
+    }
+
     @include small-break {
       &__mobile-close {
         display: flex;
