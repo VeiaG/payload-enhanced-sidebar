@@ -1,9 +1,8 @@
 'use client'
 
 import { getTranslation } from '@payloadcms/translations'
-import { Link, useConfig, useTranslation } from '@payloadcms/ui'
+import { Link, useConfig, usePathname, useTranslation } from '@payloadcms/ui'
 import { Folder, LogOut } from 'lucide-react'
-import { usePathname } from 'next/navigation.js'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
@@ -106,29 +105,29 @@ export const TabsBar: React.FC<TabsBarProps> = ({
         )}
 
         <div className={`${tabsBaseClass}__actions`}>
-        {showFolders && (
-          <Link
-            className={`${tabsBaseClass}__action ${isFoldersActive ? `${tabsBaseClass}__link--active` : ''}`}
-            href={folderURL}
-            title={getTranslation({ en: 'Browse by Folder', uk: 'Переглянути по папках' }, i18n)}
-          >
-            <Folder size={20} />
-          </Link>
-        )}
-        <SettingsMenuButton settingsMenu={settingsMenu} />
-        {showLogout && (
-          <Link
-            className={`${tabsBaseClass}__action`}
-            href={formatAdminURL({
-              adminRoute,
-              path: logoutRoute,
-            })}
-            title={getTranslation({ en: 'Logout', uk: 'Вийти' }, i18n)}
-            type="button"
-          >
-            <LogOut size={20} />
-          </Link>
-        )}
+          {showFolders && (
+            <Link
+              className={`${tabsBaseClass}__action ${isFoldersActive ? `${tabsBaseClass}__link--active` : ''}`}
+              href={folderURL}
+              title={getTranslation({ en: 'Browse by Folder', uk: 'Переглянути по папках' }, i18n)}
+            >
+              <Folder size={20} />
+            </Link>
+          )}
+          <SettingsMenuButton settingsMenu={settingsMenu} />
+          {showLogout && (
+            <Link
+              className={`${tabsBaseClass}__action`}
+              href={formatAdminURL({
+                adminRoute,
+                path: logoutRoute,
+              })}
+              title={getTranslation({ en: 'Logout', uk: 'Вийти' }, i18n)}
+              type="button"
+            >
+              <LogOut size={20} />
+            </Link>
+          )}
         </div>
       </div>
     </div>

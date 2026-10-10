@@ -1,4 +1,4 @@
-@import '~@payloadcms/ui/scss';
+@import '../../../scss/compat';
 
 @layer payload-default {
   .settings-menu-button {
@@ -22,6 +22,5 @@
         color: var(--theme-text);
       }
     }
-
   }
 }

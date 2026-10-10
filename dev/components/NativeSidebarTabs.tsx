@@ -31,12 +31,12 @@ const styles = {
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'space-between',
-    margin: '0 0 var(--base)',
+    margin: '0 0 var(--spacer-3)',
   },
-  list: { display: 'grid', gap: 'calc(var(--base) / 2)', listStyle: 'none', margin: 0, padding: 0 },
-  muted: { color: 'var(--theme-elevation-500)', fontSize: '12px' },
+  list: { display: 'grid', gap: 'var(--spacer-2)', listStyle: 'none', margin: 0, padding: 0 },
+  muted: { color: 'var(--color-text-secondary)', fontSize: '12px' },
   row: { display: 'flex', justifyContent: 'space-between' },
-  wrap: { padding: 'var(--base)' },
+  wrap: { padding: 'var(--spacer-3)' },
 } satisfies Record<string, React.CSSProperties>
 
 const formatTime = (date: Date) => date.toLocaleTimeString('en-GB', { hour12: false })
@@ -100,7 +100,7 @@ export const RecentTab = async ({ payload, req }: TabProps) => {
           </li>
         ))}
       </ul>
-      <p style={{ ...styles.muted, marginTop: 'var(--base)' }}>
+      <p style={{ ...styles.muted, marginTop: 'var(--spacer-3)' }}>
         Rendered at {formatTime(new Date())}
       </p>
     </div>
@@ -136,7 +136,7 @@ export const StatsTab = async ({ payload, req }: TabProps) => {
           </li>
         ))}
       </ul>
-      <p style={{ ...styles.muted, marginTop: 'var(--base)' }}>
+      <p style={{ ...styles.muted, marginTop: 'var(--spacer-3)' }}>
         Rendered at {formatTime(new Date())}
       </p>
     </div>

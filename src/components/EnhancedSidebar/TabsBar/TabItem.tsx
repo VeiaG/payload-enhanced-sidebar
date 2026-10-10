@@ -1,7 +1,6 @@
 'use client'
 
-import { Link, Tooltip } from '@payloadcms/ui'
-import { usePathname } from 'next/navigation.js'
+import { Link, Tooltip, usePathname } from '@payloadcms/ui'
 import React, { useState } from 'react'
 
 import type { CustomTabButtonProps } from '../../../types.js'

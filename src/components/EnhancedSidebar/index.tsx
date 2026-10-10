@@ -4,8 +4,8 @@ import type { PayloadRequest, ServerProps } from 'payload'
 import { getTranslation } from '@payloadcms/translations'
 import { NavGroup } from '@payloadcms/ui'
 import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
-import { EntityType, groupNavItems } from '@payloadcms/ui/shared'
-import { cookies } from 'next/headers.js'
+import { groupNavItems } from '@payloadcms/ui/shared'
+import { EntityType } from 'payload'
 import { formatAdminURL } from 'payload/shared'
 import React, { Fragment } from 'react'
 
@@ -152,6 +152,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     permissions,
     req,
     searchParams,
+    server,
     sidebarConfig,
     user,
     viewType,
@@ -276,9 +277,9 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   )
   const visibleTabItems = allConfigTabs.filter((_, i) => tabAccessResults[i])
 
-  // Read active tab from cookie
-  const cookieStore = await cookies()
-  const storedTabId = cookieStore.get(COOKIE_KEY)?.value
+  // Read active tab from cookie, through the v4 framework-agnostic server adapter
+  const cookieStore = await (server ?? req?.server)?.getCookies()
+  const storedTabId = cookieStore?.get(COOKIE_KEY)?.value
   const tabs = visibleTabItems.filter((t) => t.type === 'tab') as SidebarTabContentType[]
   const defaultTabId = tabs[0]?.id ?? ''
   const initialActiveTabId =
@@ -535,7 +536,9 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       beforeNav={beforeNavRendered}
       beforeNavLinks={beforeNavLinksRendered}
       customNavContent={customNavContent}
-      customTabComponents={Object.keys(customTabComponents).length > 0 ? customTabComponents : undefined}
+      customTabComponents={
+        Object.keys(customTabComponents).length > 0 ? customTabComponents : undefined
+      }
       initialActiveTabId={initialActiveTabId}
       settingsMenu={renderedSettingsMenu}
       sidebarConfig={clientSidebarConfig}

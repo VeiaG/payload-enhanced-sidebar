@@ -1,0 +1,20 @@
+// Payload v4 removed `@payloadcms/ui/scss`. These are the only helpers the plugin used
+// from it, with the v3 values, so the styles render the same until they move to plain CSS.
+
+$baseline-px: 20px;
+
+@function base($multiplier) {
+  @return ($baseline-px * $multiplier);
+}
+
+@mixin small-break {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin mid-break {
+  @media (max-width: 1024px) {
+    @content;
+  }
+}

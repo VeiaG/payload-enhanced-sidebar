@@ -41,7 +41,7 @@ export const QuickCreateTab = () => {
   const sidebarTabs = useSidebarTabs()
 
   return (
-    <div style={{ display: 'grid', gap: 'calc(var(--base) / 2)', padding: 'var(--base)' }}>
+    <div style={{ display: 'grid', gap: 'var(--spacer-2)', padding: 'var(--spacer-3)' }}>
       <strong>Quick create</strong>
       {QUICK_CREATE.map(({ collection, label }) => (
         <Button
@@ -55,7 +55,7 @@ export const QuickCreateTab = () => {
           {label}
         </Button>
       ))}
-      <p style={{ color: 'var(--theme-elevation-500)', fontSize: '12px' }}>
+      <p style={{ color: 'var(--color-text-secondary)', fontSize: '12px' }}>
         Active tab: {sidebarTabs?.activeTabSlug ?? '—'}
       </p>
     </div>
@@ -78,7 +78,7 @@ export const NotesTab = () => {
   }, [])
 
   return (
-    <div style={{ display: 'grid', gap: 'calc(var(--base) / 2)', padding: 'var(--base)' }}>
+    <div style={{ display: 'grid', gap: 'var(--spacer-2)', padding: 'var(--spacer-3)' }}>
       <strong>Notes</strong>
       <textarea
         aria-label="Notes"
@@ -110,7 +110,7 @@ const HELP_LINKS = [
 
 /** Static links, the simplest possible tab. */
 export const HelpTab = () => (
-  <div style={{ display: 'grid', gap: 'calc(var(--base) / 2)', padding: 'var(--base)' }}>
+  <div style={{ display: 'grid', gap: 'var(--spacer-2)', padding: 'var(--spacer-3)' }}>
     <strong>Help</strong>
     {HELP_LINKS.map(({ href, label }) => (
       <a href={href} key={href} rel="noreferrer" target="_blank">
