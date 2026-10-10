@@ -28,6 +28,12 @@
       border-left: 1px solid var(--color-border);
     }
 
+    // Every Lucide icon in the bar (tab icons, settings, logout, Lucide inside custom icon
+    // components). Lucide sets `stroke-width` as an attribute, which CSS overrides.
+    .lucide {
+      stroke-width: var(--enhanced-sidebar-icon-stroke-width, 1.5);
+    }
+
     &__top {
       display: flex;
       flex-direction: column;

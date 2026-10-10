@@ -8,7 +8,9 @@ import './index.scss'
 export const SidebarWrapper: React.FC<{
   baseClass: string
   children: React.ReactNode
-}> = ({ baseClass, children }) => {
+  /** `iconStrokeWidth` option, exposed to the CSS as `--enhanced-sidebar-icon-stroke-width` */
+  iconStrokeWidth?: number
+}> = ({ baseClass, children, iconStrokeWidth }) => {
   const { hydrated, navOpen, navRef } = useNav()
 
   return (
@@ -21,6 +23,11 @@ export const SidebarWrapper: React.FC<{
         .filter(Boolean)
         .join(' ')}
       inert={!navOpen ? true : undefined}
+      style={
+        iconStrokeWidth !== undefined
+          ? ({ '--enhanced-sidebar-icon-stroke-width': iconStrokeWidth } as React.CSSProperties)
+          : undefined
+      }
     >
       <div className={`${baseClass}__scroll`} ref={navRef}>
         {children}

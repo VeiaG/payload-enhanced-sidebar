@@ -647,6 +647,13 @@ nativeTabs: {
 }
 ```
 
+### `iconStrokeWidth`
+
+Stroke width of the Lucide icons in the tabs bar: tab icons, the built-in settings and logout buttons, and Lucide icons inside your own `iconComponent`s. Lucide's default is `2`; the plugin uses `1.5`, which sits closer to Payload's thinner icons. Can also be set in CSS through `--enhanced-sidebar-icon-stroke-width`.
+
+- **Type:** `number`
+- **Default:** `1.5`
+
 ### `logo`
 
 Brand icon at the top of the tabs bar, linking to the dashboard. By default it is the project's `admin.components.graphics.Icon` (which Payload v4 no longer shows anywhere in the admin), or the Payload icon, on a tile that is dark in the light theme and light in the dark one.

@@ -808,6 +808,16 @@ export interface EnhancedSidebarConfig {
   disabled?: boolean
 
   /**
+   * Stroke width of the Lucide icons in the tabs bar — tab icons, the built-in settings and
+   * logout buttons, and Lucide icons inside custom `iconComponent`s. Lucide's own default is 2;
+   * 1.5 sits closer to Payload's thinner icons. Also settable in CSS through
+   * `--enhanced-sidebar-icon-stroke-width`.
+   *
+   * @default 1.5
+   */
+  iconStrokeWidth?: number
+
+  /**
    * Brand icon at the top of the tabs bar, linking to the dashboard.
    * - `true` — the project's `admin.components.graphics.Icon`, or the Payload icon. (Payload v4
    *   no longer shows `graphics.Icon` anywhere in the admin, so this gives it a place again.)

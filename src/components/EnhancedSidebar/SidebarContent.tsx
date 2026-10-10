@@ -73,7 +73,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
 
   return (
     <EnhancedSidebarContext.Provider value={contextValue}>
-      <SidebarWrapper baseClass={baseClass}>
+      <SidebarWrapper baseClass={baseClass} iconStrokeWidth={sidebarConfig.iconStrokeWidth}>
         <TabsBar
           customTabComponents={customTabComponents}
           logo={logo}
