@@ -16,6 +16,8 @@ const tabsBaseClass = 'tabs-bar'
 
 export type TabsBarProps = {
   customTabComponents?: Record<string, React.ReactNode>
+  /** Brand icon at the top of the bar, linking to the dashboard */
+  logo?: React.ReactNode
   settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
   /** Server-rendered custom buttons, keyed by item id (buttonComponent or global TabButton) */
@@ -27,13 +29,14 @@ export type TabsBarProps = {
 
 export const TabsBar: React.FC<TabsBarProps> = ({
   customTabComponents,
+  logo,
   settingsMenu,
   sidebarConfig,
   tabButtons,
   tabIcons,
   userMenu,
 }) => {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
 
   const {
     config: {
@@ -92,7 +95,18 @@ export const TabsBar: React.FC<TabsBarProps> = ({
 
   return (
     <div className={tabsBaseClass}>
-      <div className={`${tabsBaseClass}__tabs`}>{topNodes}</div>
+      <div className={`${tabsBaseClass}__top`}>
+        {logo && (
+          <Link
+            aria-label={t('general:dashboard')}
+            className={`${tabsBaseClass}__logo`}
+            href={formatAdminURL({ adminRoute, path: '' })}
+          >
+            {logo}
+          </Link>
+        )}
+        <div className={`${tabsBaseClass}__tabs`}>{topNodes}</div>
+      </div>
 
       <div className={`${tabsBaseClass}__bottom`}>
         {bottomNodes.length > 0 && (

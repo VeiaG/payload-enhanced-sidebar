@@ -31,46 +31,6 @@
       opacity: 1;
     }
 
-    // Holds the close button over the top of the tabs rail, in the space `.tabs-bar__tabs`
-    // leaves free (its padding-top is the app header height).
-    &__header {
-      position: absolute;
-      top: 0;
-      inset-inline-start: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: var(--enhanced-sidebar-tabs-bar-width, 48px);
-      height: var(--app-header-height);
-      // Must stay above `.tabs-bar` (z-index: 5), otherwise the bar covers the button.
-      z-index: 10;
-      // Only the button takes clicks; the rest of the strip lets them through.
-      pointer-events: none;
-    }
-
-    &__close {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      padding: 0;
-      border: none;
-      border-radius: base(0.25);
-      background: transparent;
-      color: var(--color-icon-secondary);
-      cursor: pointer;
-      pointer-events: auto;
-      transition:
-        background 150ms ease,
-        color 150ms ease;
-
-      &:hover {
-        background: var(--color-bg-hover);
-        color: var(--color-icon);
-      }
-    }
-
     &__scroll {
       height: 100%;
       display: flex;
@@ -86,16 +46,6 @@
       // or popovers from the tabs bar on desktop.
       &__scroll {
         overflow-y: auto;
-      }
-    }
-
-    @include small-break {
-      // On mobile the nav is a full-width overlay: put the button at the gutter, where the
-      // app header's open button sits, so open and close line up.
-      &__header {
-        justify-content: flex-start;
-        width: 100%;
-        padding-inline-start: var(--gutter-h);
       }
     }
   }

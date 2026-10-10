@@ -702,6 +702,27 @@ export type CustomTabContentProps = {
 }
 
 /**
+ * Logo at the top of the tabs bar, with control over the tile it sits in.
+ */
+export type LogoConfig = {
+  /**
+   * Icon component. Defaults to `admin.components.graphics.Icon`, then the Payload icon.
+   */
+  component?: SidebarComponent
+  /**
+   * The tile drawn behind the icon:
+   * - `'inverse'` — dark tile in the light theme, light in the dark theme. Inside it,
+   *   `--color-icon` is switched to its on-inverse value, so icons drawn with `--color-icon` or
+   *   `currentColor` (like the Payload icon) flip with it.
+   * - `'subtle'` — light grey tile. For logos with fixed colors (images, brand SVGs).
+   * - `'none'` — no tile; the component is rendered as is, at the tile's size.
+   *
+   * @default 'inverse'
+   */
+  container?: 'inverse' | 'none' | 'subtle'
+}
+
+/**
  * Configuration for the enhanced sidebar
  */
 export interface EnhancedSidebarConfig {
@@ -757,6 +778,19 @@ export interface EnhancedSidebarConfig {
    * @default false
    */
   disabled?: boolean
+
+  /**
+   * Brand icon at the top of the tabs bar, linking to the dashboard.
+   * - `true` — the project's `admin.components.graphics.Icon`, or the Payload icon. (Payload v4
+   *   no longer shows `graphics.Icon` anywhere in the admin, so this gives it a place again.)
+   * - a component path (or `{ path, clientProps }`) — your own icon. Registered automatically in
+   *   the import map.
+   * - `{ component?, container? }` — either of the above plus the container to draw it in.
+   * - `false` — no icon.
+   *
+   * @default true
+   */
+  logo?: boolean | LogoConfig | SidebarComponent
 
   /**
    * Show Payload's own sidebar tabs (`admin.components.sidebar.tabs`) in the tabs bar,

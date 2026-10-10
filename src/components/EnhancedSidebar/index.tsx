@@ -2,7 +2,7 @@ import type { EntityToGroup } from '@payloadcms/ui/shared'
 import type { PayloadRequest, ServerProps } from 'payload'
 
 import { getTranslation } from '@payloadcms/translations'
-import { NavGroup } from '@payloadcms/ui'
+import { NavGroup, PayloadIcon } from '@payloadcms/ui'
 import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
 import { groupNavItems } from '@payloadcms/ui/shared'
 import { EntityType } from 'payload'
@@ -24,6 +24,7 @@ import {
   extractLocalizedValue,
   getLazyTabSlug,
   LAZY_TAB_SLUG_PREFIX,
+  resolveLogoConfig,
   resolveSidebarComponent,
   sanitizeSidebarConfig,
   sortTabGroups,
@@ -232,6 +233,29 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     importMap: payload.importMap,
     serverProps,
   })
+
+  // Brand icon at the top of the rail: the configured component, else the project's
+  // `graphics.Icon` (which Payload v4 no longer shows in the admin), else the Payload icon
+  const logoConfig = resolveLogoConfig(sidebarConfig?.logo)
+  let logo: React.ReactNode
+  if (logoConfig) {
+    const logoComponent = logoConfig.component
+      ? resolveSidebarComponent(logoConfig.component)
+      : undefined
+    logo = (
+      <span
+        className={`tabs-bar__logo-tile tabs-bar__logo-tile--${logoConfig.container}`}
+      >
+        {RenderServerComponent({
+          clientProps: logoComponent?.clientProps,
+          Component: logoComponent?.path ?? payload.config.admin.components?.graphics?.Icon,
+          Fallback: PayloadIcon,
+          importMap: payload.importMap,
+          serverProps,
+        })}
+      </span>
+    )
+  }
 
   // Payload v4 renders the account menu in its nav; replacing the nav means rendering it here
   const userMenu =
@@ -646,6 +670,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
         Object.keys(customTabComponents).length > 0 ? customTabComponents : undefined
       }
       initialActiveTabId={initialActiveTabId}
+      logo={logo}
       settingsMenu={renderedSettingsMenu}
       sidebarConfig={clientSidebarConfig}
       tabButtons={Object.keys(tabButtons).length > 0 ? tabButtons : undefined}

@@ -10,6 +10,38 @@
     --nav-padding-block-start: var(--spacer-2-5);
     --nav-padding-block-end: var(--spacer-5);
 
+    // The column next to the tabs bar: header, then the open tab's content
+    &__panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    // Like Payload's `.nav__header`; tall as the app header so both rows line up
+    &__panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacer-2);
+      flex-shrink: 0;
+      min-height: var(--app-header-height, 3.25rem);
+      padding: var(--spacer-2) var(--spacer-2) var(--spacer-2) var(--spacer-3);
+      background-color: var(--color-bg);
+      border-bottom: var(--stroke-width-small) solid var(--color-border);
+    }
+
+    &__panel-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: var(--text-body-medium-bold-font-size);
+      font-weight: var(--text-body-medium-bold-font-weight);
+      line-height: var(--text-body-medium-bold-line-height);
+    }
+
     &__content {
       flex: 1;
       display: flex;
@@ -25,8 +57,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: var(--app-header-height) var(--enhanced-sidebar-content-padding-inline)
-        var(--nav-padding-block-end);
+      padding: 0 var(--enhanced-sidebar-content-padding-inline) var(--nav-padding-block-end);
       overflow-y: auto;
 
       &::-webkit-scrollbar {

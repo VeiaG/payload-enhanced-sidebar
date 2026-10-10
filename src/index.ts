@@ -3,7 +3,12 @@ import { type Config, deepMerge } from 'payload'
 import type { EnhancedSidebarConfig } from './types.js'
 
 import { sidebarTranslations } from './translations/index.js'
-import { getLazyTabSlug, resolveSidebarComponent, sanitizeSidebarConfig } from './utils/index.js'
+import {
+  getLazyTabSlug,
+  resolveLogoConfig,
+  resolveSidebarComponent,
+  sanitizeSidebarConfig,
+} from './utils/index.js'
 
 /**
  * Default configuration for the enhanced sidebar
@@ -71,6 +76,12 @@ export const payloadEnhancedSidebar =
           path,
         }
       }
+    }
+
+    const logoComponent = resolveLogoConfig(sidebarConfig.logo)?.component
+    if (logoComponent) {
+      const { path } = resolveSidebarComponent(logoComponent)
+      config.admin.dependencies['enhanced-sidebar-logo'] = { type: 'component', path }
     }
 
     const seenTabIds = new Set<string>()

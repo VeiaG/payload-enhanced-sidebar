@@ -6,6 +6,7 @@ import type { EnhancedSidebarConfig } from '../../types.js'
 
 import { EnhancedSidebarContext } from './context.js'
 import { NavContent } from './NavContent/index.js'
+import { PanelHeader } from './PanelHeader/index.js'
 import { SidebarWrapper } from './SidebarWrapper/index.js'
 import { TabsBar } from './TabsBar/index.js'
 
@@ -20,6 +21,8 @@ export type SidebarContentProps = {
   customNavContent?: React.ReactNode
   customTabComponents?: Record<string, React.ReactNode>
   initialActiveTabId: string
+  /** Brand icon at the top of the tabs bar */
+  logo?: React.ReactNode
   settingsMenu?: React.ReactNode[]
   sidebarConfig: EnhancedSidebarConfig
   tabButtons?: Record<string, React.ReactNode>
@@ -45,6 +48,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   customNavContent,
   customTabComponents,
   initialActiveTabId,
+  logo,
   settingsMenu,
   sidebarConfig,
   tabButtons,
@@ -72,24 +76,28 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       <SidebarWrapper baseClass={baseClass}>
         <TabsBar
           customTabComponents={customTabComponents}
+          logo={logo}
           settingsMenu={settingsMenu}
           sidebarConfig={sidebarConfig}
           tabButtons={tabButtons}
           tabIcons={tabIcons}
           userMenu={userMenu}
         />
-        {customNavContent ?? (
-          <NavContent
-            afterNav={afterNav}
-            afterNavLinks={afterNavLinks}
-            allContent={allContent}
-            beforeNav={beforeNav}
-            beforeNavLinks={beforeNavLinks}
-            tabs={tabs}
-            tabsContent={tabsContent}
-            tabViews={tabViews}
-          />
-        )}
+        <div className={`${baseClass}__panel`}>
+          <PanelHeader tabs={sidebarConfig.tabs ?? []} />
+          {customNavContent ?? (
+            <NavContent
+              afterNav={afterNav}
+              afterNavLinks={afterNavLinks}
+              allContent={allContent}
+              beforeNav={beforeNav}
+              beforeNavLinks={beforeNavLinks}
+              tabs={tabs}
+              tabsContent={tabsContent}
+              tabViews={tabViews}
+            />
+          )}
+        </div>
       </SidebarWrapper>
     </EnhancedSidebarContext.Provider>
   )

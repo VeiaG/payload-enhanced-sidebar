@@ -31,6 +31,7 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { LLMInstructionsDescription as LLMInstructionsDescription_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { FixedToolbarFeatureClient as FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { LLMInstructionsCell as LLMInstructionsCell_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { DevAvatar as DevAvatar_3fe8a46ac01a39b3258d81e5bdf4fd99 } from '../../../components/DevAvatar'
 import { EnhancedSidebar as EnhancedSidebar_1991e0cd7459bf6a1f4021425d377371 } from '@veiag/payload-enhanced-sidebar/rsc'
 import { SettingsMenuItem as SettingsMenuItem_ce02ca69364e80caf8e4590bdae13e81 } from '../../../components/SettingsMenuItem'
 import { AnotherSettingsItem as AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81 } from '../../../components/SettingsMenuItem'
@@ -101,6 +102,7 @@ export const importMap = {
   "@payloadcms/ui#LLMInstructionsDescription": LLMInstructionsDescription_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient": FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/ui/rsc#LLMInstructionsCell": LLMInstructionsCell_ab83ff7e88da8d3530831f296ec4756a,
+  "./components/DevAvatar#DevAvatar": DevAvatar_3fe8a46ac01a39b3258d81e5bdf4fd99,
   "@veiag/payload-enhanced-sidebar/rsc#EnhancedSidebar": EnhancedSidebar_1991e0cd7459bf6a1f4021425d377371,
   "./components/SettingsMenuItem#SettingsMenuItem": SettingsMenuItem_ce02ca69364e80caf8e4590bdae13e81,
   "./components/SettingsMenuItem#AnotherSettingsItem": AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81,

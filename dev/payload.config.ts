@@ -23,6 +23,8 @@ if (!process.env.ROOT_DIR) {
 const buildConfigWithMemoryDB = async () => {
   return buildConfig({
     admin: {
+      // A real photo in the account menu (falls back to its alt text if the file is missing)
+      avatar: { Component: './components/DevAvatar#DevAvatar' },
       components: {
         // Disabled with the plugin below
         // providers: ['./components/TestBadgeProvider#TestBadgeProvider'],

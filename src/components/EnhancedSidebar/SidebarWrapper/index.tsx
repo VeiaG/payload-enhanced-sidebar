@@ -3,7 +3,6 @@
 import { useNav } from '@payloadcms/ui'
 import React from 'react'
 
-import { NavHamburger } from '../NavHamburger/index.js'
 import './index.scss'
 
 export const SidebarWrapper: React.FC<{
@@ -23,9 +22,6 @@ export const SidebarWrapper: React.FC<{
         .join(' ')}
       inert={!navOpen ? true : undefined}
     >
-      <div className={`${baseClass}__header`}>
-        <NavHamburger baseClass={baseClass} />
-      </div>
       <div className={`${baseClass}__scroll`} ref={navRef}>
         {children}
       </div>

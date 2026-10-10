@@ -1,6 +1,7 @@
 import type {
   EnhancedSidebarConfig,
   ExtendedGroup,
+  LogoConfig,
   LocalizedString,
   SidebarComponent,
   SidebarSortKey,
@@ -19,6 +20,26 @@ export const getLazyTabSlug = (tabId: string): string => `${LAZY_TAB_SLUG_PREFIX
 
 export const convertSlugToTitle = (slug: string): string => {
   return slug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+/**
+ * Normalizes the `logo` option. Returns `null` when the logo is off; `component: undefined`
+ * means the default (`graphics.Icon`, then the Payload icon).
+ */
+export const resolveLogoConfig = (
+  logo: EnhancedSidebarConfig['logo'],
+): { component?: SidebarComponent; container: NonNullable<LogoConfig['container']> } | null => {
+  if (logo === false) {
+    return null
+  }
+  if (logo === undefined || logo === true) {
+    return { container: 'inverse' }
+  }
+  // A component object always has `path`; a LogoConfig never does
+  if (typeof logo === 'string' || 'path' in logo) {
+    return { component: logo, container: 'inverse' }
+  }
+  return { component: logo.component, container: logo.container ?? 'inverse' }
 }
 
 /**

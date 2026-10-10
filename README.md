@@ -627,6 +627,26 @@ Show a separate logout button at the bottom of the tabs bar. Off by default: the
 - **Type:** `boolean`
 - **Default:** `false`
 
+### `logo`
+
+Brand icon at the top of the tabs bar, linking to the dashboard. By default it is the project's `admin.components.graphics.Icon` (which Payload v4 no longer shows anywhere in the admin), or the Payload icon, on a tile that is dark in the light theme and light in the dark one.
+
+- **Type:** `boolean | string | { path, clientProps } | { component?, container? }`
+- **Default:** `true`
+
+```ts
+logo: false                                   // no logo
+logo: './components/Logo#Logo'                // your component, on the default tile
+logo: { container: 'subtle' }                 // default icon, light grey tile
+logo: { component: './components/Logo#Logo', container: 'none' } // your component, no tile
+```
+
+`container`:
+
+- `'inverse'` (default) — dark tile in the light theme, light in the dark one. Inside it `--color-icon` switches to its on-inverse value, so icons drawn with `--color-icon` or `currentColor` flip along.
+- `'subtle'` — light grey tile, for logos with fixed colors.
+- `'none'` — no tile; the component fills the 32px box.
+
 ### `userMenu`
 
 Show Payload's account menu as an avatar button at the bottom of the tabs bar — profile, theme, language, `admin.components.userMenuSettingsItems` and log out. The avatar follows `admin.avatar` (`'default'`, `'gravatar'` or a custom component).

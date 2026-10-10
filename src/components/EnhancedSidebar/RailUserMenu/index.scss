@@ -1,4 +1,22 @@
 @layer payload-default {
+  // Default avatar: the user's initial on a brand-colored rounded tile
+  .enhanced-sidebar-user__initial {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    rect {
+      fill: var(--color-bg-brand);
+    }
+
+    text {
+      fill: var(--color-text-onbrand);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+
   .enhanced-sidebar-user {
     position: relative;
     display: flex;
@@ -7,25 +25,20 @@
     width: 36px;
     height: 36px;
 
+    // The avatar fills the whole 36px trigger, rounded like the rail buttons. Whatever is
+    // inside just fills the box.
     &__avatar {
       position: absolute;
       inset: 0;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      border-radius: var(--button-radius);
+      overflow: hidden;
       pointer-events: none;
 
-      // A filled circle reads larger than the 20px outline icons around it, so a bit above
-      // 20px rather than matching the 36px button
-      > * {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        overflow: hidden;
-      }
-
+      > *,
       img,
       svg {
+        display: block;
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -47,11 +60,23 @@
     width: 100%;
     height: 100%;
     padding: 0;
-    border-radius: 50%;
+    border-radius: var(--button-radius);
 
     // The chevron: the avatar on top is the affordance here
     .btn__icon {
       display: none;
     }
   }
+}
+
+// The avatar in the menu's profile header: rounded like the one in the rail, not a circle
+// (unlayered for the same reason as above)
+.enhanced-sidebar-user .user-menu__avatar {
+  border-radius: var(--button-radius);
+}
+
+// Payload's Gravatar image (`admin.avatar` defaults to 'gravatar' in v4) sets
+// `border-radius: 50%` inline; only `!important` beats an inline style
+.enhanced-sidebar-user .gravatar-account {
+  border-radius: var(--button-radius) !important;
 }
