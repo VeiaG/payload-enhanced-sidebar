@@ -4,6 +4,7 @@ export const seed = async (payload: Payload) => {
   // Check if data already exists
   const { totalDocs: existingUsers } = await payload.count({
     collection: 'users',
+    overrideAccess: true,
   })
 
   if (existingUsers > 0) {
@@ -20,19 +21,35 @@ export const seed = async (payload: Payload) => {
       email: 'dev@payloadcms.com',
       password: 'password',
     },
+    overrideAccess: true,
   })
 
   // Seed Tenants — posts and pages are tenant-scoped, so they need one assigned
   const tenants = await Promise.all(
-    ['Main Site', 'Blog Network'].map((name) =>
-      payload.create({
-        collection: 'tenants',
-        data: { name },
-      }),
+    ['Main Site', 'Blog Network', 'Online Shop'].map((name) =>
+      payload.create({ collection: 'tenants', data: { name }, overrideAccess: true }),
     ),
   )
 
   payload.logger.info(`Created ${tenants.length} tenants`)
+
+  // One editor per tenant, assigned through the field the multi-tenant plugin adds to users
+  const editors = await Promise.all(
+    tenants.map((tenant, i) =>
+      payload.create({
+        collection: 'users',
+        data: {
+          name: `${tenant.name} Editor`,
+          email: `editor${i + 1}@payloadcms.com`,
+          password: 'password',
+          tenants: [{ tenant: tenant.id }],
+        },
+        overrideAccess: true,
+      }),
+    ),
+  )
+
+  payload.logger.info(`Created ${editors.length} tenant editors`)
 
   // Seed Categories
   const categories = [
@@ -46,10 +63,7 @@ export const seed = async (payload: Payload) => {
 
   const createdCategories = await Promise.all(
     categories.map((cat) =>
-      payload.create({
-        collection: 'categories',
-        data: cat,
-      }),
+      payload.create({ collection: 'categories', data: cat, overrideAccess: true }),
     ),
   )
 
@@ -166,6 +180,7 @@ export const seed = async (payload: Payload) => {
       payload.create({
         collection: 'posts',
         data: { ...post, tenant: tenants[i % tenants.length].id },
+        overrideAccess: true,
       }),
     ),
   )
@@ -188,6 +203,7 @@ export const seed = async (payload: Payload) => {
       payload.create({
         collection: 'pages',
         data: { ...page, tenant: tenants[i % tenants.length].id },
+        overrideAccess: true,
       }),
     ),
   )
@@ -203,29 +219,80 @@ export const seed = async (payload: Payload) => {
 
   const createdAuthors = await Promise.all(
     authors.map((author) =>
-      payload.create({
-        collection: 'authors',
-        data: author,
-      }),
+      payload.create({ collection: 'authors', data: author, overrideAccess: true }),
     ),
   )
 
   payload.logger.info(`Created ${createdAuthors.length} authors`)
 
+  // Seed Folders — a small tree, so the folders sidebar tab has something to show
+  const guidesFolder = await payload.create({
+    collection: 'folders',
+    data: { name: 'Guides' },
+    overrideAccess: true,
+  })
+  const engineeringFolder = await payload.create({
+    collection: 'folders',
+    data: { name: 'Engineering' },
+    overrideAccess: true,
+  })
+  const frontendFolder = await payload.create({
+    collection: 'folders',
+    data: { name: 'Frontend', _h_folders: engineeringFolder.id },
+    overrideAccess: true,
+  })
+
+  payload.logger.info('Created 3 folders')
+
+  // Seed Tags — tags can nest too, unlike folders a document can have many
+  const [tutorialTag, webTag] = await Promise.all(
+    ['Tutorial', 'Web'].map((name) =>
+      payload.create({ collection: 'tags', data: { name }, overrideAccess: true }),
+    ),
+  )
+  const [reactTag, typescriptTag] = await Promise.all(
+    ['React', 'TypeScript'].map((name) =>
+      payload.create({
+        collection: 'tags',
+        data: { name, _h_tags: webTag.id },
+        overrideAccess: true,
+      }),
+    ),
+  )
+
+  payload.logger.info('Created 4 tags')
+
   // Seed Articles
   const articles = [
-    { content: null, title: 'Getting Started with Payload CMS' },
-    { content: null, title: 'Building Modern Web Applications' },
-    { content: null, title: 'React Best Practices 2024' },
-    { content: null, title: 'Introduction to TypeScript' },
+    {
+      _h_folders: guidesFolder.id,
+      _h_tags: [tutorialTag.id],
+      content: null,
+      title: 'Getting Started with Payload CMS',
+    },
+    {
+      _h_folders: engineeringFolder.id,
+      _h_tags: [webTag.id],
+      content: null,
+      title: 'Building Modern Web Applications',
+    },
+    {
+      _h_folders: frontendFolder.id,
+      _h_tags: [reactTag.id, tutorialTag.id],
+      content: null,
+      title: 'React Best Practices 2024',
+    },
+    {
+      _h_folders: frontendFolder.id,
+      _h_tags: [typescriptTag.id],
+      content: null,
+      title: 'Introduction to TypeScript',
+    },
   ]
 
   const createdArticles = await Promise.all(
     articles.map((article) =>
-      payload.create({
-        collection: 'articles',
-        data: article,
-      }),
+      payload.create({ collection: 'articles', data: article, overrideAccess: true }),
     ),
   )
 
@@ -250,16 +317,154 @@ export const seed = async (payload: Payload) => {
     { name: 'Monitor Arm', price: 119.99, sku: 'MA-015' },
   ]
 
+  // Seed Product Folders: Electronics > Audio, and Accessories
+  const electronicsFolder = await payload.create({
+    collection: 'product-folders',
+    data: { name: 'Electronics' },
+    overrideAccess: true,
+  })
+  const audioFolder = await payload.create({
+    collection: 'product-folders',
+    data: { name: 'Audio', '_h_product-folders': electronicsFolder.id },
+    overrideAccess: true,
+  })
+  const accessoriesFolder = await payload.create({
+    collection: 'product-folders',
+    data: { name: 'Accessories' },
+    overrideAccess: true,
+  })
+
+  payload.logger.info('Created 3 product folders')
+
+  // Seed Product Tags: Promo > Sale, and New
+  const [promoTag, newTag] = await Promise.all(
+    ['Promo', 'New'].map((name) =>
+      payload.create({ collection: 'product-tags', data: { name }, overrideAccess: true }),
+    ),
+  )
+  const saleTag = await payload.create({
+    collection: 'product-tags',
+    data: { name: 'Sale', '_h_product-tags': promoTag.id },
+    overrideAccess: true,
+  })
+
+  payload.logger.info('Created 3 product tags')
+
+  const productFolders = [electronicsFolder.id, audioFolder.id, accessoriesFolder.id]
+  const productTags = [[newTag.id], [saleTag.id], [], [promoTag.id, newTag.id]]
+
   const createdProducts = await Promise.all(
-    products.map((product) =>
+    products.map((product, i) =>
       payload.create({
         collection: 'products',
-        data: product,
+        data: {
+          ...product,
+          '_h_product-folders': productFolders[i % productFolders.length],
+          '_h_product-tags': productTags[i % productTags.length],
+        },
+        overrideAccess: true,
       }),
     ),
   )
 
   payload.logger.info(`Created ${createdProducts.length} products`)
+
+  // Seed Customers
+  const customers = [
+    { email: 'olena@example.com', firstName: 'Olena', lastName: 'Kovalenko' },
+    { email: 'john@example.com', firstName: 'John', lastName: 'Smith' },
+    { email: 'maria@example.com', firstName: 'Maria', lastName: 'Garcia' },
+    { email: 'taras@example.com', firstName: 'Taras', lastName: 'Shevchuk' },
+    { email: 'anna@example.com', firstName: 'Anna', lastName: 'Mueller' },
+  ]
+
+  const createdCustomers = await Promise.all(
+    customers.map((customer) =>
+      payload.create({ collection: 'customers', data: customer, overrideAccess: true }),
+    ),
+  )
+
+  payload.logger.info(`Created ${createdCustomers.length} customers`)
+
+  // Seed Orders: a mix of statuses
+  const orderStatuses = ['pending', 'processing', 'shipped', 'delivered'] as const
+
+  const createdOrders = await Promise.all(
+    Array.from({ length: 10 }, (_, i) =>
+      payload.create({
+        collection: 'orders',
+        data: {
+          orderNumber: `ORD-${1001 + i}`,
+          status: orderStatuses[i % orderStatuses.length],
+          total: Math.round((50 + i * 37.5) * 100) / 100,
+        },
+        overrideAccess: true,
+      }),
+    ),
+  )
+
+  payload.logger.info(`Created ${createdOrders.length} orders`)
+
+  // Seed Reviews
+  const reviews = [
+    { comment: 'Great sound quality, would buy again.', rating: 5 },
+    { comment: 'Solid build, but a bit pricey.', rating: 4 },
+    { comment: 'Does the job.', rating: 3 },
+    { comment: 'Stopped working after a month.', rating: 1 },
+    { comment: 'Fast delivery and well packed.', rating: 5 },
+    { comment: 'Not what I expected from the photos.', rating: 2 },
+  ]
+
+  const createdReviews = await Promise.all(
+    reviews.map((review) =>
+      payload.create({ collection: 'reviews', data: review, overrideAccess: true }),
+    ),
+  )
+
+  payload.logger.info(`Created ${createdReviews.length} reviews`)
+
+  // Seed Campaigns
+  const campaigns = [
+    { name: 'Spring Sale', endDate: '2026-04-30', startDate: '2026-04-01' },
+    { name: 'Back to School', endDate: '2026-09-15', startDate: '2026-08-15' },
+    { name: 'Black Friday', endDate: '2026-11-30', startDate: '2026-11-27' },
+  ]
+
+  const createdCampaigns = await Promise.all(
+    campaigns.map((campaign) =>
+      payload.create({ collection: 'campaigns', data: campaign, overrideAccess: true }),
+    ),
+  )
+
+  payload.logger.info(`Created ${createdCampaigns.length} campaigns`)
+
+  // Seed Newsletters
+  const newsletters = ['Monthly Digest: September', 'Product Updates', 'Black Friday Preview']
+
+  const createdNewsletters = await Promise.all(
+    newsletters.map((subject) =>
+      payload.create({
+        collection: 'newsletters',
+        data: { body: null, subject },
+        overrideAccess: true,
+      }),
+    ),
+  )
+
+  payload.logger.info(`Created ${createdNewsletters.length} newsletters`)
+
+  // Seed Subscribers
+  const createdSubscribers = await Promise.all(
+    Array.from({ length: 8 }, (_, i) =>
+      payload.create({
+        collection: 'subscribers',
+        data: { email: `subscriber${i + 1}@example.com` },
+        overrideAccess: true,
+      }),
+    ),
+  )
+
+  payload.logger.info(`Created ${createdSubscribers.length} subscribers`)
 
   // Seed Globals
   await payload.updateGlobal({
@@ -267,6 +472,7 @@ export const seed = async (payload: Payload) => {
     data: {
       // Add any default data for site-settings if needed
     },
+    overrideAccess: true,
   })
 
   await payload.updateGlobal({
@@ -274,6 +480,7 @@ export const seed = async (payload: Payload) => {
     data: {
       // Add any default data for footer-settings if needed
     },
+    overrideAccess: true,
   })
 
   payload.logger.info('Globals updated')

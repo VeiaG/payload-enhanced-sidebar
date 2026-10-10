@@ -1,5 +1,9 @@
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { LLMInstructionsMenuItem as LLMInstructionsMenuItem_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { NullField as NullField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { HierarchyField as HierarchyField_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { HierarchyButton as HierarchyButton_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -24,26 +28,44 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
-import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
-import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
-import { EnhancedSidebar as EnhancedSidebar_1991e0cd7459bf6a1f4021425d377371 } from '@veiag/payload-enhanced-sidebar/rsc'
+import { LLMInstructionsDescription as LLMInstructionsDescription_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { FixedToolbarFeatureClient as FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { LLMInstructionsCell as LLMInstructionsCell_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { SettingsMenuItem as SettingsMenuItem_ce02ca69364e80caf8e4590bdae13e81 } from '../../../components/SettingsMenuItem'
 import { AnotherSettingsItem as AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81 } from '../../../components/SettingsMenuItem'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
-import { InternalBadgeProvider as InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324 } from '@veiag/payload-enhanced-sidebar/client'
-import { TestBadgeProvider as TestBadgeProvider_bf163306dc8f99f46056a1312f80979d } from '../../../components/TestBadgeProvider'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
-import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
-import { CustomTabIcon as CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
-import { KeepQueryTabButton as KeepQueryTabButton_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
-import { CustomNavItemComponent as CustomNavItemComponent_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
-import { ChatListPanel as ChatListPanel_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
-import { TabSeparator as TabSeparator_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
+import { ClockIcon as ClockIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { RecentTab as RecentTab_0e73a6a9202364a183ee611ab3b46aa6 } from '../../../components/NativeSidebarTabs'
+import { CirclePlusIcon as CirclePlusIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { QuickCreateTab as QuickCreateTab_b62e2fe09be2c189c73bda424d9289a9 } from '../../../components/NativeSidebarTabs.client'
+import { GridViewIcon as GridViewIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { StatsTab as StatsTab_0e73a6a9202364a183ee611ab3b46aa6 } from '../../../components/NativeSidebarTabs'
+import { WriteIcon as WriteIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { NotesTab as NotesTab_b62e2fe09be2c189c73bda424d9289a9 } from '../../../components/NativeSidebarTabs.client'
+import { InfoIcon as InfoIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { HelpTab as HelpTab_b62e2fe09be2c189c73bda424d9289a9 } from '../../../components/NativeSidebarTabs.client'
+import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { TagIcon as TagIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { WelcomeWidget as WelcomeWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { CollectionQueryWidget as CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { QueryPresetsWhereField as QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { CollectionQuerySortField as CollectionQuerySortField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { RecentlyViewedWidget as RecentlyViewedWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { RecentlyViewedCollectionsField as RecentlyViewedCollectionsField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { UploadDropzoneWidget as UploadDropzoneWidget_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { UploadDropzoneCollectionsField as UploadDropzoneCollectionsField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 
+/** @type import('payload').ImportMap */
 export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
+  "@payloadcms/ui#LLMInstructionsMenuItem": LLMInstructionsMenuItem_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
+  "@payloadcms/ui#NullField": NullField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#HierarchyField": HierarchyField_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui/rsc#HierarchyButton": HierarchyButton_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -68,20 +90,33 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
-  "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,
-  "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
-  "@veiag/payload-enhanced-sidebar/rsc#EnhancedSidebar": EnhancedSidebar_1991e0cd7459bf6a1f4021425d377371,
+  "@payloadcms/ui#LLMInstructionsDescription": LLMInstructionsDescription_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient": FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@payloadcms/ui/rsc#LLMInstructionsCell": LLMInstructionsCell_ab83ff7e88da8d3530831f296ec4756a,
   "./components/SettingsMenuItem#SettingsMenuItem": SettingsMenuItem_ce02ca69364e80caf8e4590bdae13e81,
   "./components/SettingsMenuItem#AnotherSettingsItem": AnotherSettingsItem_ce02ca69364e80caf8e4590bdae13e81,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
-  "@veiag/payload-enhanced-sidebar/client#InternalBadgeProvider": InternalBadgeProvider_bb20d92177fcc2ccf9f674de15933324,
-  "./components/TestBadgeProvider#TestBadgeProvider": TestBadgeProvider_bf163306dc8f99f46056a1312f80979d,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
-  "./components/CustomNavComponents#CustomTabIcon": CustomTabIcon_2d6fad3ce4c2c7169593aaf3566963f3,
-  "./components/CustomNavComponents#KeepQueryTabButton": KeepQueryTabButton_2d6fad3ce4c2c7169593aaf3566963f3,
-  "./components/CustomNavComponents#CustomNavItemComponent": CustomNavItemComponent_2d6fad3ce4c2c7169593aaf3566963f3,
-  "./components/CustomNavComponents#ChatListPanel": ChatListPanel_2d6fad3ce4c2c7169593aaf3566963f3,
-  "./components/CustomNavComponents#TabSeparator": TabSeparator_2d6fad3ce4c2c7169593aaf3566963f3
+  "@payloadcms/ui#ClockIcon": ClockIcon_3817bf644402e67bfe6577f60ef982de,
+  "./components/NativeSidebarTabs#RecentTab": RecentTab_0e73a6a9202364a183ee611ab3b46aa6,
+  "@payloadcms/ui#CirclePlusIcon": CirclePlusIcon_3817bf644402e67bfe6577f60ef982de,
+  "./components/NativeSidebarTabs.client#QuickCreateTab": QuickCreateTab_b62e2fe09be2c189c73bda424d9289a9,
+  "@payloadcms/ui#GridViewIcon": GridViewIcon_3817bf644402e67bfe6577f60ef982de,
+  "./components/NativeSidebarTabs#StatsTab": StatsTab_0e73a6a9202364a183ee611ab3b46aa6,
+  "@payloadcms/ui#WriteIcon": WriteIcon_3817bf644402e67bfe6577f60ef982de,
+  "./components/NativeSidebarTabs.client#NotesTab": NotesTab_b62e2fe09be2c189c73bda424d9289a9,
+  "@payloadcms/ui#InfoIcon": InfoIcon_3817bf644402e67bfe6577f60ef982de,
+  "./components/NativeSidebarTabs.client#HelpTab": HelpTab_b62e2fe09be2c189c73bda424d9289a9,
+  "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui#TagIcon": TagIcon_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#WelcomeWidget": WelcomeWidget_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui/rsc#CollectionQueryWidget": CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui#QueryPresetsWhereField": QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui#CollectionQuerySortField": CollectionQuerySortField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#RecentlyViewedWidget": RecentlyViewedWidget_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui#RecentlyViewedCollectionsField": RecentlyViewedCollectionsField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#UploadDropzoneWidget": UploadDropzoneWidget_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui#UploadDropzoneCollectionsField": UploadDropzoneCollectionsField_3817bf644402e67bfe6577f60ef982de
 }
