@@ -769,8 +769,9 @@ export interface EnhancedSidebarConfig {
   nativeTabs?: boolean
 
   /**
-   * Show logout button at the bottom of the tabs bar.
-   * @default true
+   * Show a separate logout button at the bottom of the tabs bar. Off by default: the account
+   * menu (`userMenu`) already has log out, as in Payload's own nav.
+   * @default false
    */
   showLogout?: boolean
 
@@ -806,9 +807,10 @@ export interface EnhancedSidebarConfig {
   tabs?: SidebarTab[]
 
   /**
-   * Show Payload's account menu (avatar, name or email, language/theme/settings, logout)
-   * at the top of the nav content, before the `beforeNav` slot. In Payload v4 this menu
-   * lives in the nav, so a custom nav that leaves it out leaves the admin without one.
+   * Show Payload's account menu as an avatar button at the bottom of the tabs bar. The menu
+   * has the profile link, theme, language, `userMenuSettingsItems` and log out. The avatar is
+   * `admin.avatar` (default, gravatar or a custom component). In Payload v4 this menu lives
+   * in the nav, so a custom nav that leaves it out leaves the admin without one.
    *
    * @default true
    */

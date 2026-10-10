@@ -2,7 +2,7 @@ import type { EntityToGroup } from '@payloadcms/ui/shared'
 import type { PayloadRequest, ServerProps } from 'payload'
 
 import { getTranslation } from '@payloadcms/translations'
-import { NavGroup, UserMenu } from '@payloadcms/ui'
+import { NavGroup } from '@payloadcms/ui'
 import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
 import { groupNavItems } from '@payloadcms/ui/shared'
 import { EntityType } from 'payload'
@@ -32,10 +32,9 @@ import { getNavPrefs } from './getNavPrefs.js'
 import { Icon } from './Icon.js'
 import { LazyTabView } from './LazyTabView/index.js'
 import { NavItem } from './NavItem/index.js'
+import { RailUserMenu, type RailUserMenuProps } from './RailUserMenu/index.js'
 import { SidebarContent } from './SidebarContent.js'
 import './index.scss'
-
-type UserMenuProps = React.ComponentProps<typeof UserMenu>
 
 export type EnhancedSidebarProps = {
   /** Passed by Payload to the Nav: the configured `admin.avatar` component, rendered */
@@ -44,7 +43,7 @@ export type EnhancedSidebarProps = {
   CustomLogoutButton?: React.ReactNode
   req?: PayloadRequest
   /** Passed by Payload to the Nav: `admin.components.userMenuSettingsItems`, rendered */
-  settingsItemGroups?: UserMenuProps['settingsItemGroups']
+  settingsItemGroups?: RailUserMenuProps['settingsItemGroups']
   sidebarConfig?: EnhancedSidebarConfig
 } & ServerProps
 
@@ -227,7 +226,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     viewType,
   }
 
-  const beforeNavSlot = RenderServerComponent({
+  const beforeNavRendered = RenderServerComponent({
     clientProps,
     Component: beforeNav,
     importMap: payload.importMap,
@@ -235,21 +234,13 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   })
 
   // Payload v4 renders the account menu in its nav; replacing the nav means rendering it here
-  const beforeNavRendered =
-    sidebarConfig?.userMenu === false ? (
-      beforeNavSlot
-    ) : (
-      <Fragment>
-        <div className="enhanced-sidebar__user-menu">
-          <UserMenu
-            CustomAvatar={CustomAvatar}
-            CustomLogoutButton={CustomLogoutButton}
-            settingsItemGroups={settingsItemGroups}
-            showTitle
-          />
-        </div>
-        {beforeNavSlot}
-      </Fragment>
+  const userMenu =
+    sidebarConfig?.userMenu === false ? undefined : (
+      <RailUserMenu
+        CustomAvatar={CustomAvatar}
+        CustomLogoutButton={CustomLogoutButton}
+        settingsItemGroups={settingsItemGroups}
+      />
     )
 
   const beforeNavLinksRendered = RenderServerComponent({
@@ -661,6 +652,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       tabIcons={Object.keys(tabIcons).length > 0 ? tabIcons : undefined}
       tabsContent={tabsContent}
       tabViews={hasTabViews ? tabViews : undefined}
+      userMenu={userMenu}
     />
   )
 }

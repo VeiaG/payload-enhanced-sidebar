@@ -9,7 +9,7 @@ import { getLazyTabSlug, resolveSidebarComponent, sanitizeSidebarConfig } from '
  * Default configuration for the enhanced sidebar
  */
 const defaultConfig: EnhancedSidebarConfig = {
-  showLogout: true,
+  showLogout: false,
   tabs: [
     {
       id: 'dashboard',

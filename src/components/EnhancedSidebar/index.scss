@@ -1,11 +1,15 @@
 @import '../../scss/compat';
 
 @layer payload-default {
-  .enhanced-sidebar__user-menu {
-    margin-bottom: var(--spacer-3);
-  }
-
   .enhanced-sidebar {
+    // Same spacing variables Payload's own nav (`.nav`) defines. Content written for the
+    // native nav reads them — e.g. the multi-tenant selector in `beforeNav` uses
+    // `--nav-padding-inline-start` for its side margins.
+    --nav-padding-inline-start: var(--spacer-2-5);
+    --nav-padding-inline-end: var(--spacer-2-5);
+    --nav-padding-block-start: var(--spacer-2-5);
+    --nav-padding-block-end: var(--spacer-5);
+
     &__content {
       flex: 1;
       display: flex;
@@ -14,15 +18,15 @@
     }
 
     &__content-scroll {
-      // Exposed as a variable because `__link-indicator` has to hang exactly this far
-      // outside the content box to land on the panel edge. Hard-coding the offset makes
-      // the indicator slide under the tabs bar once the padding shrinks at `mid-break`.
-      --enhanced-sidebar-content-padding-inline: #{base(1)};
+      // Side padding of the content area. Rows and groups bring their own inset, like in
+      // Payload's nav, so it is 0 by default; custom tab content can raise it.
+      --enhanced-sidebar-content-padding-inline: 0px;
 
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: var(--app-header-height) var(--enhanced-sidebar-content-padding-inline) base(2);
+      padding: var(--app-header-height) var(--enhanced-sidebar-content-padding-inline)
+        var(--nav-padding-block-end);
       overflow-y: auto;
 
       &::-webkit-scrollbar {
@@ -30,81 +34,81 @@
       }
     }
 
+    // Nav rows mirror Payload's `.nav__link`: full-width row, the highlight is a rounded
+    // pill drawn by `::before`, inset from the row edges.
+    &__link-wrapper {
+      width: 100%;
+    }
+
     &__link {
       display: flex;
       align-items: center;
       position: relative;
-      padding-block: base(0.125);
-      padding-inline-start: 0;
-      padding-inline-end: base(1.5);
+      isolation: isolate;
+      padding-block: var(--spacer-2);
+      padding-inline: var(--spacer-3);
+      color: var(--color-text);
       text-decoration: none;
 
-      &:focus:not(:focus-visible) {
-        box-shadow: none;
-        font-weight: 600;
-      }
-
-      &.active {
-        font-weight: 600;
-      }
-    }
-
-    a.enhanced-sidebar__link {
-      &:hover,
-      &:focus-visible {
-        text-decoration: underline;
+      &::before {
+        content: '';
+        position: absolute;
+        inset-block: var(--spacer-1);
+        inset-inline: var(--spacer-2);
+        border-radius: var(--button-radius);
+        z-index: -1;
       }
     }
 
-    &__link:has(.enhanced-sidebar__link-indicator) {
+    a.enhanced-sidebar__link:not(.enhanced-sidebar__link--selected):hover {
+      text-decoration: none;
+
+      &::before {
+        background: var(--color-bg-secondary);
+      }
+    }
+
+    a.enhanced-sidebar__link:focus-visible {
+      outline: none;
+
+      &::before {
+        outline: var(--accessibility-outline);
+        outline-offset: var(--accessibility-outline-offset);
+      }
+    }
+
+    &__link--selected {
       font-weight: 600;
+
+      &::before {
+        background: var(--color-bg-selected);
+      }
     }
 
-    &__link-indicator {
-      position: absolute;
-      display: block;
-      inset-inline-start: calc(var(--enhanced-sidebar-content-padding-inline, #{base(1)}) * -1);
-      width: 2px;
-      height: 16px;
-      border-start-end-radius: 2px;
-      border-end-end-radius: 2px;
-      background: var(--color-bg-inverse);
+    // Takes the free space, so an inline badge sits at the end of the row
+    &__link-label {
+      flex: 1;
+      min-width: 0;
     }
-
-    // &__link-label {
-    //   // inherit styles
-    // }
 
     &__link-icon {
-      margin-right: base(0.5);
+      margin-inline-end: var(--spacer-2);
       flex-shrink: 0;
-    }
-
-    &__link--active {
-      font-weight: 600;
     }
 
     &__custom-items {
       display: flex;
       flex-direction: column;
-      gap: base(0.25);
     }
 
     @include mid-break {
-      &__content-scroll {
-        --enhanced-sidebar-content-padding-inline: #{base(0.5)};
-      }
+      --nav-padding-inline-start: var(--spacer-2);
+      --nav-padding-inline-end: var(--spacer-2);
     }
 
     @include small-break {
-      &__content-scroll {
-        --enhanced-sidebar-content-padding-inline: var(--gutter-h);
-      }
-
-      &__link {
-        font-size: base(0.875);
-        line-height: base(1.5);
-      }
+      --nav-padding-inline-start: var(--gutter-h);
+      --nav-padding-inline-end: var(--gutter-h);
     }
   }
 }

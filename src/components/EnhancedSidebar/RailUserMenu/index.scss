@@ -1,0 +1,57 @@
+@layer payload-default {
+  .enhanced-sidebar-user {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+
+    &__avatar {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+
+      // A filled circle reads larger than the 20px outline icons around it, so a bit above
+      // 20px rather than matching the 36px button
+      > * {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+
+      img,
+      svg {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+}
+
+// Payload's UserMenu styles are not in a cascade layer, so these overrides can't be either:
+// layered rules always lose to unlayered ones. Scoped to the rail wrapper.
+.enhanced-sidebar-user {
+  .user-menu,
+  .user-menu > .popup__trigger-wrap {
+    width: 100%;
+    height: 100%;
+  }
+
+  .user-menu__trigger {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border-radius: 50%;
+
+    // The chevron: the avatar on top is the affordance here
+    .btn__icon {
+      display: none;
+    }
+  }
+}

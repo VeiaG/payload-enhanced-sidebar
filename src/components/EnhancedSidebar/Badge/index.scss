@@ -14,30 +14,32 @@
     line-height: 1;
     white-space: nowrap;
 
-    // Color variants - using fixed colors for consistent contrast in both themes
+    // Color variants — Payload's semantic status tokens: each background comes with its own
+    // "on" text color and both adapt to the dark theme.
     &--default {
       background: var(--color-bg-tertiary);
       color: var(--color-text);
     }
 
     &--primary {
-      background: #3b82f6; // Blue
-      color: #fff;
+      background: var(--color-bg-brand);
+      color: var(--color-text-onbrand);
     }
 
     &--success {
-      background: #22c55e; // Green
-      color: #fff;
+      background: var(--color-bg-success);
+      color: var(--color-text-onsuccess);
     }
 
+    // Dark text on yellow, as in Payload's own warning surfaces
     &--warning {
-      background: #f59e0b; // Amber
-      color: #000;
+      background: var(--color-bg-warning);
+      color: var(--color-text-onwarning);
     }
 
     &--error {
-      background: #ef4444; // Red
-      color: #fff;
+      background: var(--color-bg-danger);
+      color: var(--color-text-ondanger);
     }
 
     // Position modifier for absolute positioning (used on icons)

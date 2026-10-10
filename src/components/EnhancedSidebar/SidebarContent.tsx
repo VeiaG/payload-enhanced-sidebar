@@ -26,6 +26,8 @@ export type SidebarContentProps = {
   tabIcons?: Record<string, React.ReactNode>
   tabsContent: Record<string, React.ReactNode>
   tabViews?: Record<string, React.ReactNode>
+  /** Account menu shown at the bottom of the tabs bar */
+  userMenu?: React.ReactNode
 }
 
 const COOKIE_KEY = 'payload-enhanced-sidebar-active-tab'
@@ -49,6 +51,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   tabIcons,
   tabsContent,
   tabViews,
+  userMenu,
 }) => {
   const [activeTabId, setActiveTabId] = useState(initialActiveTabId)
 
@@ -73,6 +76,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
           sidebarConfig={sidebarConfig}
           tabButtons={tabButtons}
           tabIcons={tabIcons}
+          userMenu={userMenu}
         />
         {customNavContent ?? (
           <NavContent

@@ -304,7 +304,7 @@ export const ChatListPanel: React.FC<CustomTabContentProps> = ({ content }) => (
 )
 ```
 
-To change the horizontal padding for just this tab, override the `--enhanced-sidebar-content-padding-inline` variable on the scroll container via `style` (use this variable rather than `padding`, so the active-link indicator stays aligned with the panel edge):
+The content area has no side padding by default — nav rows and groups bring their own inset, like in Payload's nav. To add horizontal padding for just this tab, set the `--enhanced-sidebar-content-padding-inline` variable on the scroll container via `style`:
 
 ```tsx
 <NavContentShell

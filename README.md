@@ -137,8 +137,8 @@ export default buildConfig({
         },
       ],
 
-      // Show/hide logout button (default: true)
-      showLogout: true,
+      // Separate logout button in the tabs bar (default: false — the account menu has log out)
+      showLogout: false,
 
       // Disable the plugin
       disabled: false,
@@ -622,7 +622,14 @@ Without `req={req}`, the sidebar will treat the page as unauthenticated and hide
 
 ### `showLogout`
 
-Show/hide the logout button at the bottom of the tabs bar.
+Show a separate logout button at the bottom of the tabs bar. Off by default: the account menu (`userMenu`) at the bottom of the bar already has log out, like Payload's own nav.
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+### `userMenu`
+
+Show Payload's account menu as an avatar button at the bottom of the tabs bar — profile, theme, language, `admin.components.userMenuSettingsItems` and log out. The avatar follows `admin.avatar` (`'default'`, `'gravatar'` or a custom component).
 
 - **Type:** `boolean`
 - **Default:** `true`

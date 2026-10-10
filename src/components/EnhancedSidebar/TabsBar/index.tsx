@@ -21,6 +21,8 @@ export type TabsBarProps = {
   /** Server-rendered custom buttons, keyed by item id (buttonComponent or global TabButton) */
   tabButtons?: Record<string, React.ReactNode>
   tabIcons?: Record<string, React.ReactNode>
+  /** Account menu, rendered last in the bar */
+  userMenu?: React.ReactNode
 }
 
 export const TabsBar: React.FC<TabsBarProps> = ({
@@ -29,6 +31,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({
   sidebarConfig,
   tabButtons,
   tabIcons,
+  userMenu,
 }) => {
   const { i18n } = useTranslation()
 
@@ -41,7 +44,8 @@ export const TabsBar: React.FC<TabsBarProps> = ({
     },
   } = useConfig()
 
-  const showLogout = sidebarConfig.showLogout !== false
+  // Off by default: the account menu has its own log out, like Payload's nav
+  const showLogout = sidebarConfig.showLogout === true
 
   const renderTabItem = (item: SidebarTab) => {
     if (item.type === 'custom') {
@@ -110,6 +114,7 @@ export const TabsBar: React.FC<TabsBarProps> = ({
               <LogOut size={20} />
             </Link>
           )}
+          {userMenu}
         </div>
       </div>
     </div>

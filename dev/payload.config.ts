@@ -429,13 +429,13 @@ const buildConfigWithMemoryDB = async () => {
         fields: [],
       },
     ],
-    // i18n: {
-    //   fallbackLanguage: 'en',
-    //   supportedLanguages: {
-    //     en,
-    //     uk,
-    //   },
-    // },
+    i18n: {
+      fallbackLanguage: 'en',
+      supportedLanguages: {
+        en,
+        uk,
+      },
+    },
     onInit: async (payload) => {
       await seed(payload)
     },
