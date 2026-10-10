@@ -5,7 +5,7 @@
 >
 > Coming from the v3 version? Read the [v4 migration guide](docs/migration-v4.md).
 >
-> Found a problem with the v4 version? Please [open an issue](https://github.com/VeiaG/payload-enhanced-sidebar/issues/new?labels=v4-beta) with the **`v4-beta`** label.
+> Found a problem with the v4 version? Please [open an issue](https://github.com/VeiaG/payload-enhanced-sidebar/issues/new?labels=v4-beta) with the **`v4-beta`** label — and the **`tanstack`** label too if it only happens on TanStack Start.
 
 An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a tabbed navigation system to organize collections and globals into logical groups.
 
@@ -21,6 +21,7 @@ An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a
 - **Lucide Icons** - Use any [Lucide icon](https://lucide.dev/icons) for tabs and links, or provide a custom icon component per tab
 - **Payload's own sidebar tabs** - Folder/tag trees and other native tabs, grouped in one **Browse** tab (Payload v4)
 - **Account menu and logo** - Payload's account menu as an avatar at the bottom of the bar, your brand icon at the top
+- **Next.js and TanStack Start** - Works with both of Payload v4's framework adapters
 
 ![Showcase](docs/showcase.webp)
 
@@ -72,6 +73,15 @@ This will add:
 - **[Custom components](docs/custom-components.md)** — replace any part of the sidebar, lazy tabs, hooks and default building blocks
 - **[Migrating to Payload v4](docs/migration-v4.md)** — what changes in the plugin on Payload v4
 
+## Framework support
+
+Payload v4 runs on **Next.js** (`@payloadcms/next`) and **TanStack Start** (`@payloadcms/tanstack-start`). The plugin works on both: it uses only framework-agnostic APIs (`Link`, router hooks and the server adapter from Payload, no `next/*` imports), and both are built and checked in CI.
+
+Writing custom components for the sidebar on TanStack Start? Two things to keep in mind:
+
+- Import `Link`, `useRouter`, `usePathname`, `useSearchParams` from `@payloadcms/ui`, not from `next/*`.
+- Don't name component files `*.client.tsx` / `*.server.tsx` — TanStack Start reserves those suffixes and stubs such files on the server. Mark client components with `'use client'` instead.
+
 ## Payload Features Support
 
 - **Sidebar tabs** - Payload's `admin.components.sidebar.tabs`, including the folder/tag tree tabs added for `folders` / `tags` / `hierarchy` collections (see [`nativeTabs`](docs/configuration.md#nativetabs))
@@ -93,7 +103,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Issues
 
-Found a bug or have a feature request? Please open an issue on [GitHub](https://github.com/VeiaG/payload-enhanced-sidebar/issues). For the Payload v4 version, add the **`v4-beta`** label.
+Found a bug or have a feature request? Please open an issue on [GitHub](https://github.com/VeiaG/payload-enhanced-sidebar/issues). For the Payload v4 version, add the **`v4-beta`** label; for problems that only show up on TanStack Start, add **`tanstack`** as well.
 
 ## License
 

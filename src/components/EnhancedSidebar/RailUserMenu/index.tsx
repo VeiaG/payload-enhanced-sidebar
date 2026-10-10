@@ -37,7 +37,11 @@ const InitialAvatar: React.FC = () => {
   const useAsTitle = getEntityConfig({ collectionSlug: userSlug })?.admin?.useAsTitle
   const title = useAsTitle ? (user as Record<string, unknown> | null)?.[useAsTitle] : undefined
   const name =
-    (typeof title === 'string' && title.trim()) || user?.username || user?.email || ''
+    (typeof title === 'string' && title.trim()) ||
+    // `username` exists only on auth collections that log in with it
+    (user as { username?: string } | null)?.username ||
+    user?.email ||
+    ''
   const initial = name.trim().charAt(0).toUpperCase()
 
   return (

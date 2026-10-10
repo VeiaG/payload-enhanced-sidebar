@@ -41,13 +41,13 @@ import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7
 import { RecentIcon as RecentIcon_0e73a6a9202364a183ee611ab3b46aa6 } from '../../../components/NativeSidebarTabs'
 import { RecentTab as RecentTab_0e73a6a9202364a183ee611ab3b46aa6 } from '../../../components/NativeSidebarTabs'
 import { CirclePlusIcon as CirclePlusIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
-import { QuickCreateTab as QuickCreateTab_b62e2fe09be2c189c73bda424d9289a9 } from '../../../components/NativeSidebarTabs.client'
+import { QuickCreateTab as QuickCreateTab_e68a3d1d5a3f67bf319a4057562355b1 } from '../../../components/NativeSidebarTabsClient'
 import { GridViewIcon as GridViewIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { StatsTab as StatsTab_0e73a6a9202364a183ee611ab3b46aa6 } from '../../../components/NativeSidebarTabs'
 import { WriteIcon as WriteIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
-import { NotesTab as NotesTab_b62e2fe09be2c189c73bda424d9289a9 } from '../../../components/NativeSidebarTabs.client'
+import { NotesTab as NotesTab_e68a3d1d5a3f67bf319a4057562355b1 } from '../../../components/NativeSidebarTabsClient'
 import { InfoIcon as InfoIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
-import { HelpTab as HelpTab_b62e2fe09be2c189c73bda424d9289a9 } from '../../../components/NativeSidebarTabs.client'
+import { HelpTab as HelpTab_e68a3d1d5a3f67bf319a4057562355b1 } from '../../../components/NativeSidebarTabsClient'
 import { DocumentIcon as DocumentIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { NativeTabsPanel as NativeTabsPanel_1991e0cd7459bf6a1f4021425d377371 } from '@veiag/payload-enhanced-sidebar/rsc'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
@@ -112,13 +112,13 @@ export const importMap = {
   "./components/NativeSidebarTabs#RecentIcon": RecentIcon_0e73a6a9202364a183ee611ab3b46aa6,
   "./components/NativeSidebarTabs#RecentTab": RecentTab_0e73a6a9202364a183ee611ab3b46aa6,
   "@payloadcms/ui#CirclePlusIcon": CirclePlusIcon_3817bf644402e67bfe6577f60ef982de,
-  "./components/NativeSidebarTabs.client#QuickCreateTab": QuickCreateTab_b62e2fe09be2c189c73bda424d9289a9,
+  "./components/NativeSidebarTabsClient#QuickCreateTab": QuickCreateTab_e68a3d1d5a3f67bf319a4057562355b1,
   "@payloadcms/ui#GridViewIcon": GridViewIcon_3817bf644402e67bfe6577f60ef982de,
   "./components/NativeSidebarTabs#StatsTab": StatsTab_0e73a6a9202364a183ee611ab3b46aa6,
   "@payloadcms/ui#WriteIcon": WriteIcon_3817bf644402e67bfe6577f60ef982de,
-  "./components/NativeSidebarTabs.client#NotesTab": NotesTab_b62e2fe09be2c189c73bda424d9289a9,
+  "./components/NativeSidebarTabsClient#NotesTab": NotesTab_e68a3d1d5a3f67bf319a4057562355b1,
   "@payloadcms/ui#InfoIcon": InfoIcon_3817bf644402e67bfe6577f60ef982de,
-  "./components/NativeSidebarTabs.client#HelpTab": HelpTab_b62e2fe09be2c189c73bda424d9289a9,
+  "./components/NativeSidebarTabsClient#HelpTab": HelpTab_e68a3d1d5a3f67bf319a4057562355b1,
   "@payloadcms/ui#DocumentIcon": DocumentIcon_3817bf644402e67bfe6577f60ef982de,
   "@veiag/payload-enhanced-sidebar/rsc#NativeTabsPanel": NativeTabsPanel_1991e0cd7459bf6a1f4021425d377371,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,

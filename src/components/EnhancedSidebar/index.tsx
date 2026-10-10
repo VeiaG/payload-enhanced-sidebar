@@ -64,7 +64,7 @@ const computeGroupsForTab = async (
   // A tab with its own contentComponent opts out of the "show everything" fallback —
   // its `content` prop only holds what the tab explicitly lists.
   const showAll = !tabCollections && !tabGlobals && !tab.contentComponent
-  const allowedSlugs = new Set([...(tabCollections ?? []), ...(tabGlobals ?? [])])
+  const allowedSlugs = new Set<string>([...(tabCollections ?? []), ...(tabGlobals ?? [])])
 
   let result: ExtendedGroup[] = []
 
@@ -604,6 +604,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
         key: item.id,
         serverProps,
       })
+      continue
+    }
+    // Replaced by the Browse tab (or dropped) above; never reaches here
+    if (item.type === 'native') {
       continue
     }
 

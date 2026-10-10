@@ -54,6 +54,10 @@ export const TabsBar: React.FC<TabsBarProps> = ({
     if (item.type === 'custom') {
       return customTabComponents?.[item.id] ?? null
     }
+    // The server swaps `native` for the Browse tab before the config gets here
+    if (item.type === 'native') {
+      return null
+    }
 
     // `href` is required on links and optional on tabs (a tab with an href both
     // navigates and opens its panel). The current-page check is left to TabButton,

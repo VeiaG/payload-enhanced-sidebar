@@ -62,21 +62,23 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_2FD38E1E".
+ * via the `definition` "LexicalNodes_247FDA0E".
  */
-export type LexicalNodes_2FD38E1E =
+export type LexicalNodes_247FDA0E =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_2FD38E1E>
+  | SerializedParagraphNode<LexicalNodes_247FDA0E>
   | SerializedHorizontalRuleNode
   | SerializedUploadNode<'media'>
-  | SerializedQuoteNode<LexicalNodes_2FD38E1E>
+  | SerializedQuoteNode<LexicalNodes_247FDA0E>
   | SerializedRelationshipNode<
       | 'posts'
       | 'pages'
       | 'categories'
       | 'products'
+      | 'product-folders'
+      | 'product-tags'
       | 'tenants'
       | 'users'
       | 'articles'
@@ -94,11 +96,11 @@ export type LexicalNodes_2FD38E1E =
       | 'payload-preferences'
       | 'payload-migrations'
     >
-  | SerializedAutoLinkNode<LexicalNodes_2FD38E1E, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_2FD38E1E, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_2FD38E1E>
-  | SerializedListItemNode<LexicalNodes_2FD38E1E>
-  | SerializedHeadingNode<LexicalNodes_2FD38E1E>;
+  | SerializedAutoLinkNode<LexicalNodes_247FDA0E, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_247FDA0E, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_247FDA0E>
+  | SerializedListItemNode<LexicalNodes_247FDA0E>
+  | SerializedHeadingNode<LexicalNodes_247FDA0E>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_3DE324E4".
@@ -122,6 +124,8 @@ export interface Config {
     pages: Page;
     categories: Category;
     products: Product;
+    'product-folders': ProductFolder;
+    'product-tags': ProductTag;
     tenants: Tenant;
     users: User;
     media: Media;
@@ -147,6 +151,8 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    'product-folders': ProductFoldersSelect<false> | ProductFoldersSelect<true>;
+    'product-tags': ProductTagsSelect<false> | ProductTagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -339,6 +345,8 @@ export interface Product {
   name: string;
   price: number;
   sku: string;
+  '_h_product-folders'?: (string | null) | ProductFolder;
+  '_h_product-tags'?: (string | ProductTag)[] | null;
   createdBy?: {
     relationTo: 'users';
     value: string | User;
@@ -349,6 +357,48 @@ export interface Product {
   } | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-folders".
+ */
+export interface ProductFolder {
+  id: string;
+  '_h_product-folders'?: (string | null) | ProductFolder;
+  name: string;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+  _h_slugPath?: string | null;
+  _h_titlePath?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-tags".
+ */
+export interface ProductTag {
+  id: string;
+  '_h_product-tags'?: (string | null) | ProductTag;
+  name: string;
+  createdBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: string | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+  _h_slugPath?: string | null;
+  _h_titlePath?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -393,7 +443,7 @@ export interface Media {
 export interface Article {
   id: string;
   title: string;
-  content?: LexicalRichText<LexicalNodes_2FD38E1E> | null;
+  content?: LexicalRichText<LexicalNodes_247FDA0E> | null;
   _h_folders?: (string | null) | Folder;
   _h_tags?: (string | Tag)[] | null;
   createdBy?: {
@@ -554,7 +604,7 @@ export interface Campaign {
 export interface Newsletter {
   id: string;
   subject: string;
-  body?: LexicalRichText<LexicalNodes_2FD38E1E> | null;
+  body?: LexicalRichText<LexicalNodes_247FDA0E> | null;
   createdBy?: {
     relationTo: 'users';
     value: string | User;
@@ -623,6 +673,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'products';
         value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'product-folders';
+        value: string | ProductFolder;
+      } | null)
+    | ({
+        relationTo: 'product-tags';
+        value: string | ProductTag;
       } | null)
     | ({
         relationTo: 'tenants';
@@ -788,10 +846,40 @@ export interface ProductsSelect<T extends boolean = true> {
   name?: T;
   price?: T;
   sku?: T;
+  '_h_product-folders'?: T;
+  '_h_product-tags'?: T;
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-folders_select".
+ */
+export interface ProductFoldersSelect<T extends boolean = true> {
+  '_h_product-folders'?: T;
+  name?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _h_slugPath?: T;
+  _h_titlePath?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-tags_select".
+ */
+export interface ProductTagsSelect<T extends boolean = true> {
+  '_h_product-tags'?: T;
+  name?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _h_slugPath?: T;
+  _h_titlePath?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1139,6 +1227,8 @@ export interface CollectionQueryWidget {
       | 'pages'
       | 'categories'
       | 'products'
+      | 'product-folders'
+      | 'product-tags'
       | 'tenants'
       | 'users'
       | 'media'
@@ -1179,6 +1269,8 @@ export interface ActivityWidget {
           | 'pages'
           | 'categories'
           | 'products'
+          | 'product-folders'
+          | 'product-tags'
           | 'tenants'
           | 'users'
           | 'media'

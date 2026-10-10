@@ -20,12 +20,13 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Payload v4 requires Node.js 24.15+
+          node-version: 24
           registry-url: https://registry.npmjs.org
           cache: pnpm
 
@@ -38,12 +39,26 @@ jobs:
       - name: Check package root loads in Node
         run: pnpm check:exports
 
-      # Trusted publishing needs npm >= 11.5.1; Node 22 ships with npm 10.
+      # Trusted publishing needs npm >= 11.5.1.
       # pnpm hands the actual publish over to the npm CLI. Pinned to the 11.x line:
       # `latest` can jump to a major that drops support for this Node version.
       - name: Update npm
         run: npm install -g npm@11
 
+      # A prerelease must not land on `latest` (which stays the Payload v3 version): publish it
+      # under its prerelease id — `1.0.0-beta.1` goes out as `beta`.
+      - name: Pick dist-tag
+        id: dist-tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [[ "$VERSION" == *-* ]]; then
+            TAG=$(echo "${VERSION#*-}" | cut -d. -f1)
+          else
+            TAG=latest
+          fi
+          echo "Publishing $VERSION as $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
       # No token: npm authenticates via the workflow's OIDC token and adds provenance.
       - name: Publish
-        run: pnpm publish --no-git-checks --access public
+        run: pnpm publish --no-git-checks --access public --tag ${{ steps.dist-tag.outputs.tag }}

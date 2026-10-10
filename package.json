@@ -1,6 +1,6 @@
 {
   "name": "@veiag/payload-enhanced-sidebar",
-  "version": "0.6.2",
+  "version": "1.0.0-beta.1",
   "description": "An enhanced sidebar plugin for Payload CMS with tabbed navigation to organize collections and globals.",
   "author": "VeiaG",
   "license": "MIT",
@@ -39,6 +39,7 @@
     "clean": "rimraf {dist,*.tsbuildinfo}",
     "copyfiles": "copyfiles -u 1 \"src/**/*.{html,css,scss,ttf,woff,woff2,eot,svg,jpg,png,json}\" dist/",
     "dev": "next dev dev --turbo",
+    "dev:tanstack": "pnpm --filter dev-tanstack dev",
     "dev:generate-importmap": "pnpm dev:payload generate:importmap",
     "dev:generate-types": "pnpm dev:payload generate:types",
     "dev:payload": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload",

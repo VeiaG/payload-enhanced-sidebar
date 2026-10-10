@@ -4,7 +4,7 @@ import { ClockIcon, Link } from '@payloadcms/ui'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
-import { ReloadTabButton } from './NativeSidebarTabs.client.js'
+import { ReloadTabButton } from './NativeSidebarTabsClient.js'
 
 /**
  * Content for Payload's own `admin.components.sidebar.tabs` (not the plugin's tabs).

@@ -11,7 +11,7 @@ import type {
   CustomTabsBarComponentProps,
 } from '@veiag/payload-enhanced-sidebar'
 
-import { Link } from '@payloadcms/ui'
+import { Link, useSearchParams } from '@payloadcms/ui'
 import {
   NavContentShell,
   TabButton,
@@ -19,7 +19,6 @@ import {
   useNavItemState,
   useTabState,
 } from '@veiag/payload-enhanced-sidebar/client'
-import { useSearchParams } from 'next/navigation.js'
 import React, { useState } from 'react'
 
 export const CustomNavItem: React.FC<CustomNavItemProps> = ({ id, entity, href, label }) => {

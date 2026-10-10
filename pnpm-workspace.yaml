@@ -1,0 +1,3 @@
+packages:
+  # Second dev app, on TanStack Start (the Next one is dev/, using the root package)
+  - dev-tanstack

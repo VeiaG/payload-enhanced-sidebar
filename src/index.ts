@@ -121,7 +121,7 @@ const definedPlugin = definePlugin<EnhancedSidebarConfig>({
             path,
           }
         }
-        if (tab.buttonComponent) {
+        if (tab.type !== 'native' && tab.buttonComponent) {
           const { path } = resolveSidebarComponent(tab.buttonComponent)
           config.admin.dependencies[`enhanced-sidebar-button-${tab.id}`] = {
             type: 'component',

@@ -9,9 +9,9 @@ import path from 'path'
 import { buildConfig, createFolderField, createTagField } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { startMemoryMongo } from './helpers/memoryDb'
-import { testEmailAdapter } from './helpers/testEmailAdapter'
-import { seed } from './seed'
+import { startMemoryMongo } from './helpers/memoryDb.js'
+import { testEmailAdapter } from './helpers/testEmailAdapter.js'
+import { seed } from './seed.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -20,7 +20,12 @@ if (!process.env.ROOT_DIR) {
   process.env.ROOT_DIR = dirname
 }
 
-const buildConfigWithMemoryDB = async () => {
+/**
+ * The dev config, shared by both dev apps: the Next one here and the TanStack Start one in
+ * `dev-tanstack/`. Component paths resolve against this folder either way; each app keeps its
+ * own import map file.
+ */
+export const createDevConfig = async ({ importMapFile }: { importMapFile?: string } = {}) => {
   return buildConfig({
     admin: {
       // A real photo in the account menu (falls back to its alt text if the file is missing)
@@ -47,7 +52,7 @@ const buildConfigWithMemoryDB = async () => {
             {
               slug: 'quick-create',
               components: {
-                Content: './components/NativeSidebarTabs.client#QuickCreateTab',
+                Content: './components/NativeSidebarTabsClient#QuickCreateTab',
                 Icon: '@payloadcms/ui#CirclePlusIcon',
               },
               label: { en: 'Quick create', uk: 'Швидке створення' },
@@ -63,7 +68,7 @@ const buildConfigWithMemoryDB = async () => {
             {
               slug: 'notes',
               components: {
-                Content: './components/NativeSidebarTabs.client#NotesTab',
+                Content: './components/NativeSidebarTabsClient#NotesTab',
                 Icon: '@payloadcms/ui#WriteIcon',
               },
               label: { en: 'Notes', uk: 'Нотатки' },
@@ -71,7 +76,7 @@ const buildConfigWithMemoryDB = async () => {
             {
               slug: 'help',
               components: {
-                Content: './components/NativeSidebarTabs.client#HelpTab',
+                Content: './components/NativeSidebarTabsClient#HelpTab',
                 Icon: '@payloadcms/ui#InfoIcon',
               },
               label: { en: 'Help', uk: 'Довідка' },
@@ -81,6 +86,7 @@ const buildConfigWithMemoryDB = async () => {
       },
       importMap: {
         baseDir: path.resolve(dirname),
+        importMapFile,
       },
     },
     collections: [
@@ -923,4 +929,4 @@ const buildConfigWithMemoryDB = async () => {
   })
 }
 
-export default buildConfigWithMemoryDB()
+export default createDevConfig()

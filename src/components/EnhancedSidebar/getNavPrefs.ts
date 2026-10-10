@@ -32,7 +32,8 @@ export const getNavPrefs = cache(
               ],
             },
           })
-          ?.then((res) => res?.docs?.[0]?.value)
+          // `value` is untyped JSON in the generated types; this key always holds nav preferences
+          ?.then((res) => (res?.docs?.[0]?.value as NavPreferences | undefined) ?? null)
       : null
   },
 )

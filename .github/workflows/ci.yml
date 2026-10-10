@@ -2,12 +2,12 @@ name: CI
 
 on:
   pull_request:
+  # Every branch, not just main — the Payload v4 version lives on its own branch
   push:
-    branches: [main]
 
 jobs:
   build:
-    name: Build & check exports
+    name: Test, build & check exports
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,16 +19,20 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Payload v4 requires Node.js 24.15+
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Unit and integration tests
+        run: pnpm test:int
 
       - name: Build
         run: pnpm build
@@ -37,3 +41,16 @@ jobs:
       # generation) — fail if it pulls in anything Node can't load, like .scss.
       - name: Check package root loads in Node
         run: pnpm check:exports
+
+      # The plugin has to work on both of Payload v4's framework adapters: build the dev app on
+      # each. A placeholder database URI keeps the dev config from starting an in-memory MongoDB;
+      # building never connects.
+      - name: Build the Next.js dev app
+        run: pnpm exec next build dev
+        env:
+          DATABASE_URI: mongodb://127.0.0.1:27017/ci-build
+
+      - name: Build the TanStack Start dev app
+        run: pnpm --filter dev-tanstack build
+        env:
+          DATABASE_URI: mongodb://127.0.0.1:27017/ci-build

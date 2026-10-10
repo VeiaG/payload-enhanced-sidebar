@@ -44,7 +44,7 @@ export const PanelHeader: React.FC<{ tabs: SidebarTab[] }> = ({ tabs }) => {
 
   const activeTab = tabs.find((tab) => tab.type === 'tab' && tab.id === activeTabId)
   const title =
-    activeTab && activeTab.type !== 'custom' ? getTranslation(activeTab.label, i18n) : ''
+    activeTab?.type === 'tab' ? getTranslation(activeTab.label, i18n) : ''
 
   return (
     <div className={`${baseClass}__panel-header`}>
