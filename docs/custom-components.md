@@ -24,7 +24,7 @@ The sidebar renders **all** of its content on the server up front — every tab'
 
 > **Any work in a custom component runs on every page load, whether its tab is open or not.** A server component that fetches data (e.g. a `contentComponent` loading a chat list) performs that fetch on every admin navigation, even while its tab is hidden.
 
-If that matters, make the component a client component and fetch based on the tab's state, so the request only happens once the tab is opened:
+For a tab's `contentComponent`, the simplest fix is [`lazy: true`](#lazy-rendering-lazy-true): the component is then rendered on the server only when the tab is opened. Otherwise, make the component a client component and fetch based on the tab's state, so the request only happens once the tab is opened:
 
 ```tsx
 'use client'
@@ -203,8 +203,6 @@ payloadEnhancedSidebar({
 | `afterNavLinks` | `ReactNode \| undefined` | Payload's `admin.components.afterNavLinks` |
 | `afterNav` | `ReactNode \| undefined` | Payload's `admin.components.afterNav` (rendered after `afterNavLinks`) |
 
-> `beforeNav` and `afterNav` require Payload v3.75.0+.
-
 The default render order inside the nav area is: `beforeNav` → `beforeNavLinks` → tab content → `afterNavLinks` → `afterNav`.
 
 Use the `useTabState(id)` hook to know which tab is active:
@@ -286,9 +284,9 @@ tabs: [
 
 Payload's `beforeNav` / `beforeNavLinks` / `afterNavLinks` / `afterNav` slots are **not** shown on such a tab and not passed in. If you need them there, use a [per-item component](#per-item-custom-component-customitemscomponent) inside the default panel, or replace the whole [NavContent](#navcontent).
 
-The component is rendered server-side, so a server component works too. It stays mounted while other tabs are active — only hidden — so its state survives tab switches. Because it is pre-rendered even while its tab is closed, see [Rendering](#rendering-everything-is-pre-rendered-on-the-server) before putting data fetching in it.
+The component is rendered server-side, so a server component works too. It stays mounted while other tabs are active — only hidden — so its state survives tab switches. Because it is pre-rendered even while its tab is closed, see [Rendering](#rendering-everything-is-pre-rendered-on-the-server) before putting data fetching in it — or make the tab [lazy](#lazy-rendering-lazy-true).
 
-Wrap the output in `NavContentShell` to keep the default layout, padding and scrolling without copying class names. It already has the default padding — nothing to set for the standard look:
+Wrap the output in `NavContentShell` to keep the default layout and scrolling without copying class names:
 
 ```tsx
 'use client'
@@ -324,6 +322,27 @@ The content area has no side padding by default — nav rows and groups bring th
 | `style` | `CSSProperties \| undefined` | Inline style for the inner scroll container (where the padding lives) |
 
 With a custom [NavContent](#navcontent), the rendered views arrive as its `tabViews` prop (`Record<tabId, ReactNode>`) — what to do with them is up to you.
+
+### Lazy rendering (`lazy: true`)
+
+By default a `contentComponent` is rendered on every page load, open or not. With `lazy: true` it is rendered on the server **on demand** — the first time the tab is opened, and again each time it is reopened, the way Payload renders its own sidebar tabs. Use it for panels that query data: trees, lists, stats.
+
+```typescript
+{
+  id: 'stats',
+  type: 'tab',
+  icon: 'ChartColumn',
+  label: 'Stats',
+  contentComponent: './components/Sidebar#StatsPanel',
+  lazy: true,
+}
+```
+
+- It goes through Payload's `render-tab` server function: the plugin registers the tab in `admin.components.sidebar.tabs` (as a disabled entry, so Payload's own nav ignores it). No server function to wire up.
+- The component receives `id` and your `clientProps`, plus the usual server props (`payload`, `req`, `user`, `i18n`, …). There is **no `content`** — the pre-rendered groups can't travel through a server function.
+- If the tab is the active one on page load, it is rendered right away on the server, like a regular tab.
+- While a reload runs, the previous content stays on screen; a spinner only shows before the first load.
+- Inside, `useSidebarTabs()` from `@payloadcms/ui` works: `reloadTabContent(id)` re-renders the tab, `activeTabSlug` is the open tab's id.
 
 ---
 
@@ -449,7 +468,7 @@ export const KeepQueryTabButton: React.FC<CustomTabButtonProps> = (props) => {
 }
 ```
 
-The current-page indicator ignores the query string, so it still lights up on the tab's route.
+The current-page state ignores the query string, so it still lights up on the tab's route.
 
 ---
 
@@ -837,7 +856,7 @@ The built-in pieces are exported from `/client` (not from the package root — s
 
 | Export | Props | What it is |
 |--------|-------|------------|
-| `NavItem` | `NavItemProps` — same as `CustomNavItemProps` (`label` optional) | Default nav row: link, active indicator, badge |
+| `NavItem` | `NavItemProps` — same as `CustomNavItemProps` (`label` optional) | Default nav row: link, selected state, badge |
 | `TabButton` | `TabButtonProps` — `CustomTabButtonProps` + optional `isCurrentPage` | Default tabs bar button for `tab` and `link` items: tooltip, badge, active/current states, tab switching |
 | `NavContentShell` | `NavContentShellProps` | Default nav area wrapper: layout, padding, scrolling |
 | `Badge` | `BadgeProps` (`value`, `color`, `position`) | Badge pill (`99+` for large numbers, hidden for `0`) |

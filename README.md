@@ -12,8 +12,12 @@ An enhanced sidebar plugin for [Payload CMS](https://payloadcms.com) that adds a
 - **Custom Components** - Replace any part of the sidebar with your own React components
 - **i18n Support** - Full localization support for labels and groups
 - **Lucide Icons** - Use any [Lucide icon](https://lucide.dev/icons) for tabs and links, or provide a custom icon component per tab
+- **Payload's own sidebar tabs** - Folder/tag trees and other native tabs, grouped in one **Browse** tab (Payload v4)
+- **Account menu and logo** - Payload's account menu as an avatar at the bottom of the bar, your brand icon at the top
 
-![Showcase](docs/showcase.gif)
+> **Payload v4:** this branch targets Payload `4.0.0-beta`. Coming from the Payload v3 version of the plugin? Read the [v4 migration guide](docs/migration-v4.md).
+
+![Showcase](docs/showcase.webp)
 
 ## Installation
 
@@ -23,6 +27,12 @@ npm install @veiag/payload-enhanced-sidebar
 yarn add @veiag/payload-enhanced-sidebar
 # or
 pnpm add @veiag/payload-enhanced-sidebar
+```
+
+For Payload v4 (beta), install the `beta` tag — the `latest` version supports Payload v3:
+
+```bash
+pnpm add @veiag/payload-enhanced-sidebar@beta
 ```
 
 ## Quick Start
@@ -42,11 +52,12 @@ export default buildConfig({
 ```
 
 This will add:
-- A Dashboard link at the top
-- A default tab showing all collections and globals
-- A logout button at the bottom
+- Your brand icon at the top (`admin.components.graphics.Icon`, or the Payload icon)
+- A Dashboard link and a default tab showing all collections and globals
+- A **Browse** tab with Payload's own sidebar tabs (folder/tag trees), when you have any
+- The account menu at the bottom (avatar → profile, theme, language, settings, log out)
 
-![Default Config](docs/default-config.png)
+![Default Config](docs/default-config.webp)
 
 ## Configuration
 
@@ -163,6 +174,7 @@ Array of tabs and links to show in the sidebar.
 | `globals` | `GlobalSlug[]` | No | Globals to show in this tab |
 | `customItems` | `SidebarTabItem[]` | No | Custom navigation items (see below) |
 | `contentComponent` | `SidebarComponent` | No | Replaces the whole nav area while this tab is active — e.g. a chat list (see [docs](docs/custom-components.md#contentcomponent-per-tab-content)) |
+| `lazy` | `boolean` | No | Render `contentComponent` on demand, when the tab is opened, instead of on every page load (see [docs](docs/custom-components.md#lazy-rendering-lazy-true)) |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
 | `href` | `string` | No | Makes the tab navigate as well as open its panel. Relative to the admin route (see below) |
 | `position` | `'top' \| 'bottom'` | No | `'bottom'` pins the tab to the bottom of the bar, above the actions (default `'top'`) |
@@ -244,17 +256,17 @@ The component receives `{ id }` plus any `clientProps` you pass. See [Custom Com
 }
 ```
 
-![Tab and Link active difference](docs/tab-link-active.png)
+![Tab and Link active difference](docs/tab-link-active.webp)
 
 **Tab bar position (`position`)**
 
-Any tab, link, or custom slot can be pinned to the bottom of the tabs bar with `position: 'bottom'`. Bottom items render in config order, just **above** the actions area (folders / settings / logout). Items default to `'top'`.
+Any tab, link, or custom slot can be pinned to the bottom of the tabs bar with `position: 'bottom'`. Bottom items render in config order, just **above** the actions area (settings / account menu). Items default to `'top'`.
 
 ```typescript
 tabs: [
   { id: 'dashboard', type: 'link', href: '/', icon: 'House', label: 'Dashboard' },
   { id: 'content', type: 'tab', icon: 'FileText', label: 'Content', collections: ['posts'] },
-  // pinned to the bottom, above the logout button
+  // pinned to the bottom, above the settings button and the account menu
   { id: 'settings', type: 'tab', icon: 'Settings', label: 'Settings', globals: ['site-settings'], position: 'bottom' },
 ]
 ```
@@ -505,7 +517,7 @@ payloadEnhancedSidebar({
 
 Available colors: `default`, `primary`, `success`, `warning`, `error`
 
-![Badge Colors](docs/badge-colors.png)
+![Badge Colors](docs/badge-colors.webp)
 
 ### Badge Display
 
@@ -630,6 +642,8 @@ How to show Payload's own sidebar tabs (`admin.components.sidebar.tabs`): the fo
 - **Type:** `'group' | 'map' | boolean | { mode?, id?, label?, icon?, iconComponent?, position? }`
 - **Default:** `'group'`
 
+![Browse tab](docs/browse-tab.webp)
+
 - `'group'` (or `true`) — one tab, **Browse** (`FolderTree` icon), at the end of the top tabs. It holds all native tabs behind Payload's own tab switcher, so they keep Payload's look. Added only when there is at least one native tab, and rendered lazily.
 - `'map'` — each native tab becomes its own item in the tabs bar, with Payload's icon.
 - `false` — don't show them.
@@ -751,9 +765,12 @@ label: {
 
 ## Payload Features Support
 
-- **Browse by Folder Button** - Automatically shows folder view button when Payload folders are enabled (requires Payload v3.41.0+)
-- **Settings Menu Items** - Integrates with Payload's SettingsMenu components (requires Payload v3.60.0+)
-- **`beforeNav` / `afterNav` slots** - Supports Payload's `admin.components.beforeNav` and `admin.components.afterNav` slots (requires Payload v3.75.0+). Both slots are rendered inside the nav content area — `beforeNav` before `beforeNavLinks`, `afterNav` after `afterNavLinks`.
+- **Sidebar tabs** - Payload's `admin.components.sidebar.tabs`, including the folder/tag tree tabs added for `folders` / `tags` / `hierarchy` collections (see [`nativeTabs`](#nativetabs))
+- **Account menu** - Payload's account menu, with `admin.avatar` and `admin.components.userMenuSettingsItems`, `admin.components.logout.Button` (see [`userMenu`](#usermenu))
+- **Brand icon** - `admin.components.graphics.Icon`, which Payload v4 no longer shows in the admin (see [`logo`](#logo))
+- **Settings Menu Items** - `admin.components.settingsMenu`, behind the gear button
+- **Nav slots** - `admin.components.beforeNav`, `beforeNavLinks`, `afterNavLinks` and `afterNav`, rendered inside the nav content area — `beforeNav` before `beforeNavLinks`, `afterNav` after `afterNavLinks`. Content made for Payload's nav (like the multi-tenant selector) gets the same `--nav-padding-*` variables
+- **Embedded admin** - In Payload's embedded mode the close button and account menu are hidden, as in Payload's own nav
 
 ## Contributing
 
