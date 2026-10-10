@@ -8,6 +8,15 @@ import type {
   TabSortConfig,
 } from '../types.js'
 
+/**
+ * Prefix for the entries this plugin adds to Payload's `admin.components.sidebar.tabs`, so
+ * that `lazy` tabs can be rendered through Payload's `render-tab` server function. Those
+ * entries are ours, not native tabs, and are skipped when native tabs are collected.
+ */
+export const LAZY_TAB_SLUG_PREFIX = 'enhanced-sidebar__'
+
+export const getLazyTabSlug = (tabId: string): string => `${LAZY_TAB_SLUG_PREFIX}${tabId}`
+
 export const convertSlugToTitle = (slug: string): string => {
   return slug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
 }
@@ -128,9 +137,7 @@ export const sortTabGroups = (
       const sortableGroup = toSortableGroup(group)
       return {
         ...group,
-        entities: stableSortBy(group.entities, (entity) =>
-          itemSort(entity, sortableGroup, ctx),
-        ),
+        entities: stableSortBy(group.entities, (entity) => itemSort(entity, sortableGroup, ctx)),
       }
     })
   }
@@ -144,7 +151,6 @@ export const sortTabGroups = (
   return result
 }
 
-
 export const extractLocalizedValue = (
   value: LocalizedString | undefined,
   locale: string,
@@ -156,5 +162,9 @@ export const extractLocalizedValue = (
   if (typeof value === 'string') {
     return value
   }
-  return value[locale] || Object.values(value)[0] || (fallbackSlug ? convertSlugToTitle(fallbackSlug) : '')
+  return (
+    value[locale] ||
+    Object.values(value)[0] ||
+    (fallbackSlug ? convertSlugToTitle(fallbackSlug) : '')
+  )
 }

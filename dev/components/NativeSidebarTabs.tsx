@@ -4,7 +4,7 @@ import { Link } from '@payloadcms/ui'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
-import { ReloadTabButton } from './NativeSidebarTabs.client'
+import { ReloadTabButton } from './NativeSidebarTabs.client.js'
 
 /**
  * Content for Payload's own `admin.components.sidebar.tabs` (not the plugin's tabs).
@@ -12,7 +12,8 @@ import { ReloadTabButton } from './NativeSidebarTabs.client'
  * through the `render-tab` server function, and re-rendered every time the tab is opened.
  */
 
-type TabProps = { req?: PayloadRequest } & ServerProps
+/** `id` is set when the plugin renders the component as one of its own tabs */
+type TabProps = { id?: string; req?: PayloadRequest } & ServerProps
 
 const RECENT_COLLECTIONS: CollectionSlug[] = ['posts', 'articles', 'products']
 
@@ -57,15 +58,15 @@ export const RecentTab = async ({ payload, req }: TabProps) => {
         .then(({ docs }) =>
           docs.map((doc) => {
             const { admin, labels } = payload.collections[collection].config
-            const titleField = admin.useAsTitle
-            const title = (doc as Record<string, unknown>)[titleField]
+            const fields = doc as unknown as Record<string, unknown>
+            const title = fields[admin.useAsTitle ?? 'id']
 
             return {
               id: doc.id,
               collection,
               collectionLabel: typeof labels.singular === 'string' ? labels.singular : collection,
               title: typeof title === 'string' && title ? title : String(doc.id),
-              updatedAt: doc.updatedAt as string,
+              updatedAt: String(fields.updatedAt),
             }
           }),
         ),
@@ -108,7 +109,7 @@ export const RecentTab = async ({ payload, req }: TabProps) => {
 }
 
 /** Document counts per collection, respecting the current user's access. */
-export const StatsTab = async ({ payload, req }: TabProps) => {
+export const StatsTab = async ({ id, payload, req }: TabProps) => {
   const counts = await Promise.all(
     STATS_COLLECTIONS.map(async (collection) => {
       const { labels } = payload.collections[collection].config
@@ -126,7 +127,7 @@ export const StatsTab = async ({ payload, req }: TabProps) => {
     <div style={styles.wrap}>
       <div style={styles.heading}>
         <strong>Stats</strong>
-        <ReloadTabButton tabSlug="stats" />
+        <ReloadTabButton tabSlug={id ?? 'stats'} />
       </div>
       <ul style={styles.list}>
         {counts.map(({ collection, label, totalDocs }) => (

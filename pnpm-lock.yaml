@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@payloadcms/translations':
-        specifier: ^4.0.0-beta.0
-        version: 4.0.0-internal.fec2230
+        specifier: 4.0.0-beta.0
+        version: 4.0.0-beta.0
       lucide-react:
         specifier: ^0.556.0
         version: 0.556.0(react@19.3.0)
@@ -1879,9 +1879,6 @@ packages:
   '@payloadcms/translations@4.0.0-beta.0':
     resolution: {integrity: sha512-/7xz7eBWYvQFiUu9v8CJM2RZpISYvu7xPtBiQ7PYx1xwHOb409W6SB1toEZHLeIpUvEsQaF+J4G4M1P5/D+P9Q==}
 
-  '@payloadcms/translations@4.0.0-internal.fec2230':
-    resolution: {integrity: sha512-ZkmVBKuGdmcG3UDF1x7pOozaYfmTl/lpffSVQPcWO6rKeXE3GkieDCQSBQvQeqhfeI1+vmPbqMe6rxDkpLGyGA==}
-
   '@payloadcms/ui@4.0.0-beta.0':
     resolution: {integrity: sha512-EnV4VlluR6DZUfkkfCpbQE62xGoSnsT0MhG1T7lmvMtUoOnbJ7nAtcGBtsS0n1j+G8cTl8D4J/u5IaGR5gbBTw==}
     engines: {node: '>=24.15.0'}
@@ -2980,9 +2977,6 @@ packages:
 
   dataloader@2.2.3:
     resolution: {integrity: sha512-y2krtASINtPFS1rSDjacrFgn1dcUuoREVabwlOGOe4SdxenREqwjwjElAdwvbGM7kgZz9a3KVicWR7vcz8rnzA==}
-
-  date-fns@4.1.0:
-    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   date-fns@4.4.0:
     resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
@@ -7598,10 +7592,6 @@ snapshots:
     dependencies:
       date-fns: 4.4.0
 
-  '@payloadcms/translations@4.0.0-internal.fec2230':
-    dependencies:
-      date-fns: 4.1.0
-
   '@payloadcms/ui@4.0.0-beta.0(@types/react@19.3.0)(monaco-editor@0.55.1)(payload@4.0.0-beta.0(graphql@16.12.0)(typescript@6.0.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@6.0.3)':
     dependencies:
       '@date-fns/tz': 1.2.0
@@ -8808,8 +8798,6 @@ snapshots:
 
   dataloader@2.2.3: {}
 
-  date-fns@4.1.0: {}
-
   date-fns@4.4.0: {}
 
   dateformat@4.6.3: {}
@@ -9140,7 +9128,7 @@ snapshots:
       eslint: 9.39.1
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import-x@4.4.2(eslint@9.39.1)(typescript@6.0.3))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint@9.39.1))(eslint@9.39.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import-x@4.4.2(eslint@9.39.1)(typescript@6.0.3))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint@9.39.1))(eslint@9.39.1))(eslint@9.39.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.1)
       eslint-plugin-react: 7.37.5(eslint@9.39.1)
       eslint-plugin-react-hooks: 7.1.1(eslint@9.39.1)
@@ -9177,7 +9165,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import-x@4.4.2(eslint@9.39.1)(typescript@6.0.3))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint@9.39.1))(eslint@9.39.1))(eslint@9.39.1)
       eslint-plugin-import-x: 4.4.2(eslint@9.39.1)(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
@@ -9228,7 +9216,7 @@ snapshots:
       - typescript
     optional: true
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import-x@4.4.2(eslint@9.39.1)(typescript@6.0.3))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.71.1(eslint@9.39.1)(typescript@6.0.3))(eslint@9.39.1))(eslint@9.39.1))(eslint@9.39.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9

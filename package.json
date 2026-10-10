@@ -124,7 +124,7 @@
   },
   "registry": "https://registry.npmjs.org/",
   "dependencies": {
-    "@payloadcms/translations": "^4.0.0-beta.0",
+    "@payloadcms/translations": "4.0.0-beta.0",
     "lucide-react": "^0.556.0"
   }
 }

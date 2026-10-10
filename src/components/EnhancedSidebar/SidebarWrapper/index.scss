@@ -2,8 +2,7 @@
 
 @layer payload-default {
   :root {
-    // Width of the tabs rail. Shared with `.tabs-bar`, and with the override below that
-    // lines Payload's nav toggler up with it.
+    // Width of the tabs rail. Shared with `.tabs-bar`.
     --enhanced-sidebar-tabs-bar-width: 48px;
   }
 
@@ -14,39 +13,62 @@
     flex-shrink: 0;
     height: 100vh;
     width: var(--nav-width);
-    border-right: 1px solid var(--theme-elevation-100);
+    border-right: 1px solid var(--color-border);
     opacity: 0;
 
     [dir='rtl'] & {
       border-right: none;
-      border-left: 1px solid var(--theme-elevation-100);
+      border-left: 1px solid var(--color-border);
     }
 
-    &--nav-animate {
-      transition: opacity var(--nav-trans-time) ease-in-out;
+    // v4 dropped `shouldAnimate` from `useNav()`; animating only once hydrated still keeps the
+    // first paint from fading in.
+    &--nav-hydrated {
+      transition: opacity var(--nav-trans-time, 150ms) ease-in-out;
     }
 
     &--nav-open {
       opacity: 1;
     }
 
+    // Holds the close button over the top of the tabs rail, in the space `.tabs-bar__tabs`
+    // leaves free (its padding-top is the app header height).
     &__header {
       position: absolute;
       top: 0;
-      width: 100vw;
+      inset-inline-start: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--enhanced-sidebar-tabs-bar-width, 48px);
       height: var(--app-header-height);
-      // Must stay above `.tabs-bar` (z-index: 5), otherwise the bar covers the mobile
-      // close button, which sits in this header over the left column.
+      // Must stay above `.tabs-bar` (z-index: 5), otherwise the bar covers the button.
       z-index: 10;
+      // Only the button takes clicks; the rest of the strip lets them through.
+      pointer-events: none;
     }
 
-    &__mobile-close {
-      display: none;
-      background: none;
-      border: 0;
-      outline: 0;
-      padding: base(0.8) 0;
+    &__close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: none;
+      border-radius: base(0.25);
+      background: transparent;
+      color: var(--color-icon-secondary);
       cursor: pointer;
+      pointer-events: auto;
+      transition:
+        background 150ms ease,
+        color 150ms ease;
+
+      &:hover {
+        background: var(--color-bg-hover);
+        color: var(--color-icon);
+      }
     }
 
     &__scroll {
@@ -68,34 +90,13 @@
     }
 
     @include small-break {
-      &__mobile-close {
-        display: flex;
-        align-items: center;
-        padding-left: var(--gutter-h);
-
-        [dir='rtl'] & {
-          padding-left: 0;
-          padding-right: var(--gutter-h);
-        }
+      // On mobile the nav is a full-width overlay: put the button at the gutter, where the
+      // app header's open button sits, so open and close line up.
+      &__header {
+        justify-content: flex-start;
+        width: 100%;
+        padding-inline-start: var(--gutter-h);
       }
-    }
-  }
-}
-
-// Payload centres its nav toggler inside a `var(--gutter-h)` wide column, sized for the
-// default nav. Our rail is a fixed 48px, so with the sidebar closed the hamburger sits
-// off-centre from the icons it turns into once you open it.
-//
-// `payload` is declared after `payload-default` in Payload's layer order, so this wins over
-// the template's own rule no matter which stylesheet the bundler emits first — and unlayered
-// project CSS can still override it.
-@layer payload {
-  .template-default__nav-toggler-wrapper {
-    width: var(--enhanced-sidebar-tabs-bar-width, 48px);
-
-    @include small-break {
-      // Payload drops the column and hides the hamburger on mobile — stay out of the way.
-      width: unset;
     }
   }
 }

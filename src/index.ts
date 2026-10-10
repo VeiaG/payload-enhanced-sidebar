@@ -3,7 +3,7 @@ import { type Config, deepMerge } from 'payload'
 import type { EnhancedSidebarConfig } from './types.js'
 
 import { sidebarTranslations } from './translations/index.js'
-import { resolveSidebarComponent, sanitizeSidebarConfig } from './utils/index.js'
+import { getLazyTabSlug, resolveSidebarComponent, sanitizeSidebarConfig } from './utils/index.js'
 
 /**
  * Default configuration for the enhanced sidebar
@@ -111,6 +111,25 @@ export const payloadEnhancedSidebar =
           type: 'component',
           path,
         }
+      }
+
+      // Lazy tabs are registered as (disabled) Payload sidebar tabs: `render-tab` looks a tab
+      // up by slug in `admin.components.sidebar.tabs`, and that is the only way to render a
+      // server component on demand without asking users to add a server function.
+      // `disabled` keeps them out of Payload's own nav, should anything render it.
+      if (tab.type === 'tab' && tab.contentComponent && tab.lazy) {
+        const { clientProps, path } = resolveSidebarComponent(tab.contentComponent)
+        config.admin.components.sidebar ??= {}
+        config.admin.components.sidebar.tabs ??= []
+        config.admin.components.sidebar.tabs.push({
+          slug: getLazyTabSlug(tab.id),
+          components: {
+            Content: { clientProps: { id: tab.id, ...clientProps }, path },
+            // Required by the type, never rendered: the plugin draws its own tab button.
+            Icon: '@payloadcms/ui#DocumentIcon',
+          },
+          disabled: true,
+        })
       }
 
       // Register per-item custom components from a tab's customItems

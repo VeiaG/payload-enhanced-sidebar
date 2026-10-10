@@ -11,15 +11,15 @@
       border: none;
       border-radius: base(0.25);
       background: transparent;
-      color: var(--theme-elevation-500);
+      color: var(--color-icon-secondary);
       cursor: pointer;
       transition:
         background 150ms ease,
         color 150ms ease;
 
       &:hover {
-        background: var(--theme-elevation-100);
-        color: var(--theme-text);
+        background: var(--color-bg-hover);
+        color: var(--color-icon);
       }
     }
   }

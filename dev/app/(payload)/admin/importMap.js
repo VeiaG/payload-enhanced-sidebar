@@ -47,6 +47,7 @@ import { WriteIcon as WriteIcon_3817bf644402e67bfe6577f60ef982de } from '@payloa
 import { NotesTab as NotesTab_b62e2fe09be2c189c73bda424d9289a9 } from '../../../components/NativeSidebarTabs.client'
 import { InfoIcon as InfoIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HelpTab as HelpTab_b62e2fe09be2c189c73bda424d9289a9 } from '../../../components/NativeSidebarTabs.client'
+import { DocumentIcon as DocumentIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { TagIcon as TagIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
@@ -116,6 +117,7 @@ export const importMap = {
   "./components/NativeSidebarTabs.client#NotesTab": NotesTab_b62e2fe09be2c189c73bda424d9289a9,
   "@payloadcms/ui#InfoIcon": InfoIcon_3817bf644402e67bfe6577f60ef982de,
   "./components/NativeSidebarTabs.client#HelpTab": HelpTab_b62e2fe09be2c189c73bda424d9289a9,
+  "@payloadcms/ui#DocumentIcon": DocumentIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui#TagIcon": TagIcon_3817bf644402e67bfe6577f60ef982de,

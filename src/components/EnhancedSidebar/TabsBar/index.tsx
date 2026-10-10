@@ -1,8 +1,8 @@
 'use client'
 
 import { getTranslation } from '@payloadcms/translations'
-import { Link, useConfig, usePathname, useTranslation } from '@payloadcms/ui'
-import { Folder, LogOut } from 'lucide-react'
+import { Link, useConfig, useTranslation } from '@payloadcms/ui'
+import { LogOut } from 'lucide-react'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
@@ -31,26 +31,17 @@ export const TabsBar: React.FC<TabsBarProps> = ({
   tabIcons,
 }) => {
   const { i18n } = useTranslation()
-  const pathname = usePathname()
 
   const {
     config: {
       admin: {
-        routes: { browseByFolder: foldersRoute, logout: logoutRoute },
+        routes: { logout: logoutRoute },
       },
-      folders,
       routes: { admin: adminRoute },
     },
   } = useConfig()
 
   const showLogout = sidebarConfig.showLogout !== false
-  const showFolders = folders && folders.browseByFolder
-
-  const folderURL = formatAdminURL({
-    adminRoute,
-    path: foldersRoute,
-  })
-  const isFoldersActive = pathname.startsWith(folderURL)
 
   const renderTabItem = (item: SidebarTab) => {
     if (item.type === 'custom') {
@@ -105,15 +96,6 @@ export const TabsBar: React.FC<TabsBarProps> = ({
         )}
 
         <div className={`${tabsBaseClass}__actions`}>
-          {showFolders && (
-            <Link
-              className={`${tabsBaseClass}__action ${isFoldersActive ? `${tabsBaseClass}__link--active` : ''}`}
-              href={folderURL}
-              title={getTranslation({ en: 'Browse by Folder', uk: 'Переглянути по папках' }, i18n)}
-            >
-              <Folder size={20} />
-            </Link>
-          )}
           <SettingsMenuButton settingsMenu={settingsMenu} />
           {showLogout && (
             <Link

@@ -1,6 +1,10 @@
 @import '../../scss/compat';
 
 @layer payload-default {
+  .enhanced-sidebar__user-menu {
+    margin-bottom: var(--spacer-3);
+  }
+
   .enhanced-sidebar {
     &__content {
       flex: 1;
@@ -64,7 +68,7 @@
       height: 16px;
       border-start-end-radius: 2px;
       border-end-end-radius: 2px;
-      background: var(--theme-text);
+      background: var(--color-bg-inverse);
     }
 
     // &__link-label {

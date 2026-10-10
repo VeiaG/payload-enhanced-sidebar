@@ -678,6 +678,16 @@ const buildConfigWithMemoryDB = async () => {
           },
           // Tab with its own content component — replaces the whole nav area while
           // active (no Payload before/after slots), e.g. a chat list instead of links
+          // Plugin tab rendered lazily through Payload's `render-tab` (same component as the
+          // native `stats` tab, to compare the two)
+          {
+            id: 'lazy-stats',
+            type: 'tab',
+            contentComponent: './components/NativeSidebarTabs#StatsTab',
+            icon: 'ChartColumn',
+            label: { en: 'Stats (lazy)', uk: 'Статистика (lazy)' },
+            lazy: true,
+          },
           {
             id: 'chats',
             type: 'tab',

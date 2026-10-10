@@ -264,6 +264,20 @@ type SidebarTabContentBase = {
   /** Tooltip/label for the tab */
   label: LocalizedString
   /**
+   * Render `contentComponent` lazily, through Payload's `render-tab` server function, the
+   * first time the tab is opened and again each time it is reopened — instead of on every
+   * page render. Use it for panels that query data (trees, lists, stats).
+   *
+   * The component then receives only `id` (plus your `clientProps`): there is no `content`,
+   * since the pre-rendered groups can't travel through a server function. If this tab is
+   * the active one on load, it is rendered on the server as usual.
+   *
+   * Has no effect without `contentComponent`.
+   *
+   * @default false
+   */
+  lazy?: boolean
+  /**
    * Where to render this item in the tabs bar:
    * - `'top'` — with the main tabs at the top (default)
    * - `'bottom'` — pinned to the bottom, just above the actions (folders/settings/logout)
@@ -745,6 +759,16 @@ export interface EnhancedSidebarConfig {
   disabled?: boolean
 
   /**
+   * Show Payload's own sidebar tabs (`admin.components.sidebar.tabs`) in the tabs bar,
+   * after the tabs configured here. This includes the folder/tag tree tabs that Payload adds
+   * for every `folders` / `tags` / `hierarchy` collection, and tabs added by other plugins.
+   * They render lazily, the same way Payload's own nav renders them.
+   *
+   * @default true
+   */
+  nativeTabs?: boolean
+
+  /**
    * Show logout button at the bottom of the tabs bar.
    * @default true
    */
@@ -780,6 +804,15 @@ export interface EnhancedSidebarConfig {
    * @default [{ type: 'tab', id: 'default', icon: 'LayoutGrid', label: 'Collections' }]
    */
   tabs?: SidebarTab[]
+
+  /**
+   * Show Payload's account menu (avatar, name or email, language/theme/settings, logout)
+   * at the top of the nav content, before the `beforeNav` slot. In Payload v4 this menu
+   * lives in the nav, so a custom nav that leaves it out leaves the admin without one.
+   *
+   * @default true
+   */
+  userMenu?: boolean
 }
 
 /**

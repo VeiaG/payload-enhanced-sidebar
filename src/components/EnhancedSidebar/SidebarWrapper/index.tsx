@@ -10,14 +10,13 @@ export const SidebarWrapper: React.FC<{
   baseClass: string
   children: React.ReactNode
 }> = ({ baseClass, children }) => {
-  const { hydrated, navOpen, navRef, shouldAnimate } = useNav()
+  const { hydrated, navOpen, navRef } = useNav()
 
   return (
     <aside
       className={[
         baseClass,
         navOpen && `${baseClass}--nav-open`,
-        shouldAnimate && `${baseClass}--nav-animate`,
         hydrated && `${baseClass}--nav-hydrated`,
       ]
         .filter(Boolean)

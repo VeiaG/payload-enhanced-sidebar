@@ -2,7 +2,7 @@ import type { EntityToGroup } from '@payloadcms/ui/shared'
 import type { PayloadRequest, ServerProps } from 'payload'
 
 import { getTranslation } from '@payloadcms/translations'
-import { NavGroup } from '@payloadcms/ui'
+import { NavGroup, UserMenu } from '@payloadcms/ui'
 import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
 import { groupNavItems } from '@payloadcms/ui/shared'
 import { EntityType } from 'payload'
@@ -22,18 +22,29 @@ import type {
 
 import {
   extractLocalizedValue,
+  getLazyTabSlug,
+  LAZY_TAB_SLUG_PREFIX,
   resolveSidebarComponent,
   sanitizeSidebarConfig,
   sortTabGroups,
 } from '../../utils/index.js'
 import { getNavPrefs } from './getNavPrefs.js'
 import { Icon } from './Icon.js'
+import { LazyTabView } from './LazyTabView/index.js'
 import { NavItem } from './NavItem/index.js'
 import { SidebarContent } from './SidebarContent.js'
 import './index.scss'
 
+type UserMenuProps = React.ComponentProps<typeof UserMenu>
+
 export type EnhancedSidebarProps = {
+  /** Passed by Payload to the Nav: the configured `admin.avatar` component, rendered */
+  CustomAvatar?: React.ReactNode
+  /** Passed by Payload to the Nav: the configured `admin.components.logout.Button`, rendered */
+  CustomLogoutButton?: React.ReactNode
   req?: PayloadRequest
+  /** Passed by Payload to the Nav: `admin.components.userMenuSettingsItems`, rendered */
+  settingsItemGroups?: UserMenuProps['settingsItemGroups']
   sidebarConfig?: EnhancedSidebarConfig
 } & ServerProps
 
@@ -144,6 +155,8 @@ const computeGroupsForTab = async (
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => {
   const {
+    CustomAvatar,
+    CustomLogoutButton,
     documentSubViewType,
     i18n,
     locale,
@@ -153,6 +166,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     req,
     searchParams,
     server,
+    settingsItemGroups,
     sidebarConfig,
     user,
     viewType,
@@ -213,12 +227,30 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     viewType,
   }
 
-  const beforeNavRendered = RenderServerComponent({
+  const beforeNavSlot = RenderServerComponent({
     clientProps,
     Component: beforeNav,
     importMap: payload.importMap,
     serverProps,
   })
+
+  // Payload v4 renders the account menu in its nav; replacing the nav means rendering it here
+  const beforeNavRendered =
+    sidebarConfig?.userMenu === false ? (
+      beforeNavSlot
+    ) : (
+      <Fragment>
+        <div className="enhanced-sidebar__user-menu">
+          <UserMenu
+            CustomAvatar={CustomAvatar}
+            CustomLogoutButton={CustomLogoutButton}
+            settingsItemGroups={settingsItemGroups}
+            showTitle
+          />
+        </div>
+        {beforeNavSlot}
+      </Fragment>
+    )
 
   const beforeNavLinksRendered = RenderServerComponent({
     clientProps,
@@ -265,9 +297,30 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     ],
   }
 
+  // Payload's own sidebar tabs (`admin.components.sidebar.tabs`), read from the sanitized config
+  // so they include the folder/tag tree tabs Payload adds during sanitization. Skips disabled
+  // ones, the entries this plugin registers for its lazy tabs, and slugs that clash with ours.
+  const ownTabIds = new Set((config.tabs ?? []).map((t) => t.id))
+  const nativeTabConfigs =
+    config.nativeTabs === false
+      ? []
+      : (payload.config.admin.components?.sidebar?.tabs ?? []).filter(
+          (tab) =>
+            !tab.disabled && !tab.slug.startsWith(LAZY_TAB_SLUG_PREFIX) && !ownTabIds.has(tab.slug),
+        )
+  const nativeTabsBySlug = new Map(nativeTabConfigs.map((tab) => [tab.slug, tab]))
+  const nativeTabItems = nativeTabConfigs.map(
+    (tab) =>
+      ({
+        id: tab.slug,
+        type: 'tab',
+        label: getTranslation(tab.label ?? tab.slug, i18n),
+      }) as SidebarTabContentType,
+  )
+
   // Filter all tab bar items by access — fail-closed: missing req denies access
   // Note: req can be undefined on 404 pages due to a Payload bug (NotFound view omits req from props)
-  const allConfigTabs = config.tabs ?? []
+  const allConfigTabs = [...(config.tabs ?? []), ...nativeTabItems]
   const tabAccessResults = await Promise.all(
     allConfigTabs.map((t) =>
       Promise.resolve()
@@ -384,9 +437,15 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     )
   }
 
+  // Lazy tabs (native ones, and ours with `lazy`) render through `render-tab` instead
+  const isLazyTab = (tab: SidebarTabContentType) =>
+    nativeTabsBySlug.has(tab.id) || Boolean(tab.contentComponent && tab.lazy)
+
   // Pre-render content for every tab on the server (computed in parallel)
   const tabGroupResults = await Promise.all(
-    tabs.map((tab) => computeGroupsForTab(tab, groups, currentLang, req)),
+    tabs.map((tab) =>
+      isLazyTab(tab) ? Promise.resolve([]) : computeGroupsForTab(tab, groups, currentLang, req),
+    ),
   )
   const tabsContent: Record<string, React.ReactNode> = {}
   for (let i = 0; i < tabs.length; i++) {
@@ -400,10 +459,58 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   // Per-tab contentComponent views — replace the whole nav area while their tab is active
   const tabViews: Record<string, React.ReactNode> = {}
   for (const tab of tabs) {
+    const isInitiallyActive = tab.id === initialActiveTabId
+
+    const nativeTab = nativeTabsBySlug.get(tab.id)
+    if (nativeTab) {
+      tabViews[tab.id] = (
+        <LazyTabView
+          id={tab.id}
+          // Like Payload's own nav: the tab open on load is rendered right away
+          initialContent={
+            isInitiallyActive
+              ? RenderServerComponent({
+                  clientProps,
+                  Component: nativeTab.components.Content,
+                  importMap: payload.importMap,
+                  serverProps: { ...serverProps, req },
+                })
+              : undefined
+          }
+          key={`tab-view-${tab.id}`}
+          renderSlug={tab.id}
+          withShell
+        />
+      )
+      continue
+    }
+
     if (!tab.contentComponent) {
       continue
     }
     const { clientProps: extraProps, path } = resolveSidebarComponent(tab.contentComponent)
+
+    if (tab.lazy) {
+      tabViews[tab.id] = (
+        <LazyTabView
+          id={tab.id}
+          initialContent={
+            isInitiallyActive
+              ? RenderServerComponent({
+                  clientProps: { id: tab.id, ...extraProps },
+                  Component: path,
+                  importMap: payload.importMap,
+                  serverProps: { ...serverProps, req },
+                })
+              : undefined
+          }
+          key={`tab-view-${tab.id}`}
+          renderSlug={getLazyTabSlug(tab.id)}
+        />
+      )
+      continue
+    }
+
     tabViews[tab.id] = RenderServerComponent({
       clientProps: { id: tab.id, content: tabsContent[tab.id], ...extraProps },
       Component: path,
@@ -454,7 +561,15 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     // Resolve icon: custom iconComponent > default Lucide. Always rendered here on the
     // server, so the Lucide icon map never reaches the client bundle — only the SVG does.
     let iconNode: React.ReactNode
-    if (item.iconComponent) {
+    const nativeTab = nativeTabsBySlug.get(item.id)
+    if (nativeTab) {
+      // Payload's own icon component, rendered as Payload's nav does
+      iconNode = RenderServerComponent({
+        Component: nativeTab.components.Icon,
+        importMap: payload.importMap,
+        serverProps,
+      })
+    } else if (item.iconComponent) {
       const { clientProps: iconExtraProps, path: iconPath } = resolveSidebarComponent(
         item.iconComponent,
       )
