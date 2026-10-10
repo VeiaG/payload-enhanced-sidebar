@@ -1,6 +1,13 @@
 'use client'
 
-import { Account, RenderCustomComponent, useAuth, useConfig, UserMenu } from '@payloadcms/ui'
+import {
+  Account,
+  RenderCustomComponent,
+  useAuth,
+  useConfig,
+  useEmbed,
+  UserMenu,
+} from '@payloadcms/ui'
 import React from 'react'
 
 import './index.scss'
@@ -69,6 +76,12 @@ export const RailUserMenu: React.FC<RailUserMenuProps> = ({
     },
   } = useConfig()
   const { user } = useAuth()
+  const { isEmbedded } = useEmbed()
+
+  // Embedded admin has no user menu, as in Payload's own nav
+  if (isEmbedded) {
+    return null
+  }
 
   const avatarNode =
     CustomAvatar ??

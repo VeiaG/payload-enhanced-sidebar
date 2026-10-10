@@ -1,7 +1,7 @@
 'use client'
 
 import { getTranslation } from '@payloadcms/translations'
-import { Button, useNav, useTranslation } from '@payloadcms/ui'
+import { Button, useEmbed, useNav, useTranslation } from '@payloadcms/ui'
 import React from 'react'
 
 import type { SidebarTab } from '../../../types.js'
@@ -39,6 +39,7 @@ const SidebarIcon: React.FC = () => (
 export const PanelHeader: React.FC<{ tabs: SidebarTab[] }> = ({ tabs }) => {
   const { activeTabId } = useEnhancedSidebar()
   const { navOpen, setNavOpen } = useNav()
+  const { isEmbedded } = useEmbed()
   const { i18n, t } = useTranslation()
 
   const activeTab = tabs.find((tab) => tab.type === 'tab' && tab.id === activeTabId)
@@ -48,6 +49,8 @@ export const PanelHeader: React.FC<{ tabs: SidebarTab[] }> = ({ tabs }) => {
   return (
     <div className={`${baseClass}__panel-header`}>
       <span className={`${baseClass}__panel-title`}>{title}</span>
+      {/* Embedded admin keeps the toggle in the app header, open or closed (as Payload's nav) */}
+      {!isEmbedded && (
       <Button
         aria-expanded={navOpen}
         aria-label={t('general:hideSidebar')}
@@ -58,6 +61,7 @@ export const PanelHeader: React.FC<{ tabs: SidebarTab[] }> = ({ tabs }) => {
         onClick={() => setNavOpen(false, true)}
         type="button"
       />
+      )}
     </div>
   )
 }
