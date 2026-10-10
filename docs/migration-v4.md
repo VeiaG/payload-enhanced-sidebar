@@ -33,7 +33,7 @@ Payload v4 replaced folders with **hierarchy collections**: a collection with `f
 
 > Note: in Payload v3, `folders: true` meant "documents of this collection can go into folders". In v4 it turns the collection itself into folders. See Payload's guide for setting folders up again (`createFolderField` / `createTagField`).
 
-The plugin shows those tabs through the new [`nativeTabs`](../README.md#nativetabs) option:
+The plugin shows those tabs through the new [`nativeTabs`](configuration.md#nativetabs) option:
 
 ![Browse tab](browse-tab.webp)
 
@@ -66,7 +66,7 @@ Things to know:
 
 Payload v4 moved the account menu (profile, theme, language, settings, log out) **into the nav**, and a custom nav has to render it — otherwise the admin has none. The plugin now shows it as an **avatar button at the bottom of the tabs bar**.
 
-- New option [`userMenu`](../README.md#usermenu) (default `true`). Setting it to `false` leaves the admin without an account menu, so only do it if you render one yourself.
+- New option [`userMenu`](configuration.md#usermenu) (default `true`). Setting it to `false` leaves the admin without an account menu, so only do it if you render one yourself.
 - **`showLogout` now defaults to `false`**: log out is in the account menu, as in Payload's nav. Set `showLogout: true` to keep the separate button.
 - `admin.components.userMenuSettingsItems` show up in the account menu's Settings sub-menu. `admin.components.settingsMenu` stays behind the gear button.
 - `admin.components.logout.Button` is used as the account menu's log out item.
@@ -85,7 +85,7 @@ The same avatar is used in the menu's profile header.
 
 ## Logo
 
-New option [`logo`](../README.md#logo), **on by default**: a 32px tile at the top of the bar, linking to the dashboard. By default it shows `admin.components.graphics.Icon` — which Payload v4 no longer shows anywhere in the admin (it used to be the first breadcrumb) — or the Payload icon.
+New option [`logo`](configuration.md#logo), **on by default**: a 32px tile at the top of the bar, linking to the dashboard. By default it shows `admin.components.graphics.Icon` — which Payload v4 no longer shows anywhere in the admin (it used to be the first breadcrumb) — or the Payload icon.
 
 ```ts
 logo: false                                          // no logo

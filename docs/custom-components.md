@@ -370,7 +370,7 @@ payloadEnhancedSidebar({
 | `href` | `string \| undefined` | Computed href. Always set for `link` items; set for `tab` items only when they declare an `href` |
 | `isExternal` | `boolean \| undefined` | Whether the link is external. Only ever set for `link` items — a tab's `href` is admin-relative |
 
-Since a `tab` [can also carry an `href`](../README.md#tabs), `href` — not `type` — decides whether you render an anchor or a button. A `tab` with an `href` must do both: navigate and switch the panel. Skip the tab switch on modifier and middle clicks — those land in a new tab/window, and the current one must keep the panel it already has.
+Since a `tab` [can also carry an `href`](configuration.md#tabs), `href` — not `type` — decides whether you render an anchor or a button. A `tab` with an `href` must do both: navigate and switch the panel. Skip the tab switch on modifier and middle clicks — those land in a new tab/window, and the current one must keep the panel it already has.
 
 Use `useTabState` and `useEnhancedSidebar` for state:
 
