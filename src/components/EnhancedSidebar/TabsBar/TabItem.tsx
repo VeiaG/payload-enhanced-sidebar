@@ -67,7 +67,8 @@ export const TabButton: React.FC<TabButtonProps> = ({
     <>
       {icon}
       {value !== undefined && <Badge color={badge?.color} position="absolute" value={value} />}
-      <Tooltip alignCaret="left" show={hovered}>
+      {/* Portaled by Payload (floating-ui), so the scrolling tab list can't clip it */}
+      <Tooltip position="right" show={hovered}>
         {label}
       </Tooltip>
     </>

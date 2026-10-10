@@ -20,6 +20,7 @@ describe('resolveNativeTabsConfig', () => {
       id: 'payload-tabs',
       label: { en: 'Browse', uk: 'Огляд' },
       mode: 'group',
+      placed: false,
       position: 'top',
     })
     expect(resolveNativeTabsConfig(true)).toEqual(resolveNativeTabsConfig(undefined))
@@ -49,6 +50,24 @@ describe('resolveNativeTabsConfig', () => {
       id: 'library',
       label: 'Library',
       mode: 'group',
+      placed: false,
+      position: 'bottom',
+    })
+  })
+
+  test('a `{ type: native }` item places the tab and its options win over nativeTabs', () => {
+    expect(
+      resolveNativeTabsConfig({ id: 'ignored', label: 'Ignored', position: 'bottom' }, [
+        { id: 'home', type: 'link', href: '/', icon: 'House', label: 'Home' },
+        { id: 'browse', type: 'native', icon: 'Library' },
+      ]),
+    ).toEqual({
+      icon: 'Library',
+      iconComponent: undefined,
+      id: 'browse',
+      label: 'Ignored',
+      mode: 'group',
+      placed: true,
       position: 'bottom',
     })
   })

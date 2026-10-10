@@ -110,6 +110,30 @@ describe('payloadEnhancedSidebar', () => {
       ).toThrow(/native tabs tab id "content"/)
     })
 
+    test('a `{ type: native }` item registers the Browse panel under its own id', () => {
+      const config = run({
+        tabs: [
+          { id: 'browse', type: 'native' },
+          // Its id would clash with the automatic Browse tab's default id; placed, it can't
+          { id: 'payload-tabs', type: 'tab', icon: 'House', label: 'Other' },
+        ],
+      })
+      const slugs = sidebarTabs(config).map((t) => t.slug)
+      expect(slugs).toContain(getLazyTabSlug('browse'))
+      expect(slugs).not.toContain(getLazyTabSlug('payload-tabs'))
+    })
+
+    test('throws on more than one `{ type: native }` item', () => {
+      expect(() =>
+        run({
+          tabs: [
+            { id: 'a', type: 'native' },
+            { id: 'b', type: 'native' },
+          ],
+        }),
+      ).toThrow(/Only one/)
+    })
+
     test('registers a custom Browse icon in the import map', () => {
       const config = run({ nativeTabs: { iconComponent: './Icon#BrowseIcon' } })
       expect(config.admin?.dependencies?.['enhanced-sidebar-icon-native-tabs']).toEqual({

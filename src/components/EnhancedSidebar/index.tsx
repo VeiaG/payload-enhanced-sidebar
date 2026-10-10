@@ -317,7 +317,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   // Payload's own sidebar tabs (`admin.components.sidebar.tabs`), read from the sanitized config
   // so they include the folder/tag tree tabs Payload adds during sanitization. Skips disabled
   // ones, the entries this plugin registers for its lazy tabs, and slugs that clash with ours.
-  const nativeTabsMode = resolveNativeTabsConfig(config.nativeTabs)
+  const nativeTabsMode = resolveNativeTabsConfig(config.nativeTabs, config.tabs)
   const ownTabIds = new Set((config.tabs ?? []).map((t) => t.id))
   const nativeTabConfigs = nativeTabsMode
     ? (payload.config.admin.components?.sidebar?.tabs ?? []).filter(
@@ -342,8 +342,13 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   // 'group': one plugin tab holding them all, behind Payload's own switcher. A lazy tab like
   // any other — registered for `render-tab` by the plugin — and only there if there is
   // something to hold.
+  // Where a `{ type: 'native' }` item sits in `tabs`, the Browse tab takes its place
+  let configTabs = [...(config.tabs ?? [])]
+  const placedIndex = configTabs.findIndex((tab) => tab.type === 'native')
+
   if (nativeTabsMode?.mode === 'group' && nativeTabConfigs.length > 0) {
-    nativeTabItems.push({
+    const placed = placedIndex >= 0 ? configTabs[placedIndex] : undefined
+    const browseTab = {
       id: nativeTabsMode.id,
       type: 'tab',
       contentComponent: NATIVE_TABS_PANEL_PATH,
@@ -353,12 +358,23 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       ...(nativeTabsMode.iconComponent
         ? { iconComponent: nativeTabsMode.iconComponent }
         : { icon: nativeTabsMode.icon ?? 'FolderTree' }),
-    } as SidebarTabContentType)
+      // Access and badge only come from a placed item
+      ...(placed?.type === 'native' ? { access: placed.access, badge: placed.badge } : {}),
+    } as SidebarTabContentType
+
+    if (placed) {
+      configTabs[placedIndex] = browseTab
+    } else {
+      nativeTabItems.push(browseTab)
+    }
   }
+
+  // Nothing to show (no native tabs, or 'map' / false): the placeholder just goes away
+  configTabs = configTabs.filter((tab) => tab.type !== 'native')
 
   // Filter all tab bar items by access — fail-closed: missing req denies access
   // Note: req can be undefined on 404 pages due to a Payload bug (NotFound view omits req from props)
-  const allConfigTabs = [...(config.tabs ?? []), ...nativeTabItems]
+  const allConfigTabs = [...configTabs, ...nativeTabItems]
   const tabAccessResults = await Promise.all(
     allConfigTabs.map((t) =>
       Promise.resolve()

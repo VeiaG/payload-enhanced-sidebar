@@ -56,6 +56,8 @@ payloadEnhancedSidebar({
 
 The `id` must not clash with your `tabs` ids (the plugin throws if it does).
 
+To place it anywhere in the bar, add `{ id: 'browse', type: 'native' }` to `tabs` where you want it — see [Browse tab placement](configuration.md#tabs). It takes `label`, `icon`, `position`, `badge` and `access`.
+
 Things to know:
 
 - A folder/tag collection **disappears from the regular nav** (Payload sets `admin.group: false` on it) unless you give it an `admin.group`. If a tab lists it in `collections`, it won't show there either — it lives in Browse.

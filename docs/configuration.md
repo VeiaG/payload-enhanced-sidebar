@@ -195,6 +195,31 @@ The component receives `{ id }` plus any `clientProps` you pass. See [Custom Com
 
 ![Tab and Link active difference](tab-link-active.webp)
 
+**Browse tab placement (`type: 'native'`)**
+
+Puts the [Browse tab](#nativetabs) — Payload's own sidebar tabs, such as folder/tag trees — exactly here. Without such an item it is added after the other top tabs.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | `string` | Yes | Unique identifier |
+| `type` | `'native'` | Yes | Browse tab placement |
+| `label` | `LocalizedString` | No | Tooltip/label (default `Browse`) |
+| `icon` | `IconName` | No | Lucide icon name (default `FolderTree`) |
+| `iconComponent` | `SidebarComponent` | No | Custom icon component, instead of `icon` |
+| `position` | `'top' \| 'bottom'` | No | `'bottom'` pins it to the bottom of the bar (default `'top'`) |
+| `badge` | `BadgeConfig` | No | Badge on the icon |
+| `access` | `TabAccessFunction` | No | Server-side access control — return `false` to hide |
+
+It shows nothing when the project has no native tabs, or when `nativeTabs` is `'map'` or `false`. Its options win over the ones in `nativeTabs`. Only one is allowed.
+
+```typescript
+tabs: [
+  { id: 'dashboard', type: 'link', href: '/', icon: 'House', label: 'Dashboard' },
+  { id: 'browse', type: 'native' }, // second in the bar
+  { id: 'content', type: 'tab', icon: 'FileText', label: 'Content', collections: ['posts'] },
+]
+```
+
 **Tab bar position (`position`)**
 
 Any tab, link, or custom slot can be pinned to the bottom of the tabs bar with `position: 'bottom'`. Bottom items render in config order, just **above** the actions area (settings / account menu). Items default to `'top'`.
@@ -316,6 +341,8 @@ How to show Payload's own sidebar tabs (`admin.components.sidebar.tabs`): the fo
 
 - `'group'` (or `true`) — one tab, **Browse** (`FolderTree` icon), at the end of the top tabs. It holds all native tabs behind Payload's own tab switcher, so they keep Payload's look. Added only when there is at least one native tab, and rendered lazily.
 - `'map'` — each native tab becomes its own item in the tabs bar, with Payload's icon.
+
+To put the Browse tab somewhere else than after the top tabs, add a [`{ type: 'native' }`](#tabs) item to `tabs` where you want it.
 - `false` — don't show them.
 
 ```ts

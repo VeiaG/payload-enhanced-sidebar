@@ -175,9 +175,15 @@ const definedPlugin = definePlugin<EnhancedSidebarConfig>({
     // tabs exist is only known after sanitization (Payload adds the folder/tag tabs then), so
     // the tab itself is added at render time; here it is registered for lazy rendering through
     // `render-tab`, like any `lazy` tab.
-    const nativeTabs = resolveNativeTabsConfig(sidebarConfig.nativeTabs)
+    if ((sidebarConfig.tabs ?? []).filter((tab) => tab.type === 'native').length > 1) {
+      throw new Error(
+        "[payload-enhanced-sidebar] Only one `{ type: 'native' }` item is allowed in `tabs`.",
+      )
+    }
+    const nativeTabs = resolveNativeTabsConfig(sidebarConfig.nativeTabs, sidebarConfig.tabs)
     if (nativeTabs?.mode === 'group') {
-      if (seenTabIds.has(nativeTabs.id)) {
+      // A `{ type: 'native' }` item already is a tab with this id; only the automatic one can clash
+      if (!nativeTabs.placed && seenTabIds.has(nativeTabs.id)) {
         throw new Error(
           `[payload-enhanced-sidebar] The native tabs tab id "${nativeTabs.id}" is already used by a tab. Set \`nativeTabs.id\` to another id.`,
         )

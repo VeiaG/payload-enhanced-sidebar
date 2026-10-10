@@ -392,9 +392,32 @@ export type CustomNavItemComponentProps = {
 }
 
 /**
+ * Where the Browse tab (`nativeTabs: 'group'`) goes in the tabs bar. Without one it is added
+ * after the other tabs. Shows nothing when there are no native tabs, or when `nativeTabs` is
+ * `'map'` or `false`. Its options override the ones in `nativeTabs`.
+ */
+export type SidebarTabNative = {
+  /** Server-side access control — return `false` to hide the Browse tab */
+  access?: TabAccessFunction
+  /** Badge on the Browse tab's icon */
+  badge?: BadgeConfig
+  /** Icon name from lucide-react. @default 'FolderTree' */
+  icon?: IconName
+  /** Custom icon component, instead of `icon`. Registered automatically in the import map. */
+  iconComponent?: SidebarComponent
+  /** Tab id */
+  id: string
+  /** @default { en: 'Browse', uk: 'Огляд' } */
+  label?: LocalizedString
+  /** `'bottom'` pins it to the bottom of the bar. @default 'top' */
+  position?: 'bottom' | 'top'
+  type: 'native'
+}
+
+/**
  * A tab, link, or custom component in the sidebar tabs bar
  */
-export type SidebarTab = SidebarTabContent | SidebarTabCustom | SidebarTabLink
+export type SidebarTab = SidebarTabContent | SidebarTabCustom | SidebarTabLink | SidebarTabNative
 
 interface BaseSidebarTabItem {
   /**

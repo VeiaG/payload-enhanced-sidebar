@@ -12,14 +12,7 @@
     padding: 0 0 calc((var(--app-header-height, 3.25rem) - 32px) / 2);
     border-inline-end: 1px solid var(--color-border);
     background: var(--color-bg);
-    /* The whole bar owns a stacking context that sits above `.enhanced-sidebar__content`.
-       Tooltips are absolutely positioned inside the tab buttons, and a button can gain its own
-       stacking context at any time (composited transition, layer promotion), which traps the
-       tooltip's own z-index. Lifting the bar itself keeps tooltips above the nav links no
-       matter what happens inside. Scoped to the sidebar, since `.enhanced-sidebar` is
-       `position: sticky` and therefore already a stacking context of its own. */
     position: relative;
-    z-index: 5;
 
     /* Every Lucide icon in the bar (tab icons, settings, logout, Lucide inside custom icon
        components). Lucide sets `stroke-width` as an attribute, which CSS overrides. */
@@ -28,11 +21,58 @@
     }
   }
 
+  /* Logo, then the top tabs. Takes the space the bottom group leaves; only the tab list scrolls
+     when there are more tabs than fit, so the logo stays on top and the bottom group stays
+     pinned to the bottom. */
   .tabs-bar__top {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacer-2);
+    gap: var(--spacer-1);
+  }
+
+  .tabs-bar__tabs {
+    flex: 0 1 auto;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    /* Room for what hangs off the buttons — badges sit 4px past the corner, focus outlines a
+       little outside — since a scroll container clips. The 36px buttons are centred in the
+       48px bar, which leaves the sides enough. */
+    padding-block: var(--spacer-1-5);
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Fade the edges where more tabs are hidden. Driven by the list's own scroll position
+       (scroll-driven animation): with nothing to scroll the timeline is inactive and there is no
+       mask at all; at the top only the bottom fades, at the bottom only the top. Browsers without
+       `animation-timeline` (Firefox for now) just show no fade. */
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 var(--enhanced-sidebar-rail-fade-top),
+      #000 calc(100% - var(--enhanced-sidebar-rail-fade-bottom)),
+      transparent 100%
+    );
+    animation: enhanced-sidebar-rail-fade linear both;
+    animation-timeline: scroll(self);
+
+    /* Keep each item at full size: flex items shrink by default, and a 36px button would give
+       way down to its icon before the list ever scrolls. */
+    > * {
+      flex-shrink: 0;
+    }
+  }
+
+  .tabs-bar__bottom {
+    flex-shrink: 0;
+    padding-top: var(--spacer-2);
   }
 
   /* Same height as the panel header next to it, so the logo lines up with the tab title.
@@ -99,39 +139,6 @@
     gap: var(--spacer-2);
   }
 
-  /* Payload's Tooltip opens above or below (made for toolbars); in a left rail it goes to the
-     right of the button instead. */
-  :is(.tabs-bar__tab, .tabs-bar__link, .tabs-bar__action) .tooltip {
-    left: calc(100% + 8px);
-    top: 50%;
-    transform: translateY(-50%);
-    white-space: nowrap;
-    /* Above siblings inside the button. Staying above the nav links is handled by the
-       stacking context on `.tabs-bar` — this value alone is not enough, since the button can
-       become a stacking context and scope it. */
-    z-index: 1000;
-
-    /* The caret makes no sense when the tooltip is beside the button */
-    &::before,
-    &::after {
-      display: none;
-    }
-  }
-
-  /* Neutralize the top/bottom transform Payload applies per position */
-  :is(.tabs-bar__tab, .tabs-bar__link, .tabs-bar__action)
-    :is(.tooltip--position-top, .tooltip--position-bottom) {
-    bottom: auto;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  /* RTL: to the left of the button. Explicit, since Payload's tooltip sets `left` itself. */
-  [dir='rtl'] :is(.tabs-bar__tab, .tabs-bar__link, .tabs-bar__action) .tooltip {
-    left: auto;
-    right: calc(100% + 8px);
-  }
-
   /* Rail items. States (variant C — tint, no ring):
      - idle: muted icon, no fill
      - tab selected (its panel is open): grey fill, the v4 pressed/selected surface
@@ -152,9 +159,7 @@
     background: transparent;
     color: var(--color-icon-secondary);
     cursor: pointer;
-    /* Only the properties that actually change on hover — `all` also covers `transform` and
-       `opacity`, which lets the browser promote the button to its own layer and trap the
-       tooltip's z-index inside it. */
+    /* Only the properties that actually change on hover */
     transition:
       background 150ms ease,
       color 150ms ease;
@@ -184,5 +189,35 @@
   .tabs-bar__tab--current:hover {
     background: var(--color-bg-selected);
     color: var(--color-icon-selected);
+  }
+}
+
+/* Animated by the tabs list's scroll position (see `.tabs-bar__tabs`). Registered so the
+   lengths interpolate; `@property` is kept outside the cascade layer. */
+@property --enhanced-sidebar-rail-fade-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --enhanced-sidebar-rail-fade-bottom {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes enhanced-sidebar-rail-fade {
+  0% {
+    --enhanced-sidebar-rail-fade-top: 0px;
+    --enhanced-sidebar-rail-fade-bottom: 32px;
+  }
+  10%,
+  90% {
+    --enhanced-sidebar-rail-fade-top: 32px;
+    --enhanced-sidebar-rail-fade-bottom: 32px;
+  }
+  100% {
+    --enhanced-sidebar-rail-fade-top: 32px;
+    --enhanced-sidebar-rail-fade-bottom: 0px;
   }
 }

@@ -33,15 +33,19 @@ export type ResolvedNativeTabs =
       id: string
       label: LocalizedString
       mode: 'group'
+      /** True when a `{ type: 'native' }` item in `tabs` sets where the tab goes */
+      placed: boolean
       position: 'bottom' | 'top'
     }
   | { mode: 'map' }
 
 /**
- * Normalizes the `nativeTabs` option. Returns `null` when native tabs are off.
+ * Normalizes the `nativeTabs` option. Returns `null` when native tabs are off. A
+ * `{ type: 'native' }` item in `tabs` places the Browse tab and its options win.
  */
 export const resolveNativeTabsConfig = (
   nativeTabs: EnhancedSidebarConfig['nativeTabs'],
+  tabs?: EnhancedSidebarConfig['tabs'],
 ): null | ResolvedNativeTabs => {
   if (nativeTabs === false) {
     return null
@@ -50,13 +54,16 @@ export const resolveNativeTabsConfig = (
     return { mode: 'map' }
   }
   const options = typeof nativeTabs === 'object' ? nativeTabs : {}
+  const placed = tabs?.find((tab) => tab.type === 'native')
+  const iconComponent = placed?.icon ? undefined : (placed?.iconComponent ?? options.iconComponent)
   return {
-    icon: options.iconComponent ? undefined : (options.icon ?? 'FolderTree'),
-    iconComponent: options.iconComponent,
-    id: options.id ?? 'payload-tabs',
-    label: options.label ?? { en: 'Browse', uk: 'Огляд' },
+    icon: iconComponent ? undefined : (placed?.icon ?? options.icon ?? 'FolderTree'),
+    iconComponent,
+    id: placed?.id ?? options.id ?? 'payload-tabs',
+    label: placed?.label ?? options.label ?? { en: 'Browse', uk: 'Огляд' },
     mode: 'group',
-    position: options.position ?? 'top',
+    placed: Boolean(placed),
+    position: placed?.position ?? options.position ?? 'top',
   }
 }
 
