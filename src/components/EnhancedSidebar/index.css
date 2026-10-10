@@ -1,0 +1,157 @@
+@layer payload-default {
+  .enhanced-sidebar {
+    /* Same spacing variables Payload's own nav (`.nav`) defines. Content written for the
+       native nav reads them — e.g. the multi-tenant selector in `beforeNav` uses
+       `--nav-padding-inline-start` for its side margins. */
+    --nav-padding-inline-start: var(--spacer-2-5);
+    --nav-padding-inline-end: var(--spacer-2-5);
+    --nav-padding-block-start: var(--spacer-2-5);
+    --nav-padding-block-end: var(--spacer-5);
+  }
+
+  /* The column next to the tabs bar: header, then the open tab's content */
+  .enhanced-sidebar__panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Like Payload's `.nav__header`; tall as the app header so both rows line up */
+  .enhanced-sidebar__panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacer-2);
+    flex-shrink: 0;
+    min-height: var(--app-header-height, 3.25rem);
+    padding: var(--spacer-2) var(--spacer-2) var(--spacer-2) var(--spacer-3);
+    background-color: var(--color-bg);
+    border-bottom: var(--stroke-width-small) solid var(--color-border);
+  }
+
+  .enhanced-sidebar__panel-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-body-medium-bold-font-size);
+    font-weight: var(--text-body-medium-bold-font-weight);
+    line-height: var(--text-body-medium-bold-line-height);
+  }
+
+  .enhanced-sidebar__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .enhanced-sidebar__content-scroll {
+    /* Side padding of the content area. Rows and groups bring their own inset, like in
+       Payload's nav, so it is 0 by default; custom tab content can raise it. */
+    --enhanced-sidebar-content-padding-inline: 0px;
+
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 var(--enhanced-sidebar-content-padding-inline) var(--nav-padding-block-end);
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  /* The panel is narrower than Payload's nav by the width of the tabs bar. Flex items keep
+     `min-width: auto` and won't shrink below their content's natural width, so content made
+     for the wider native nav overflowed — e.g. the search box in the folder/tag tree tabs
+     (`.search-input` in a flex row, sized by its `<input>`). */
+  .enhanced-sidebar__content-scroll > *,
+  .enhanced-sidebar .search-input {
+    min-width: 0;
+  }
+
+  /* Nav rows mirror Payload's `.nav__link`: full-width row, the highlight is a rounded pill
+     drawn by `::before`, inset from the row edges. */
+  .enhanced-sidebar__link-wrapper {
+    width: 100%;
+  }
+
+  .enhanced-sidebar__link {
+    display: flex;
+    align-items: center;
+    position: relative;
+    isolation: isolate;
+    padding-block: var(--spacer-2);
+    padding-inline: var(--spacer-3);
+    color: var(--color-text);
+    text-decoration: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: var(--spacer-1);
+      inset-inline: var(--spacer-2);
+      border-radius: var(--button-radius);
+      z-index: -1;
+    }
+  }
+
+  a.enhanced-sidebar__link:not(.enhanced-sidebar__link--selected):hover {
+    text-decoration: none;
+
+    &::before {
+      background: var(--color-bg-secondary);
+    }
+  }
+
+  a.enhanced-sidebar__link:focus-visible {
+    outline: none;
+
+    &::before {
+      outline: var(--accessibility-outline);
+      outline-offset: var(--accessibility-outline-offset);
+    }
+  }
+
+  .enhanced-sidebar__link--selected {
+    font-weight: 600;
+
+    &::before {
+      background: var(--color-bg-selected);
+    }
+  }
+
+  /* Takes the free space, so an inline badge sits at the end of the row */
+  .enhanced-sidebar__link-label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .enhanced-sidebar__link-icon {
+    margin-inline-end: var(--spacer-2);
+    flex-shrink: 0;
+  }
+
+  .enhanced-sidebar__custom-items {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Same breakpoints and values as Payload's nav */
+  @media (max-width: 1024px) {
+    .enhanced-sidebar {
+      --nav-padding-inline-start: var(--spacer-2);
+      --nav-padding-inline-end: var(--spacer-2);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .enhanced-sidebar {
+      --nav-padding-inline-start: var(--gutter-h);
+      --nav-padding-inline-end: var(--gutter-h);
+    }
+  }
+}

@@ -1,0 +1,55 @@
+@layer payload-default {
+  .sidebar-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 var(--spacer-1);
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* Color variants — Payload's semantic status tokens: each background comes with its own
+     "on" text color and both adapt to the dark theme. */
+  .sidebar-badge--default {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text);
+  }
+
+  .sidebar-badge--primary {
+    background: var(--color-bg-brand);
+    color: var(--color-text-onbrand);
+  }
+
+  .sidebar-badge--success {
+    background: var(--color-bg-success);
+    color: var(--color-text-onsuccess);
+  }
+
+  /* Dark text on yellow, as in Payload's own warning surfaces */
+  .sidebar-badge--warning {
+    background: var(--color-bg-warning);
+    color: var(--color-text-onwarning);
+  }
+
+  .sidebar-badge--error {
+    background: var(--color-bg-danger);
+    color: var(--color-text-ondanger);
+  }
+
+  /* On a tabs bar icon, over its top corner */
+  .sidebar-badge--absolute {
+    position: absolute;
+    top: -4px;
+    inset-inline-end: -4px;
+  }
+
+  /* At the end of a nav row */
+  .sidebar-badge--inline {
+    margin-inline-start: var(--spacer-2);
+  }
+}

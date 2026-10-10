@@ -3,7 +3,7 @@ import { Popup, useTranslation } from '@payloadcms/ui'
 import { Settings } from 'lucide-react'
 import React, { Fragment } from 'react'
 
-import './index.scss'
+import './index.css'
 
 const baseClass = 'settings-menu-button'
 

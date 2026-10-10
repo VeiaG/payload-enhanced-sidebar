@@ -37,7 +37,7 @@ import { LazyTabView } from './LazyTabView/index.js'
 import { NavItem } from './NavItem/index.js'
 import { RailUserMenu, type RailUserMenuProps } from './RailUserMenu/index.js'
 import { SidebarContent } from './SidebarContent.js'
-import './index.scss'
+import './index.css'
 
 export type EnhancedSidebarProps = {
   /** Passed by Payload to the Nav: the configured `admin.avatar` component, rendered */

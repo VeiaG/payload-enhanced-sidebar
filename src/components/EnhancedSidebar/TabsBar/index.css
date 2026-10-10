@@ -1,0 +1,188 @@
+@layer payload-default {
+  .tabs-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: var(--enhanced-sidebar-tabs-bar-width, 48px);
+    min-width: var(--enhanced-sidebar-tabs-bar-width, 48px);
+    /* Bottom space mirrors the top: the logo tile (32px) is centred in a header-high block, so
+       its edge sits (header - 32px) / 2 from the top; the last button's edge sits the same
+       distance from the bottom. */
+    padding: 0 0 calc((var(--app-header-height, 3.25rem) - 32px) / 2);
+    border-inline-end: 1px solid var(--color-border);
+    background: var(--color-bg);
+    /* The whole bar owns a stacking context that sits above `.enhanced-sidebar__content`.
+       Tooltips are absolutely positioned inside the tab buttons, and a button can gain its own
+       stacking context at any time (composited transition, layer promotion), which traps the
+       tooltip's own z-index. Lifting the bar itself keeps tooltips above the nav links no
+       matter what happens inside. Scoped to the sidebar, since `.enhanced-sidebar` is
+       `position: sticky` and therefore already a stacking context of its own. */
+    position: relative;
+    z-index: 5;
+
+    /* Every Lucide icon in the bar (tab icons, settings, logout, Lucide inside custom icon
+       components). Lucide sets `stroke-width` as an attribute, which CSS overrides. */
+    .lucide {
+      stroke-width: var(--enhanced-sidebar-icon-stroke-width, 1.5);
+    }
+  }
+
+  .tabs-bar__top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacer-2);
+  }
+
+  /* Same height as the panel header next to it, so the logo lines up with the tab title.
+     `--app-header-height` is published by Payload's app header once it has mounted. */
+  .tabs-bar__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: var(--app-header-height, 3.25rem);
+    color: var(--color-icon);
+
+    &:focus-visible {
+      outline: var(--accessibility-outline);
+      outline-offset: var(--accessibility-outline-offset);
+      border-radius: var(--button-radius);
+    }
+  }
+
+  /* The logo's tile: 32px, rounded like the rail buttons, with the icon at 18px inside */
+  .tabs-bar__logo-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--button-radius);
+    overflow: hidden;
+
+    > * {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  /* Dark in the light theme, light in the dark one. Icons drawn with `--color-icon` (the
+     Payload icon) or `currentColor` flip along with it. */
+  .tabs-bar__logo-tile--inverse {
+    --color-icon: var(--color-icon-oninverse);
+    background: var(--color-bg-inverse);
+    color: var(--color-icon-oninverse);
+  }
+
+  .tabs-bar__logo-tile--subtle {
+    background: var(--color-bg-secondary);
+  }
+
+  /* No tile: the component fills the whole 32px box */
+  .tabs-bar__logo-tile--none > * {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Items sit 8px apart: the gap between two pills in Payload's nav rows (2 × --spacer-1) */
+  .tabs-bar__tabs,
+  .tabs-bar__tabs-bottom,
+  .tabs-bar__actions,
+  /* Keeps bottom-positioned tabs and the actions pinned together at the bottom of the bar
+     (`.tabs-bar` uses `justify-content: space-between`) */
+  .tabs-bar__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacer-2);
+  }
+
+  /* Payload's Tooltip opens above or below (made for toolbars); in a left rail it goes to the
+     right of the button instead. */
+  :is(.tabs-bar__tab, .tabs-bar__link, .tabs-bar__action) .tooltip {
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    /* Above siblings inside the button. Staying above the nav links is handled by the
+       stacking context on `.tabs-bar` — this value alone is not enough, since the button can
+       become a stacking context and scope it. */
+    z-index: 1000;
+
+    /* The caret makes no sense when the tooltip is beside the button */
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  /* Neutralize the top/bottom transform Payload applies per position */
+  :is(.tabs-bar__tab, .tabs-bar__link, .tabs-bar__action)
+    :is(.tooltip--position-top, .tooltip--position-bottom) {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* RTL: to the left of the button. Explicit, since Payload's tooltip sets `left` itself. */
+  [dir='rtl'] :is(.tabs-bar__tab, .tabs-bar__link, .tabs-bar__action) .tooltip {
+    left: auto;
+    right: calc(100% + 8px);
+  }
+
+  /* Rail items. States (variant C — tint, no ring):
+     - idle: muted icon, no fill
+     - tab selected (its panel is open): grey fill, the v4 pressed/selected surface
+     - link active (the current route): blue tint, the v4 selected surface
+     - a linked tab that is both: blue tint. Exactly one tab is always selected, so a blue
+       item with no grey one elsewhere reads as both; no extra marker is needed. */
+  .tabs-bar__tab,
+  .tabs-bar__link,
+  .tabs-bar__action {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--button-radius);
+    background: transparent;
+    color: var(--color-icon-secondary);
+    cursor: pointer;
+    /* Only the properties that actually change on hover — `all` also covers `transform` and
+       `opacity`, which lets the browser promote the button to its own layer and trap the
+       tooltip's z-index inside it. */
+    transition:
+      background 150ms ease,
+      color 150ms ease;
+    text-decoration: none;
+
+    &:hover {
+      background: var(--color-bg-hover);
+      color: var(--color-icon);
+    }
+
+    &:focus-visible {
+      outline: var(--accessibility-outline);
+      outline-offset: var(--accessibility-outline-offset);
+    }
+  }
+
+  .tabs-bar__tab--active,
+  .tabs-bar__tab--active:hover {
+    background: var(--color-bg-pressed);
+    color: var(--color-icon);
+  }
+
+  /* After `--active`, so a linked tab that is also the current route is blue */
+  .tabs-bar__link--active,
+  .tabs-bar__link--active:hover,
+  .tabs-bar__tab--current,
+  .tabs-bar__tab--current:hover {
+    background: var(--color-bg-selected);
+    color: var(--color-icon-selected);
+  }
+}

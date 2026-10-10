@@ -10,7 +10,7 @@ import type { EnhancedSidebarConfig, SidebarTab } from '../../../types.js'
 
 import { SettingsMenuButton } from '../SettingsMenuButton/index.js'
 import { TabButton } from './TabItem.js'
-import './index.scss'
+import './index.css'
 
 const tabsBaseClass = 'tabs-bar'
 

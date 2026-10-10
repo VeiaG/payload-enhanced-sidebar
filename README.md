@@ -25,10 +25,6 @@ yarn add @veiag/payload-enhanced-sidebar
 pnpm add @veiag/payload-enhanced-sidebar
 ```
 
-### Windows support
-
-See this comment if you have issues with scss : https://github.com/VeiaG/payload-enhanced-sidebar/issues/12#issuecomment-4229207755
-
 ## Quick Start
 
 ```typescript

@@ -3,7 +3,7 @@
 import { useNav } from '@payloadcms/ui'
 import React from 'react'
 
-import './index.scss'
+import './index.css'
 
 export const SidebarWrapper: React.FC<{
   baseClass: string

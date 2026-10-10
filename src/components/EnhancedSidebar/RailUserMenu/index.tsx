@@ -10,7 +10,7 @@ import {
 } from '@payloadcms/ui'
 import React from 'react'
 
-import './index.scss'
+import './index.css'
 
 type UserMenuProps = React.ComponentProps<typeof UserMenu>
 

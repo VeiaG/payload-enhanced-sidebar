@@ -228,7 +228,7 @@ export const payloadEnhancedSidebar =
 // Hooks and providers. In 'use client' files prefer `@veiag/payload-enhanced-sidebar/client`.
 //
 // Default components (Badge, NavItem, NavContentShell, TabButton) are exported from
-// `/client` only: they import .scss, and the package root is loaded by plain Node
+// `/client` only: they import .css, and the package root is loaded by plain Node
 // (payload.config.ts, import map generation), which can't handle stylesheet imports.
 export type { BadgeProps } from './components/EnhancedSidebar/Badge/index.js'
 export {

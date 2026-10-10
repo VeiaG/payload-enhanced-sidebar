@@ -69,7 +69,7 @@ import {
 
 The hooks and providers are also re-exported from the package root, but the root entry also carries the plugin itself (and with it `payload`), which does not belong in a client bundle. Prop types (`CustomNavItemProps`, `CustomTabButtonProps`, …) are available from both.
 
-The [default components](#default-components) (`NavItem`, `TabButton`, `NavContentShell`, `Badge`) are exported from `/client` **only**. They import stylesheets, and the package root is loaded by plain Node (your `payload.config.ts`, import map generation), which can't handle `.scss` imports.
+The [default components](#default-components) (`NavItem`, `TabButton`, `NavContentShell`, `Badge`) are exported from `/client` **only**. They import stylesheets, and the package root is loaded by plain Node (your `payload.config.ts`, import map generation), which can't handle stylesheet imports.
 
 ---
 

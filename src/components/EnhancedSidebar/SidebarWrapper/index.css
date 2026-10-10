@@ -1,0 +1,45 @@
+@layer payload-default {
+  :root {
+    /* Width of the tabs rail. Shared with `.tabs-bar`. */
+    --enhanced-sidebar-tabs-bar-width: 48px;
+  }
+
+  .enhanced-sidebar {
+    position: sticky;
+    top: 0;
+    inset-inline-start: 0;
+    flex-shrink: 0;
+    height: 100vh;
+    width: var(--nav-width);
+    border-inline-end: 1px solid var(--color-border);
+    opacity: 0;
+  }
+
+  /* v4 dropped `shouldAnimate` from `useNav()`; animating only once hydrated still keeps the
+     first paint from fading in. */
+  .enhanced-sidebar--nav-hydrated {
+    transition: opacity var(--nav-trans-time, 150ms) ease-in-out;
+  }
+
+  .enhanced-sidebar--nav-open {
+    opacity: 1;
+  }
+
+  .enhanced-sidebar__scroll {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+
+  @media (max-width: 1024px) {
+    /* Payload's NavProvider sets `overscroll-behavior: contain` inline on `navRef` (this
+       element) while the nav is open as a modal, so a swipe on the nav never scrolls the page
+       behind it. That only applies to a scroll container, and without this a swipe on the tabs
+       bar chains straight to the page. The content never overflows here — the inner
+       `__content-scroll` does the scrolling. Kept to mobile so it can't clip tooltips or
+       popovers from the tabs bar on desktop. */
+    .enhanced-sidebar__scroll {
+      overflow-y: auto;
+    }
+  }
+}

@@ -4,7 +4,7 @@ import React from 'react'
 
 import type { BadgeColor } from '../../../types.js'
 
-import './index.scss'
+import './index.css'
 
 const baseClass = 'sidebar-badge'
 
