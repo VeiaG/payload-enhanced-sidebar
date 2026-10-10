@@ -22,6 +22,18 @@ export const seed = async (payload: Payload) => {
     },
   })
 
+  // Seed Tenants — posts and pages are tenant-scoped, so they need one assigned
+  const tenants = await Promise.all(
+    ['Main Site', 'Blog Network'].map((name) =>
+      payload.create({
+        collection: 'tenants',
+        data: { name },
+      }),
+    ),
+  )
+
+  payload.logger.info(`Created ${tenants.length} tenants`)
+
   // Seed Categories
   const categories = [
     { name: 'Technology', slug: 'technology' },
@@ -150,10 +162,10 @@ export const seed = async (payload: Payload) => {
   ] as const
 
   const createdPosts = await Promise.all(
-    posts.map((post) =>
+    posts.map((post, i) =>
       payload.create({
         collection: 'posts',
-        data: post,
+        data: { ...post, tenant: tenants[i % tenants.length].id },
       }),
     ),
   )
@@ -172,10 +184,10 @@ export const seed = async (payload: Payload) => {
   ]
 
   const createdPages = await Promise.all(
-    pages.map((page) =>
+    pages.map((page, i) =>
       payload.create({
         collection: 'pages',
-        data: page,
+        data: { ...page, tenant: tenants[i % tenants.length].id },
       }),
     ),
   )

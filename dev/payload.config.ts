@@ -4,12 +4,12 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { en } from '@payloadcms/translations/languages/en'
 import { uk } from '@payloadcms/translations/languages/uk'
 import { payloadEnhancedSidebar } from '@veiag/payload-enhanced-sidebar'
-import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import path from 'path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { startMemoryMongo } from './helpers/memoryDb'
 import { testEmailAdapter } from './helpers/testEmailAdapter'
 import { seed } from './seed'
 
@@ -21,17 +21,6 @@ if (!process.env.ROOT_DIR) {
 }
 
 const buildConfigWithMemoryDB = async () => {
-  if (process.env.NODE_ENV === 'test') {
-    const memoryDB = await MongoMemoryReplSet.create({
-      replSet: {
-        count: 3,
-        dbName: 'payloadmemory',
-      },
-    })
-
-    process.env.DATABASE_URI = `${memoryDB.getUri()}&retryWrites=true`
-  }
-
   return buildConfig({
     admin: {
       components: {
@@ -341,7 +330,8 @@ const buildConfigWithMemoryDB = async () => {
     ],
     db: mongooseAdapter({
       ensureIndexes: true,
-      url: process.env.DATABASE_URI || '',
+      // Falls back to a throwaway in-memory replica set when no external DB is configured
+      url: process.env.DATABASE_URI || (await startMemoryMongo()),
     }),
     editor: lexicalEditor(),
     email: testEmailAdapter,
