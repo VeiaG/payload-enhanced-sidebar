@@ -18,6 +18,8 @@ export default defineConfig(() => {
     ],
     test: {
       environment: 'node',
+      // Unit and integration tests only; dev/e2e.spec.ts belongs to Playwright
+      include: ['test/**/*.test.ts'],
       hookTimeout: 30_000,
       testTimeout: 30_000,
     },

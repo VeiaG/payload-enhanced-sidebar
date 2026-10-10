@@ -127,6 +127,10 @@ The sidebar follows Payload v4's design (its Figma-based UI):
 - **Badges** use Payload's status colors (`--color-bg-brand`, `-success`, `-warning`, `-danger`) and follow the dark theme. `warning` is yellow with dark text, as in Payload.
 - **Content area** has no side padding: rows and groups inset themselves, like in Payload's nav.
 
+## Plugin shape
+
+The plugin is now authored with Payload's `definePlugin` — the call is unchanged (`payloadEnhancedSidebar({ ... })`). It is registered under the slug `'@veiag/payload-enhanced-sidebar'` and runs with `order: 100`, after plugins with the default order. Other plugins can find it and add tabs with `addSidebarTabs` — see [Adding tabs from another plugin](configuration.md#adding-tabs-from-another-plugin).
+
 ## Custom components
 
 The props and the component API are unchanged. Things that behave differently:

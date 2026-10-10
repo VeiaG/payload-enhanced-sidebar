@@ -1,6 +1,6 @@
-import { type Config, deepMerge } from 'payload'
+import { type Config, deepMerge, definePlugin, type Plugin, type PluginsMap } from 'payload'
 
-import type { EnhancedSidebarConfig } from './types.js'
+import type { EnhancedSidebarConfig, SidebarTab } from './types.js'
 
 import { sidebarTranslations } from './translations/index.js'
 import {
@@ -34,9 +34,21 @@ const defaultConfig: EnhancedSidebarConfig = {
   ],
 }
 
-export const payloadEnhancedSidebar =
-  (pluginOptions: EnhancedSidebarConfig = {}) =>
-  (config: Config): Config => {
+/** The plugin's slug in Payload's `plugins` map */
+export const ENHANCED_SIDEBAR_SLUG = '@veiag/payload-enhanced-sidebar'
+
+declare module 'payload' {
+  interface RegisteredPlugins {
+    '@veiag/payload-enhanced-sidebar': EnhancedSidebarConfig
+  }
+}
+
+const definedPlugin = definePlugin<EnhancedSidebarConfig>({
+  slug: ENHANCED_SIDEBAR_SLUG,
+  // Runs after plugins with the default order (0): the sidebar replaces `admin.components.Nav`,
+  // and other plugins get the chance to add tabs to its options first (see `addSidebarTabs`).
+  order: 100,
+  plugin: ({ config, options: pluginOptions }): Config => {
     if (pluginOptions.disabled) {
       return config
     }
@@ -223,7 +235,44 @@ export const payloadEnhancedSidebar =
     config.i18n.translations = deepMerge(config.i18n.translations, sidebarTranslations)
 
     return config
+  },
+})
+
+/**
+ * The plugin. Authored with Payload's `definePlugin`, so other plugins find it by its slug
+ * (`ENHANCED_SIDEBAR_SLUG`) in the `plugins` map, with its options.
+ */
+export const payloadEnhancedSidebar = (options: EnhancedSidebarConfig = {}): Plugin =>
+  // Always an object, so other plugins have options to add tabs to even when none were passed
+  definedPlugin(options)
+
+/**
+ * Adds tabs to the sidebar from another plugin. Call it from a plugin that runs before the
+ * sidebar (any plugin with the default `order`), with the `plugins` map `definePlugin` passes
+ * in. The tabs go after the sidebar's own — its defaults when the project set none. Returns
+ * `false` when the sidebar plugin isn't installed.
+ *
+ * @example
+ * ```ts
+ * export const myPlugin = definePlugin({
+ *   slug: 'my-plugin',
+ *   plugin: ({ config, plugins }) => {
+ *     addSidebarTabs(plugins, [
+ *       { id: 'my-plugin', type: 'tab', icon: 'Puzzle', label: 'My plugin', collections: ['my-items'] },
+ *     ])
+ *     return config
+ *   },
+ * })
+ * ```
+ */
+export const addSidebarTabs = (plugins: PluginsMap, tabs: SidebarTab[]): boolean => {
+  const sidebar = plugins[ENHANCED_SIDEBAR_SLUG]
+  if (!sidebar?.options) {
+    return false
   }
+  sidebar.options.tabs = [...(sidebar.options.tabs ?? defaultConfig.tabs ?? []), ...tabs]
+  return true
+}
 
 // Hooks and providers. In 'use client' files prefer `@veiag/payload-enhanced-sidebar/client`.
 //

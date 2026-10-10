@@ -368,6 +368,30 @@ Completely disable the plugin.
 - **Type:** `boolean`
 - **Default:** `false`
 
+## Adding tabs from another plugin
+
+The plugin is authored with Payload's `definePlugin`, under the slug `'@veiag/payload-enhanced-sidebar'` (exported as `ENHANCED_SIDEBAR_SLUG`). Other plugins find it, with its options, in the `plugins` map `definePlugin` passes them — and can add their own tabs with `addSidebarTabs`:
+
+```ts
+import { addSidebarTabs } from '@veiag/payload-enhanced-sidebar'
+import { definePlugin } from 'payload'
+
+export const myPlugin = definePlugin({
+  slug: 'my-plugin',
+  plugin: ({ config, plugins }) => {
+    // false when the sidebar isn't installed — nothing to do then
+    addSidebarTabs(plugins, [
+      { id: 'my-plugin', type: 'tab', icon: 'Puzzle', label: 'My plugin', collections: ['my-items'] },
+    ])
+    return config
+  },
+})
+```
+
+- The tabs go after the project's own tabs, or after the default ones when the project set none.
+- The sidebar runs with `order: 100`, so any plugin with Payload's default order (`0`) runs first and its tabs make it in, wherever it sits in the `plugins` array. A plugin with a higher `order` runs too late.
+- Without importing the package: `plugins['@veiag/payload-enhanced-sidebar']?.options` is the sidebar's config, typed through Payload's `RegisteredPlugins`. Keep the default tabs in mind when you write `options.tabs` yourself — `addSidebarTabs` does that for you.
+
 ## Localization
 
 All labels support localized strings:
