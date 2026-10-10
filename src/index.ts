@@ -5,7 +5,9 @@ import type { EnhancedSidebarConfig } from './types.js'
 import { sidebarTranslations } from './translations/index.js'
 import {
   getLazyTabSlug,
+  NATIVE_TABS_PANEL_PATH,
   resolveLogoConfig,
+  resolveNativeTabsConfig,
   resolveSidebarComponent,
   sanitizeSidebarConfig,
 } from './utils/index.js'
@@ -153,6 +155,37 @@ export const payloadEnhancedSidebar =
               path,
             }
           }
+        }
+      }
+    }
+
+    // `nativeTabs: 'group'`: one plugin tab holding Payload's own sidebar tabs. Which native
+    // tabs exist is only known after sanitization (Payload adds the folder/tag tabs then), so
+    // the tab itself is added at render time; here it is registered for lazy rendering through
+    // `render-tab`, like any `lazy` tab.
+    const nativeTabs = resolveNativeTabsConfig(sidebarConfig.nativeTabs)
+    if (nativeTabs?.mode === 'group') {
+      if (seenTabIds.has(nativeTabs.id)) {
+        throw new Error(
+          `[payload-enhanced-sidebar] The native tabs tab id "${nativeTabs.id}" is already used by a tab. Set \`nativeTabs.id\` to another id.`,
+        )
+      }
+      config.admin.components.sidebar ??= {}
+      config.admin.components.sidebar.tabs ??= []
+      config.admin.components.sidebar.tabs.push({
+        slug: getLazyTabSlug(nativeTabs.id),
+        components: {
+          Content: { clientProps: { id: nativeTabs.id }, path: NATIVE_TABS_PANEL_PATH },
+          // Required by the type, never rendered: the plugin draws its own tab button.
+          Icon: '@payloadcms/ui#DocumentIcon',
+        },
+        disabled: true,
+      })
+      if (nativeTabs.iconComponent) {
+        const { path } = resolveSidebarComponent(nativeTabs.iconComponent)
+        config.admin.dependencies['enhanced-sidebar-icon-native-tabs'] = {
+          type: 'component',
+          path,
         }
       }
     }

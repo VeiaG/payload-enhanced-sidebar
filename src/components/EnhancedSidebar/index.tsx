@@ -24,7 +24,9 @@ import {
   extractLocalizedValue,
   getLazyTabSlug,
   LAZY_TAB_SLUG_PREFIX,
+  NATIVE_TABS_PANEL_PATH,
   resolveLogoConfig,
+  resolveNativeTabsConfig,
   resolveSidebarComponent,
   sanitizeSidebarConfig,
   sortTabGroups,
@@ -315,16 +317,20 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   // Payload's own sidebar tabs (`admin.components.sidebar.tabs`), read from the sanitized config
   // so they include the folder/tag tree tabs Payload adds during sanitization. Skips disabled
   // ones, the entries this plugin registers for its lazy tabs, and slugs that clash with ours.
+  const nativeTabsMode = resolveNativeTabsConfig(config.nativeTabs)
   const ownTabIds = new Set((config.tabs ?? []).map((t) => t.id))
-  const nativeTabConfigs =
-    config.nativeTabs === false
-      ? []
-      : (payload.config.admin.components?.sidebar?.tabs ?? []).filter(
-          (tab) =>
-            !tab.disabled && !tab.slug.startsWith(LAZY_TAB_SLUG_PREFIX) && !ownTabIds.has(tab.slug),
-        )
-  const nativeTabsBySlug = new Map(nativeTabConfigs.map((tab) => [tab.slug, tab]))
-  const nativeTabItems = nativeTabConfigs.map(
+  const nativeTabConfigs = nativeTabsMode
+    ? (payload.config.admin.components?.sidebar?.tabs ?? []).filter(
+        (tab) =>
+          !tab.disabled && !tab.slug.startsWith(LAZY_TAB_SLUG_PREFIX) && !ownTabIds.has(tab.slug),
+      )
+    : []
+
+  // 'map': each native tab is its own item in the tabs bar
+  const nativeTabsBySlug = new Map(
+    nativeTabsMode?.mode === 'map' ? nativeTabConfigs.map((tab) => [tab.slug, tab]) : [],
+  )
+  const nativeTabItems = [...nativeTabsBySlug.values()].map(
     (tab) =>
       ({
         id: tab.slug,
@@ -332,6 +338,23 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
         label: getTranslation(tab.label ?? tab.slug, i18n),
       }) as SidebarTabContentType,
   )
+
+  // 'group': one plugin tab holding them all, behind Payload's own switcher. A lazy tab like
+  // any other — registered for `render-tab` by the plugin — and only there if there is
+  // something to hold.
+  if (nativeTabsMode?.mode === 'group' && nativeTabConfigs.length > 0) {
+    nativeTabItems.push({
+      id: nativeTabsMode.id,
+      type: 'tab',
+      contentComponent: NATIVE_TABS_PANEL_PATH,
+      label: nativeTabsMode.label,
+      lazy: true,
+      position: nativeTabsMode.position,
+      ...(nativeTabsMode.iconComponent
+        ? { iconComponent: nativeTabsMode.iconComponent }
+        : { icon: nativeTabsMode.icon ?? 'FolderTree' }),
+    } as SidebarTabContentType)
+  }
 
   // Filter all tab bar items by access — fail-closed: missing req denies access
   // Note: req can be undefined on 404 pages due to a Payload bug (NotFound view omits req from props)

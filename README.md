@@ -627,6 +627,26 @@ Show a separate logout button at the bottom of the tabs bar. Off by default: the
 - **Type:** `boolean`
 - **Default:** `false`
 
+### `nativeTabs`
+
+How to show Payload's own sidebar tabs (`admin.components.sidebar.tabs`): the folder/tag tree tabs Payload adds for every `folders` / `tags` / `hierarchy` collection, tabs from your config, and tabs added by other plugins. Payload's own collections tab is never included — the plugin's tabs replace it.
+
+- **Type:** `'group' | 'map' | boolean | { mode?, id?, label?, icon?, iconComponent?, position? }`
+- **Default:** `'group'`
+
+- `'group'` (or `true`) — one tab, **Browse** (`FolderTree` icon), at the end of the top tabs. It holds all native tabs behind Payload's own tab switcher, so they keep Payload's look. Added only when there is at least one native tab, and rendered lazily.
+- `'map'` — each native tab becomes its own item in the tabs bar, with Payload's icon.
+- `false` — don't show them.
+
+```ts
+nativeTabs: {
+  id: 'library',                       // default 'payload-tabs'; must not clash with `tabs`
+  label: { en: 'Library', uk: 'Бібліотека' },
+  icon: 'Library',                     // or iconComponent
+  position: 'bottom',                  // default 'top'
+}
+```
+
 ### `logo`
 
 Brand icon at the top of the tabs bar, linking to the dashboard. By default it is the project's `admin.components.graphics.Icon` (which Payload v4 no longer shows anywhere in the admin), or the Payload icon, on a tile that is dark in the light theme and light in the dark one.

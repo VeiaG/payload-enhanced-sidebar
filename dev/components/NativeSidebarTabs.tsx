@@ -1,6 +1,6 @@
 import type { CollectionSlug, PayloadRequest, ServerProps } from 'payload'
 
-import { Link } from '@payloadcms/ui'
+import { ClockIcon, Link } from '@payloadcms/ui'
 import { formatAdminURL } from 'payload/shared'
 import React from 'react'
 
@@ -39,6 +39,24 @@ const styles = {
   row: { display: 'flex', justifyContent: 'space-between' },
   wrap: { padding: 'var(--spacer-3)' },
 } satisfies Record<string, React.CSSProperties>
+
+/**
+ * Payload's `ClockIcon` is drawn edge to edge in a 16px box, made for inline use, while the
+ * icons around it in the tab bar sit inside a 24px box. Padding it out to 24px makes it match.
+ */
+export const RecentIcon = () => (
+  <span
+    style={{
+      alignItems: 'center',
+      display: 'flex',
+      height: 24,
+      justifyContent: 'center',
+      width: 24,
+    }}
+  >
+    <ClockIcon />
+  </span>
+)
 
 const formatTime = (date: Date) => date.toLocaleTimeString('en-GB', { hour12: false })
 

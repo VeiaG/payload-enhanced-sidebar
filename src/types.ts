@@ -702,6 +702,34 @@ export type CustomTabContentProps = {
 }
 
 /**
+ * The tab that holds Payload's own sidebar tabs (`nativeTabs: 'group'`).
+ */
+export type NativeTabsGroupConfig = {
+  /**
+   * Icon name from lucide-react.
+   * @default 'FolderTree'
+   */
+  icon?: IconName
+  /** Custom icon component, instead of `icon`. Registered automatically in the import map. */
+  iconComponent?: SidebarComponent
+  /**
+   * Tab id. Must not clash with the ids in `tabs`.
+   * @default 'payload-tabs'
+   */
+  id?: string
+  /**
+   * @default { en: 'Browse', uk: 'Огляд' }
+   */
+  label?: LocalizedString
+  mode?: 'group' | 'map'
+  /**
+   * Where the tab goes in the tabs bar: after the top tabs, or with the bottom ones.
+   * @default 'top'
+   */
+  position?: 'bottom' | 'top'
+}
+
+/**
  * Logo at the top of the tabs bar, with control over the tile it sits in.
  */
 export type LogoConfig = {
@@ -793,14 +821,22 @@ export interface EnhancedSidebarConfig {
   logo?: boolean | LogoConfig | SidebarComponent
 
   /**
-   * Show Payload's own sidebar tabs (`admin.components.sidebar.tabs`) in the tabs bar,
-   * after the tabs configured here. This includes the folder/tag tree tabs that Payload adds
-   * for every `folders` / `tags` / `hierarchy` collection, and tabs added by other plugins.
-   * They render lazily, the same way Payload's own nav renders them.
+   * How to show Payload's own sidebar tabs (`admin.components.sidebar.tabs`): the folder/tag
+   * tree tabs Payload adds for every `folders` / `tags` / `hierarchy` collection, tabs from the
+   * project config and tabs added by other plugins. Payload's own "collections" tab is never
+   * included — the plugin's tabs replace it.
    *
-   * @default true
+   * - `'group'` (or `true`) — one plugin tab, "Browse", that holds them all and switches
+   *   between them with Payload's own tab switcher. Added only when there is at least one
+   *   native tab. Rendered lazily.
+   * - `{ mode: 'group', id, label, icon, iconComponent, position }` — the same, customized.
+   * - `'map'` — each native tab becomes its own item in the tabs bar, after the tabs
+   *   configured here, with Payload's icon.
+   * - `false` — don't show them.
+   *
+   * @default 'group'
    */
-  nativeTabs?: boolean
+  nativeTabs?: 'group' | 'map' | boolean | NativeTabsGroupConfig
 
   /**
    * Show a separate logout button at the bottom of the tabs bar. Off by default: the account

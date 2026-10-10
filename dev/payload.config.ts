@@ -40,7 +40,7 @@ const buildConfigWithMemoryDB = async () => {
               slug: 'recent',
               components: {
                 Content: './components/NativeSidebarTabs#RecentTab',
-                Icon: '@payloadcms/ui#ClockIcon',
+                Icon: './components/NativeSidebarTabs#RecentIcon',
               },
               label: { en: 'Recent', uk: 'Нещодавні' },
             },
@@ -522,7 +522,7 @@ const buildConfigWithMemoryDB = async () => {
                 label: { en: 'My Account', uk: 'Мій акаунт' },
               },
             ],
-            iconComponent: './components/CustomNavComponents#CustomTabIcon',
+            icon: 'House',
             label: { en: 'Dashboard', uk: 'Головна' },
             // access: always granted — tab is visible
             access: ({ req }) => Boolean(req.user),

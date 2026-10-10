@@ -1,6 +1,7 @@
 import type {
   EnhancedSidebarConfig,
   ExtendedGroup,
+  IconName,
   LogoConfig,
   LocalizedString,
   SidebarComponent,
@@ -20,6 +21,43 @@ export const getLazyTabSlug = (tabId: string): string => `${LAZY_TAB_SLUG_PREFIX
 
 export const convertSlugToTitle = (slug: string): string => {
   return slug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+/** Payload's own tab switcher panel, rendered in the `nativeTabs: 'group'` tab */
+export const NATIVE_TABS_PANEL_PATH = '@veiag/payload-enhanced-sidebar/rsc#NativeTabsPanel'
+
+export type ResolvedNativeTabs =
+  | {
+      icon?: IconName
+      iconComponent?: SidebarComponent
+      id: string
+      label: LocalizedString
+      mode: 'group'
+      position: 'bottom' | 'top'
+    }
+  | { mode: 'map' }
+
+/**
+ * Normalizes the `nativeTabs` option. Returns `null` when native tabs are off.
+ */
+export const resolveNativeTabsConfig = (
+  nativeTabs: EnhancedSidebarConfig['nativeTabs'],
+): null | ResolvedNativeTabs => {
+  if (nativeTabs === false) {
+    return null
+  }
+  if (nativeTabs === 'map' || (typeof nativeTabs === 'object' && nativeTabs.mode === 'map')) {
+    return { mode: 'map' }
+  }
+  const options = typeof nativeTabs === 'object' ? nativeTabs : {}
+  return {
+    icon: options.iconComponent ? undefined : (options.icon ?? 'FolderTree'),
+    iconComponent: options.iconComponent,
+    id: options.id ?? 'payload-tabs',
+    label: options.label ?? { en: 'Browse', uk: 'Огляд' },
+    mode: 'group',
+    position: options.position ?? 'top',
+  }
 }
 
 /**

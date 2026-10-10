@@ -65,6 +65,15 @@
       }
     }
 
+    // The panel is narrower than Payload's nav by the width of the tabs bar. Flex items keep
+    // `min-width: auto` and won't shrink below their content's natural width, so content made
+    // for the wider native nav overflowed — e.g. the search box in the folder/tag tree tabs
+    // (`.search-input` in a flex row, sized by its `<input>`).
+    &__content-scroll > *,
+    .search-input {
+      min-width: 0;
+    }
+
     // Nav rows mirror Payload's `.nav__link`: full-width row, the highlight is a rounded
     // pill drawn by `::before`, inset from the row edges.
     &__link-wrapper {
