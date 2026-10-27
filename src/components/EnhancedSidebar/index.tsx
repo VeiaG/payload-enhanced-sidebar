@@ -5,11 +5,9 @@ import { getTranslation } from '@payloadcms/translations'
 import { NavGroup } from '@payloadcms/ui'
 import { RenderServerComponent } from '@payloadcms/ui/elements/RenderServerComponent'
 import { EntityType, groupNavItems } from '@payloadcms/ui/shared'
-import { cookies } from 'next/headers.js'
+import { cookies, headers } from 'next/headers.js'
 import { formatAdminURL } from 'payload/shared'
 import React, { Fragment } from 'react'
-
-const COOKIE_KEY = 'payload-enhanced-sidebar-active-tab'
 
 import type {
   EnhancedSidebarConfig,
@@ -26,6 +24,7 @@ import {
   sanitizeSidebarConfig,
   sortTabGroups,
 } from '../../utils/index.js'
+import { ACTIVE_TAB_KEY } from './constants.js'
 import { getNavPrefs } from './getNavPrefs.js'
 import { Icon } from './Icon.js'
 import { NavItem } from './NavItem/index.js'
@@ -140,6 +139,61 @@ const computeGroupsForTab = async (
   }
 
   return result
+}
+
+/**
+ * Resolves `defaultTab` — skipped (undefined) when it's a function and `req` is missing,
+ * or when it throws.
+ */
+const resolveDefaultTab = async (
+  defaultTab: EnhancedSidebarConfig['defaultTab'],
+  req: PayloadRequest | undefined,
+): Promise<string | undefined> => {
+  if (typeof defaultTab !== 'function') {
+    return defaultTab
+  }
+  if (!req) {
+    return undefined
+  }
+  try {
+    return await defaultTab({ req })
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * The script nonce from the request's CSP header — what Next.js does for its own scripts
+ * (`script-src`, falling back to `default-src`).
+ */
+const getNonceFromCspHeader = (csp: null | string): string | undefined => {
+  if (!csp) {
+    return undefined
+  }
+  const directives = csp.split(';').map((d) => d.trim().split(/\s+/))
+  const directive =
+    directives.find(([name]) => name === 'script-src') ??
+    directives.find(([name]) => name === 'default-src')
+  const source = directive?.find((s) => s.startsWith("'nonce-") && s.endsWith("'"))
+  return source?.slice("'nonce-".length, -1) || undefined
+}
+
+const resolveNonce = async (
+  nonce: EnhancedSidebarConfig['nonce'],
+  req: PayloadRequest | undefined,
+): Promise<string | undefined> => {
+  if (nonce && req) {
+    try {
+      const value = await nonce({ req })
+      if (value) {
+        return value
+      }
+    } catch {
+      // Fall through to the header
+    }
+  }
+  const headerStore = await headers()
+  return getNonceFromCspHeader(headerStore.get('content-security-policy'))
 }
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => {
@@ -276,13 +330,24 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   )
   const visibleTabItems = allConfigTabs.filter((_, i) => tabAccessResults[i])
 
-  // Read active tab from cookie
-  const cookieStore = await cookies()
-  const storedTabId = cookieStore.get(COOKIE_KEY)?.value
+  // Active tab: cookie → defaultTab → first visible tab, each skipped when not visible.
+  // In session mode this is the fallback for sessionStorage, checked on the client.
   const tabs = visibleTabItems.filter((t) => t.type === 'tab') as SidebarTabContentType[]
-  const defaultTabId = tabs[0]?.id ?? ''
-  const initialActiveTabId =
-    storedTabId && tabs.some((t) => t.id === storedTabId) ? storedTabId : defaultTabId
+  const isVisibleTab = (id: string | undefined): id is string =>
+    Boolean(id) && tabs.some((t) => t.id === id)
+  const cookieStore = await cookies()
+  const storedTabId = cookieStore.get(ACTIVE_TAB_KEY)?.value
+  let initialActiveTabId = tabs[0]?.id ?? ''
+  if (isVisibleTab(storedTabId)) {
+    initialActiveTabId = storedTabId
+  } else {
+    const defaultTabId = await resolveDefaultTab(config.defaultTab, req)
+    if (isVisibleTab(defaultTabId)) {
+      initialActiveTabId = defaultTabId
+    }
+  }
+
+  const nonce = config.storage === 'session' ? await resolveNonce(config.nonce, req) : undefined
 
   const adminRoute = payload.config.routes.admin
   const currentLang = i18n.language
@@ -537,6 +602,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       customNavContent={customNavContent}
       customTabComponents={Object.keys(customTabComponents).length > 0 ? customTabComponents : undefined}
       initialActiveTabId={initialActiveTabId}
+      nonce={nonce}
       settingsMenu={renderedSettingsMenu}
       sidebarConfig={clientSidebarConfig}
       tabButtons={Object.keys(tabButtons).length > 0 ? tabButtons : undefined}

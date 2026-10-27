@@ -29,8 +29,9 @@ export const resolveSidebarComponent = (
  * before passing it to client components.
  */
 export const sanitizeSidebarConfig = (config: EnhancedSidebarConfig): EnhancedSidebarConfig => {
-  // `sort` holds server-side functions — drop it entirely before sending to the client.
-  const { sort: _sort, ...rest } = config
+  // `sort`, `defaultTab` and `nonce` are server-only (may hold functions) — drop them
+  // before sending to the client.
+  const { defaultTab: _defaultTab, nonce: _nonce, sort: _sort, ...rest } = config
   return {
     ...rest,
     tabs: rest.tabs?.map((tab) => {

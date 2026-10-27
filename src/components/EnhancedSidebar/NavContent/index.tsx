@@ -43,8 +43,21 @@ export const NavContentShell: React.FC<NavContentShellProps> = ({
   </nav>
 )
 
+/**
+ * In `storage: 'session'` mode visibility comes from CSS keyed off the root's
+ * `data-active-tab` (see `buildSessionTabStyles`) — it's correct before hydration,
+ * while React state still holds the server's tab. Inline styles would override it.
+ */
 const TabPanel: React.FC<{ children: React.ReactNode; id: string }> = ({ id, children }) => {
   const { isActive } = useTabState(id)
+  const { storage } = useEnhancedSidebar()
+  if (storage === 'session') {
+    return (
+      <div aria-hidden={!isActive} data-tab-panel={id}>
+        {children}
+      </div>
+    )
+  }
   return (
     <div aria-hidden={!isActive} style={{ display: isActive ? undefined : 'none' }}>
       {children}
@@ -58,6 +71,14 @@ const TabPanel: React.FC<{ children: React.ReactNode; id: string }> = ({ id, chi
  */
 const TabView: React.FC<{ children: React.ReactNode; id: string }> = ({ id, children }) => {
   const { isActive } = useTabState(id)
+  const { storage } = useEnhancedSidebar()
+  if (storage === 'session') {
+    return (
+      <div aria-hidden={!isActive} data-tab-view={id}>
+        {children}
+      </div>
+    )
+  }
   return (
     <div aria-hidden={!isActive} style={{ display: isActive ? 'contents' : 'none' }}>
       {children}
@@ -75,7 +96,7 @@ export const NavContent: React.FC<CustomNavContentProps> = ({
   tabsContent,
   tabViews,
 }) => {
-  const { activeTabId } = useEnhancedSidebar()
+  const { activeTabId, storage } = useEnhancedSidebar()
   const hasTabs = tabs.length > 0
   const defaultTabs = tabs.filter((tab) => !tabViews?.[tab.id])
   const customTabs = tabs.filter((tab) => Boolean(tabViews?.[tab.id]))
@@ -105,9 +126,18 @@ export const NavContent: React.FC<CustomNavContentProps> = ({
     <>
       {/* Hidden rather than unmounted while a custom view is active, so NavGroup open
           state and the Payload slots survive tab switches. */}
-      <div aria-hidden={isDefaultHidden} style={{ display: isDefaultHidden ? 'none' : 'contents' }}>
-        {defaultNav}
-      </div>
+      {storage === 'session' ? (
+        <div aria-hidden={isDefaultHidden} data-tab-default-nav="">
+          {defaultNav}
+        </div>
+      ) : (
+        <div
+          aria-hidden={isDefaultHidden}
+          style={{ display: isDefaultHidden ? 'none' : 'contents' }}
+        >
+          {defaultNav}
+        </div>
+      )}
       {customTabs.map((tab) => (
         <TabView id={tab.id} key={tab.id}>
           {tabViews![tab.id]}

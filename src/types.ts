@@ -739,10 +739,35 @@ export interface EnhancedSidebarConfig {
   }
 
   /**
+   * Tab to open when nothing is stored, or the stored tab isn't visible to the user.
+   * A function runs server-side per request — e.g. pick a tab by role. Skipped when it
+   * returns an id the user can't see (or throws); the first visible tab is used then.
+   *
+   * @example
+   * ```typescript
+   * defaultTab: ({ req }) => (req.user?.role === 'editor' ? 'content' : 'settings')
+   * ```
+   */
+  defaultTab?: ((args: { req: PayloadRequest }) => Promise<string> | string) | string
+
+  /**
    * Disable the plugin
    * @default false
    */
   disabled?: boolean
+
+  /**
+   * CSP nonce for the inline script used by `storage: 'session'`. When omitted, the
+   * nonce is read from the request's `Content-Security-Policy` header, the same way
+   * Next.js does it for its own scripts. Only needed when the nonce lives elsewhere
+   * (e.g. a custom `x-nonce` header). Has no effect in `'cookie'` mode.
+   *
+   * @example
+   * ```typescript
+   * nonce: ({ req }) => req.headers.get('x-nonce') ?? undefined
+   * ```
+   */
+  nonce?: (args: { req: PayloadRequest }) => Promise<string | undefined> | string | undefined
 
   /**
    * Show logout button at the bottom of the tabs bar.
@@ -772,6 +797,16 @@ export interface EnhancedSidebarConfig {
    * ```
    */
   sort?: Record<string, TabSortConfig>
+
+  /**
+   * Where the active tab is remembered:
+   * - `'cookie'` — one value for the whole site; every browser tab follows the last choice.
+   * - `'session'` — each browser tab keeps its own active tab in `sessionStorage`. The
+   *   cookie is still written and seeds new browser tabs with the last choice.
+   *
+   * @default 'cookie'
+   */
+  storage?: 'cookie' | 'session'
 
   /**
    * Tabs and links to show in the sidebar tabs bar.

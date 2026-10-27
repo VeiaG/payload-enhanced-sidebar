@@ -7,9 +7,13 @@ import { NavHamburger } from '../NavHamburger/index.js'
 import './index.scss'
 
 export const SidebarWrapper: React.FC<{
+  /** Set as `data-active-tab` on the root (`storage: 'session'` only). */
+  activeTabId?: string
   baseClass: string
   children: React.ReactNode
-}> = ({ baseClass, children }) => {
+  /** Rendered as the root's first children — the session-tab script and styles. */
+  head?: React.ReactNode
+}> = ({ activeTabId, baseClass, children, head }) => {
   const { hydrated, navOpen, navRef, shouldAnimate } = useNav()
 
   return (
@@ -22,8 +26,12 @@ export const SidebarWrapper: React.FC<{
       ]
         .filter(Boolean)
         .join(' ')}
+      data-active-tab={activeTabId}
       inert={!navOpen ? true : undefined}
+      // The inline script may set `data-active-tab` from sessionStorage before hydration
+      suppressHydrationWarning={activeTabId !== undefined ? true : undefined}
     >
+      {head}
       <div className={`${baseClass}__header`}>
         <NavHamburger baseClass={baseClass} />
       </div>

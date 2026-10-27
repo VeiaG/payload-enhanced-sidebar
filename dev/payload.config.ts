@@ -391,6 +391,13 @@ const buildConfigWithMemoryDB = async () => {
           // NavItem: './components/CustomNavComponents#CustomNavItem',
           // TabButton: './components/CustomNavComponents#CustomTabButton',
         },
+        // Each browser tab keeps its own active sidebar tab. Switch to 'cookie' (or remove)
+        // to compare with the shared behavior.
+        storage: 'session',
+        // Used when nothing is stored. Admins (email contains 'admin') start on 'marketing',
+        // a tab only they can see; everyone else on 'shop'. Return 'marketing' for everyone
+        // to see a non-admin fall back to the first visible tab.
+        defaultTab: ({ req }) => (req.user?.email?.includes('admin') ? 'marketing' : 'shop'),
         // Demo of the `sort` feature. Comment this whole block out to compare
         // against the default ordering.
         sort: {
