@@ -650,7 +650,7 @@ Where the active tab is remembered.
 | Mode | Behavior |
 | --- | --- |
 | `'cookie'` | One value for the whole site. Switching tabs in one browser tab changes what the others show after their next navigation or reload. |
-| `'session'` | Each browser tab keeps its own active tab in `sessionStorage`. Reloads and navigation keep it; a duplicated browser tab starts on the same tab. A new browser tab starts on the last tab picked anywhere, because the cookie is still written. |
+| `'session'` | Each browser tab keeps its own active tab in `sessionStorage`. Reloads and navigation keep it; a duplicated browser tab starts on the same tab. A new browser tab starts on the last tab picked anywhere, because the cookie is still written. The exception is a tab opened by script with an opener (e.g. `window.open` without `noopener`): it gets a copy of the opener's `sessionStorage` and starts on the opener's tab. Links with `target="_blank"` open without an opener by default. |
 
 The active tab is resolved in this order. A step is skipped when its value isn't a tab the user can see (access changed, a different user, a tab removed from the config):
 
@@ -665,7 +665,7 @@ The server can't see `sessionStorage`, so in `'session'` mode the plugin renders
 
 #### Content Security Policy
 
-If your admin panel uses a nonce-based CSP (`script-src 'nonce-…'`), the inline script needs that nonce. Next.js adds the nonce only to its own scripts. The plugin reads it from the request's `Content-Security-Policy` header, as Next.js does, so the usual middleware setup works without extra config. If your nonce lives elsewhere, pass it with `nonce`:
+If your admin panel uses a nonce-based CSP, `'session'` mode needs that nonce for two inline elements: the script (`script-src`) and a small `<style>` that shows the active panel (`style-src`, if your policy restricts styles by nonce). The plugin puts the same nonce on both. Next.js adds the nonce only to its own scripts. The plugin reads it from the request's `Content-Security-Policy` header, as Next.js does, so the usual middleware setup works without extra config. If your nonce lives elsewhere, pass it with `nonce`:
 
 ```typescript
 payloadEnhancedSidebar({
@@ -674,23 +674,23 @@ payloadEnhancedSidebar({
 })
 ```
 
-If the script is blocked, nothing breaks: the sidebar first shows the cookie's tab and switches to the stored one after hydration.
+If the script is blocked, nothing breaks: the sidebar first shows the cookie's tab and switches to the stored one after hydration. If the style is blocked, all panels show at once, so allow both.
 
 #### Custom `NavContent`
 
-The built-in nav content and tab `contentComponent` views are covered automatically. A custom `NavContent` that hides panels with `useTabState` shows the cookie's tab until hydration. To avoid that in `'session'` mode, drop the inline `display` style and mark each panel with `data-tab-panel="<tab id>"`; the plugin's CSS shows only the active one:
+The built-in nav content and tab `contentComponent` views are covered automatically. A custom `NavContent` that hides panels with `useTabState` shows the cookie's tab until hydration. To avoid that in `'session'` mode, drop the inline `display` style and `aria-hidden` (both follow React state, which is stale until hydration) and mark each panel with `data-tab-panel="<tab id>"`; the plugin's CSS shows only the active one:
 
 ```tsx
 const { isActive } = useTabState(tab.id)
 const { storage } = useEnhancedSidebar()
 
-<div
-  aria-hidden={!isActive}
-  data-tab-panel={storage === 'session' ? tab.id : undefined}
-  style={storage === 'session' ? undefined : { display: isActive ? undefined : 'none' }}
->
-  {tabsContent[tab.id]}
-</div>
+storage === 'session' ? (
+  <div data-tab-panel={tab.id}>{tabsContent[tab.id]}</div>
+) : (
+  <div aria-hidden={!isActive} style={{ display: isActive ? undefined : 'none' }}>
+    {tabsContent[tab.id]}
+  </div>
+)
 ```
 
 The active highlight on tab buttons is set by React, so it may briefly point at the cookie's tab before hydration.

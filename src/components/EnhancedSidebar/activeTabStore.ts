@@ -27,7 +27,13 @@ export const writeSessionTab = (tabId: string) => {
   try {
     window.sessionStorage.setItem(ACTIVE_TAB_KEY, tabId)
   } catch {
-    // Storage blocked — the caller's React state still switches the tab
+    // Write failed (blocked or full) — drop the old value so it doesn't win over the
+    // caller's React state, which still switches the tab
+    try {
+      window.sessionStorage.removeItem(ACTIVE_TAB_KEY)
+    } catch {
+      // Fully blocked — nothing is read back either
+    }
   }
   listeners.forEach((listener) => listener())
 }

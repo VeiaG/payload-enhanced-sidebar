@@ -47,13 +47,15 @@ export const NavContentShell: React.FC<NavContentShellProps> = ({
  * In `storage: 'session'` mode visibility comes from CSS keyed off the root's
  * `data-active-tab` (see `buildSessionTabStyles`) — it's correct before hydration,
  * while React state still holds the server's tab. Inline styles would override it.
+ * No `aria-hidden` there either: it would follow that stale state, and `display: none`
+ * already hides inactive panels from assistive tech.
  */
 const TabPanel: React.FC<{ children: React.ReactNode; id: string }> = ({ id, children }) => {
   const { isActive } = useTabState(id)
   const { storage } = useEnhancedSidebar()
   if (storage === 'session') {
     return (
-      <div aria-hidden={!isActive} data-tab-panel={id}>
+      <div data-tab-panel={id}>
         {children}
       </div>
     )
@@ -74,7 +76,7 @@ const TabView: React.FC<{ children: React.ReactNode; id: string }> = ({ id, chil
   const { storage } = useEnhancedSidebar()
   if (storage === 'session') {
     return (
-      <div aria-hidden={!isActive} data-tab-view={id}>
+      <div data-tab-view={id}>
         {children}
       </div>
     )
@@ -127,7 +129,7 @@ export const NavContent: React.FC<CustomNavContentProps> = ({
       {/* Hidden rather than unmounted while a custom view is active, so NavGroup open
           state and the Payload slots survive tab switches. */}
       {storage === 'session' ? (
-        <div aria-hidden={isDefaultHidden} data-tab-default-nav="">
+        <div data-tab-default-nav="">
           {defaultNav}
         </div>
       ) : (
