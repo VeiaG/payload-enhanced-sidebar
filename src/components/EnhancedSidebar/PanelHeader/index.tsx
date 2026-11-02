@@ -37,7 +37,7 @@ const SidebarIcon: React.FC = () => (
  * `.app-header__sidebar-toggle` + the sidebar icon), so open and close look the same.
  */
 export const PanelHeader: React.FC<{ tabs: SidebarTab[] }> = ({ tabs }) => {
-  const { activeTabId } = useEnhancedSidebar()
+  const { activeTabId, storage } = useEnhancedSidebar()
   const { navOpen, setNavOpen } = useNav()
   const { isEmbedded } = useEmbed()
   const { i18n, t } = useTranslation()
@@ -48,7 +48,19 @@ export const PanelHeader: React.FC<{ tabs: SidebarTab[] }> = ({ tabs }) => {
 
   return (
     <div className={`${baseClass}__panel-header`}>
-      <span className={`${baseClass}__panel-title`}>{title}</span>
+      <span className={`${baseClass}__panel-title`}>
+        {/* In `storage: 'session'` mode every title is rendered and CSS keyed off the root's
+            `data-active-tab` shows the right one — correct before hydration, like the panels. */}
+        {storage === 'session'
+          ? tabs.map((tab) =>
+              tab.type === 'tab' ? (
+                <span data-tab-title={tab.id} key={tab.id}>
+                  {getTranslation(tab.label, i18n)}
+                </span>
+              ) : null,
+            )
+          : title}
+      </span>
       {/* Embedded admin keeps the toggle in the app header, open or closed (as Payload's nav) */}
       {!isEmbedded && (
       <Button

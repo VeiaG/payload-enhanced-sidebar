@@ -1,6 +1,6 @@
 {
   "name": "@veiag/payload-enhanced-sidebar",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "An enhanced sidebar plugin for Payload CMS with tabbed navigation to organize collections and globals.",
   "author": "VeiaG",
   "license": "MIT",
@@ -54,15 +54,15 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
-    "@payloadcms/db-mongodb": "4.0.0-beta.0",
-    "@payloadcms/db-postgres": "4.0.0-beta.0",
-    "@payloadcms/db-sqlite": "4.0.0-beta.0",
+    "@payloadcms/db-mongodb": "4.0.0-beta.6",
+    "@payloadcms/db-postgres": "4.0.0-beta.6",
+    "@payloadcms/db-sqlite": "4.0.0-beta.6",
     "@payloadcms/eslint-config": "3.9.0",
-    "@payloadcms/next": "4.0.0-beta.0",
-    "@payloadcms/plugin-multi-tenant": "4.0.0-beta.0",
-    "@payloadcms/richtext-lexical": "4.0.0-beta.0",
-    "@payloadcms/transformer-sharp": "4.0.0-beta.0",
-    "@payloadcms/ui": "4.0.0-beta.0",
+    "@payloadcms/next": "4.0.0-beta.6",
+    "@payloadcms/plugin-multi-tenant": "4.0.0-beta.6",
+    "@payloadcms/richtext-lexical": "4.0.0-beta.6",
+    "@payloadcms/transformer-sharp": "4.0.0-beta.6",
+    "@payloadcms/ui": "4.0.0-beta.6",
     "@playwright/test": "1.56.1",
     "@swc-node/register": "1.10.9",
     "@swc/cli": "0.6.0",
@@ -77,7 +77,7 @@
     "mongodb-memory-server": "10.1.4",
     "next": "16.4.0",
     "open": "^10.1.0",
-    "payload": "4.0.0-beta.0",
+    "payload": "4.0.0-beta.6",
     "prettier": "^3.4.2",
     "qs-esm": "7.0.2",
     "react": "19.3.0",
@@ -125,7 +125,7 @@
   },
   "registry": "https://registry.npmjs.org/",
   "dependencies": {
-    "@payloadcms/translations": "4.0.0-beta.0",
+    "@payloadcms/translations": "4.0.0-beta.6",
     "lucide-react": "^0.556.0"
   }
 }

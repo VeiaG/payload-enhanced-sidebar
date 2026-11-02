@@ -113,7 +113,10 @@ describe('getLazyTabSlug', () => {
 describe('sanitizeSidebarConfig', () => {
   test('drops every function before the config reaches the client', () => {
     const config: EnhancedSidebarConfig = {
+      defaultTab: () => 'content',
+      nonce: () => 'abc',
       sort: { content: { groups: () => 0 } },
+      storage: 'session',
       tabs: [
         {
           id: 'content',
@@ -135,6 +138,10 @@ describe('sanitizeSidebarConfig', () => {
 
     expect(hasFunction(sanitized)).toBe(false)
     expect(sanitized.sort).toBeUndefined()
+    expect(sanitized.defaultTab).toBeUndefined()
+    expect(sanitized.nonce).toBeUndefined()
+    // `storage` is plain data the client needs
+    expect(sanitized.storage).toBe('session')
     expect(sanitized.tabs?.map((t) => t.id)).toEqual(['content', 'home'])
   })
 })

@@ -67,7 +67,7 @@ This will add:
 
 ## Documentation
 
-- **[Configuration](docs/configuration.md)** — tabs, links, custom items, ordering, and every option (`nativeTabs`, `logo`, `userMenu`, `iconStrokeWidth`, …)
+- **[Configuration](docs/configuration.md)** — tabs, links, custom items, ordering, and every option (`nativeTabs`, `logo`, `userMenu`, `iconStrokeWidth`, `storage`, `defaultTab`, …)
 - **[Badges](docs/badges.md)** — counts on tabs and nav items: collection counts, API, or your own provider
 - **[Access control](docs/access-control.md)** — hide tabs, links and items per user
 - **[Custom components](docs/custom-components.md)** — replace any part of the sidebar, lazy tabs, hooks and default building blocks
