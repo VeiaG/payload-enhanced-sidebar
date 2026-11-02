@@ -86,6 +86,12 @@ export default buildConfig({
       // Separate logout button in the tabs bar (default: false â€” the account menu has log out)
       showLogout: false,
 
+      // Remember the active tab per browser tab instead of site-wide (default: 'cookie')
+      storage: 'session',
+
+      // Tab to open when nothing is stored (default: first visible tab)
+      defaultTab: 'content',
+
       // Disable the plugin
       disabled: false,
     }),
@@ -387,6 +393,81 @@ Show Payload's account menu as an avatar button at the bottom of the tabs bar â€
 
 - **Type:** `boolean`
 - **Default:** `true`
+
+### `storage`
+
+Where the active tab is remembered.
+
+- **Type:** `'cookie' | 'session'`
+- **Default:** `'cookie'`
+
+| Mode | Behavior |
+| --- | --- |
+| `'cookie'` | One value for the whole site. Switching tabs in one browser tab changes what the others show after their next navigation or reload. |
+| `'session'` | Each browser tab keeps its own active tab in `sessionStorage`. Reloads and navigation keep it; a duplicated browser tab starts on the same tab. A new browser tab starts on the last tab picked anywhere, because the cookie is still written. The exception is a tab opened by script with an opener (e.g. `window.open` without `noopener`): it gets a copy of the opener's `sessionStorage` and starts on the opener's tab. Links with `target="_blank"` open without an opener by default. |
+
+The active tab is resolved in this order. A step is skipped when its value isn't a tab the user can see (access changed, a different user, a tab removed from the config):
+
+| Step | `'cookie'` | `'session'` |
+| --- | --- | --- |
+| 1 | cookie | `sessionStorage` of this browser tab |
+| 2 | `defaultTab` | cookie |
+| 3 | first visible tab | `defaultTab` |
+| 4 | | first visible tab |
+
+The server can't see `sessionStorage`, so in `'session'` mode the plugin renders a small inline script at the top of the sidebar. It picks the stored tab before the page is painted, so no wrong panel (or panel title) flashes before hydration. If `sessionStorage` is blocked (some private modes), the sidebar behaves like `'cookie'` mode.
+
+#### Content Security Policy
+
+If your admin panel uses a nonce-based CSP, `'session'` mode needs that nonce for two inline elements: the script (`script-src`) and a small `<style>` that shows the active panel (`style-src`, if your policy restricts styles by nonce). The plugin puts the same nonce on both. By default it reads the nonce from the request's `Content-Security-Policy` header (`script-src`, falling back to `default-src`), the same way Next.js does for its own scripts, so the usual middleware setup works without extra config. This works on both Next.js and TanStack Start: the header is read through Payload's server adapter. If your nonce lives elsewhere, pass it with `nonce`:
+
+```typescript
+payloadEnhancedSidebar({
+  storage: 'session',
+  nonce: ({ req }) => req.headers.get('x-nonce') ?? undefined,
+})
+```
+
+If the script is blocked, nothing breaks: the sidebar first shows the cookie's tab and switches to the stored one after hydration. If the style is blocked, all panels show at once, so allow both.
+
+#### Custom `NavContent`
+
+The built-in nav content, the panel title and tab `contentComponent` views are covered automatically. A custom `NavContent` that hides panels with `useTabState` shows the cookie's tab until hydration. To avoid that in `'session'` mode, drop the inline `display` style and `aria-hidden` (both follow React state, which is stale until hydration) and mark each panel with `data-tab-panel="<tab id>"`; the plugin's CSS shows only the active one:
+
+```tsx
+const { isActive } = useTabState(tab.id)
+const { storage } = useEnhancedSidebar()
+
+storage === 'session' ? (
+  <div data-tab-panel={tab.id}>{tabsContent[tab.id]}</div>
+) : (
+  <div aria-hidden={!isActive} style={{ display: isActive ? undefined : 'none' }}>
+    {tabsContent[tab.id]}
+  </div>
+)
+```
+
+The active highlight on tab buttons is set by React, so it may briefly point at the cookie's tab before hydration.
+
+### `defaultTab`
+
+The tab to open when nothing is stored, or when the stored tab isn't visible to the user. A function runs on the server for every request, e.g. to pick a tab by role. If it returns a tab the user can't see, or throws, the first visible tab is used.
+
+- **Type:** `string | ((args: { req: PayloadRequest }) => string | Promise<string>)`
+- **Default:** the first visible tab
+
+```typescript
+payloadEnhancedSidebar({
+  defaultTab: ({ req }) => (req.user?.role === 'editor' ? 'content' : 'settings'),
+})
+```
+
+### `nonce`
+
+CSP nonce for the `storage: 'session'` inline script and style. See [Content Security Policy](#content-security-policy).
+
+- **Type:** `({ req: PayloadRequest }) => string | undefined | Promise<string | undefined>`
+- **Default:** read from the request's `Content-Security-Policy` header
 
 ### `disabled`
 

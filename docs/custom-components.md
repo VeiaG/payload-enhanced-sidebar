@@ -426,9 +426,10 @@ export const MyTabButton: React.FC<CustomTabButtonProps> = ({
 ```typescript
 import { useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar/client'
 
-const { activeTabId, onTabChange } = useEnhancedSidebar()
+const { activeTabId, onTabChange, storage } = useEnhancedSidebar()
 // activeTabId  — currently selected tab id
-// onTabChange  — call to switch tab and persist to cookie
+// onTabChange  — call to switch tab and persist it (cookie, plus sessionStorage in 'session' mode)
+// storage      — the plugin's `storage` option: 'cookie' | 'session'
 ```
 
 ---
