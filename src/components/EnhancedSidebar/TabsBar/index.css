@@ -9,7 +9,7 @@
     /* Bottom space mirrors the top: the logo tile (32px) is centred in a header-high block, so
        its edge sits (header - 32px) / 2 from the top; the last button's edge sits the same
        distance from the bottom. */
-    padding: 0 0 calc((var(--app-header-height, 3.25rem) - 32px) / 2);
+    padding: 0 0 calc((var(--enhanced-sidebar-header-height, 3rem) - 32px) / 2);
     border-inline-end: 1px solid var(--color-border);
     background: var(--color-bg);
     position: relative;
@@ -76,13 +76,14 @@
   }
 
   /* Same height as the panel header next to it, so the logo lines up with the tab title.
-     `--app-header-height` is published by Payload's app header once it has mounted. */
+     `--enhanced-sidebar-header-height` (set on `.enhanced-sidebar`) follows Payload's
+     `--app-header-height`, floored to 3rem because that variable is 0 until the header mounts. */
   .tabs-bar__logo {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    height: var(--app-header-height, 3.25rem);
+    height: var(--enhanced-sidebar-header-height, 3rem);
     color: var(--color-icon);
 
     &:focus-visible {
