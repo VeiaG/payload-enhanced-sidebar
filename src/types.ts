@@ -285,6 +285,16 @@ type SidebarTabContentBase = {
    * @default 'top'
    */
   position?: 'bottom' | 'top'
+  /**
+   * Path to a component that replaces this tab's title in the panel header (the tab's
+   * label by default) — e.g. a back button before the label, for a tab that acts as a
+   * sub-level of another. Receives `CustomTabTitleProps` plus any `clientProps`.
+   *
+   * Rendered server-side, so server components work too. Use the
+   * `enhanced-sidebar__panel-title-text` class on the text to keep the default ellipsis.
+   * Registered automatically in the import map.
+   */
+  titleComponent?: SidebarComponent
   type: 'tab'
 } & TabIconConfig
 
@@ -722,6 +732,34 @@ export type CustomTabContentProps = {
   content: ReactNode
   /** Tab id */
   id: string
+}
+
+/**
+ * Props received by a per-tab title component set via `titleComponent` on a tab.
+ * It replaces the tab's title in the panel header.
+ *
+ * @example
+ * ```tsx
+ * 'use client'
+ * import type { CustomTabTitleProps } from '@veiag/payload-enhanced-sidebar'
+ * import { useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar/client'
+ *
+ * export const BackTitle: React.FC<CustomTabTitleProps> = ({ label }) => {
+ *   const { onTabChange } = useEnhancedSidebar()
+ *   return (
+ *     <>
+ *       <button onClick={() => onTabChange('parent')} type="button">←</button>
+ *       <span className="enhanced-sidebar__panel-title-text">{label}</span>
+ *     </>
+ *   )
+ * }
+ * ```
+ */
+export type CustomTabTitleProps = {
+  /** Tab id */
+  id: string
+  /** Pre-translated label */
+  label: string
 }
 
 /**

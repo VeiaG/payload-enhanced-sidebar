@@ -118,6 +118,7 @@ Array of tabs and links to show in the sidebar.
 | `customItems` | `SidebarTabItem[]` | No | Custom navigation items (see below) |
 | `contentComponent` | `SidebarComponent` | No | Replaces the whole nav area while this tab is active — e.g. a chat list (see [docs](custom-components.md#contentcomponent-per-tab-content)) |
 | `lazy` | `boolean` | No | Render `contentComponent` on demand, when the tab is opened, instead of on every page load (see [docs](custom-components.md#lazy-rendering-lazy-true)) |
+| `titleComponent` | `SidebarComponent` | No | Replaces this tab's title in the panel header — e.g. a back button before the label (see [docs](custom-components.md#titlecomponent-per-tab-title)) |
 | `badge` | `BadgeConfig` | No | Badge configuration for the tab icon |
 | `href` | `string` | No | Makes the tab navigate as well as open its panel. Relative to the admin route (see below) |
 | `position` | `'top' \| 'bottom'` | No | `'bottom'` pins the tab to the bottom of the bar, above the actions (default `'top'`) |

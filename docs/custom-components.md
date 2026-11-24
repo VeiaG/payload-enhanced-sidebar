@@ -12,6 +12,7 @@ The plugin allows replacing every visual piece of the sidebar with your own Reac
 | Tab/link button | `customComponents.TabButton` | `CustomTabButtonProps` | Every button in the vertical tabs bar |
 | Per-tab content | `tab.contentComponent` | `CustomTabContentProps` | The whole nav area while one specific tab is active |
 | Per-item button | `tab.buttonComponent` | `CustomTabButtonProps` | The button for one specific tab or link (overrides `TabButton`) |
+| Per-tab title | `tab.titleComponent` | `CustomTabTitleProps` | The title of one specific tab in the panel header |
 | Per-tab icon | `tab.iconComponent` | `CustomTabIconProps` | The icon for one specific tab or link |
 | Custom slot | `tab.type: 'custom'` | `CustomTabsBarComponentProps` | Arbitrary component in the tabs bar (spacer, separator, etc.) |
 | Per-item component | `customItems[].component` | `CustomNavItemComponentProps` | A single nav row inside a tab (instead of a link) |
@@ -473,6 +474,69 @@ The current-page state ignores the query string, so it still lights up on the ta
 
 ---
 
+## titleComponent (per-tab title)
+
+Replaces the title of **one** tab in the panel header — the tab's label by default. Use it to put a control beside the label, e.g. a back button for a tab that works as a sub-level of another one.
+
+```typescript
+tabs: [
+  {
+    id: 'reference-data',
+    type: 'tab',
+    icon: 'Database',
+    label: 'Reference data',
+    titleComponent: { path: './components/Sidebar#BackTitle', clientProps: { parent: 'intelligence' } },
+  },
+]
+```
+
+**Props (`CustomTabTitleProps`):**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `id` | `string` | Tab id |
+| `label` | `string` | The tab's label, already translated |
+
+Plus any `clientProps`. Rendered server-side, so a server component works too.
+
+The title row is a flex row (`align-items: center`, a small gap), so a button and a label sit side by side. It doesn't clip its content — put the `enhanced-sidebar__panel-title-text` class on the text to keep the default ellipsis:
+
+```tsx
+'use client'
+
+import type { CustomTabTitleProps } from '@veiag/payload-enhanced-sidebar'
+import { useEnhancedSidebar } from '@veiag/payload-enhanced-sidebar/client'
+import { Button, ChevronIcon } from '@payloadcms/ui'
+
+export const BackTitle: React.FC<CustomTabTitleProps & { parent: string }> = ({ label, parent }) => {
+  const { onTabChange } = useEnhancedSidebar()
+  return (
+    <>
+      <Button
+        aria-label="Back"
+        buttonStyle="ghost"
+        icon={<ChevronIcon direction="left" />}
+        margin={false}
+        onClick={() => onTabChange(parent)}
+        type="button"
+      />
+      <span className="enhanced-sidebar__panel-title-text">{label}</span>
+    </>
+  )
+}
+```
+
+To keep the parent tab's rail button lit while the sub-level is open, wrap the [default `TabButton`](#default-components) and pass `isActive`:
+
+```tsx
+export const IntelligenceTabButton: React.FC<CustomTabButtonProps> = (props) => {
+  const { activeTabId } = useEnhancedSidebar()
+  return <TabButton {...props} isActive={['intelligence', 'reference-data'].includes(activeTabId)} />
+}
+```
+
+---
+
 ## iconComponent (per-tab icon)
 
 Each tab or link can have a custom icon component that replaces the default Lucide icon. This is mutually exclusive with `icon` — use one or the other.
@@ -858,7 +922,7 @@ The built-in pieces are exported from `/client` (not from the package root — s
 | Export | Props | What it is |
 |--------|-------|------------|
 | `NavItem` | `NavItemProps` — same as `CustomNavItemProps` (`label` optional) | Default nav row: link, selected state, badge |
-| `TabButton` | `TabButtonProps` — `CustomTabButtonProps` + optional `isCurrentPage` | Default tabs bar button for `tab` and `link` items: tooltip, badge, active/current states, tab switching |
+| `TabButton` | `TabButtonProps` — `CustomTabButtonProps` + optional `isActive`, `isCurrentPage` | Default tabs bar button for `tab` and `link` items: tooltip, badge, active/current states, tab switching |
 | `NavContentShell` | `NavContentShellProps` | Default nav area wrapper: layout, padding, scrolling |
 | `Badge` | `BadgeProps` (`value`, `color`, `position`) | Badge pill (`99+` for large numbers, hidden for `0`) |
 | `useBadge(config, slug)` | — | `{ value }` for a `BadgeConfig`, read from the badge context |
@@ -877,7 +941,7 @@ export const MyNavItem: React.FC<CustomNavItemProps> = (props) => (
 )
 ```
 
-`TabButton` computes `isCurrentPage` from the pathname (query string and trailing slash ignored). Pass `isCurrentPage` to override it.
+`TabButton` computes `isCurrentPage` from the pathname (query string and trailing slash ignored), and lights a tab as open when `activeTabId === id`. Pass `isCurrentPage` / `isActive` to override either.
 
 ---
 

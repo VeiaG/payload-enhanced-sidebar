@@ -40,6 +40,7 @@ export type {
   CustomTabContentProps,
   CustomTabIconProps,
   CustomTabsBarComponentProps,
+  CustomTabTitleProps,
   ExtendedEntity,
   IconName,
 } from '../types.js'

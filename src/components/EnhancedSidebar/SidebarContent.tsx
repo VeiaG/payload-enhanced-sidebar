@@ -38,6 +38,8 @@ export type SidebarContentProps = {
   tabButtons?: Record<string, React.ReactNode>
   tabIcons?: Record<string, React.ReactNode>
   tabsContent: Record<string, React.ReactNode>
+  /** Server-rendered panel header titles, keyed by tab id (a tab's `titleComponent`) */
+  tabTitles?: Record<string, React.ReactNode>
   tabViews?: Record<string, React.ReactNode>
   /** Account menu shown at the bottom of the tabs bar */
   userMenu?: React.ReactNode
@@ -72,6 +74,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   tabButtons,
   tabIcons,
   tabsContent,
+  tabTitles,
   tabViews,
   userMenu,
 }) => {
@@ -143,7 +146,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
           userMenu={userMenu}
         />
         <div className={`${baseClass}__panel`}>
-          <PanelHeader tabs={sidebarConfig.tabs ?? []} />
+          <PanelHeader tabs={sidebarConfig.tabs ?? []} tabTitles={tabTitles} />
           {customNavContent ?? (
             <NavContent
               afterNav={afterNav}

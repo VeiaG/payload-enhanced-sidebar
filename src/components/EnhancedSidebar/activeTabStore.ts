@@ -67,7 +67,8 @@ export const buildSessionTabStyles = (tabIds: string[], tabViewIds: string[]) =>
   for (const id of tabIds) {
     const active = `${root}[data-active-tab=${toCssString(id)}]`
     rules.push(`${active} [data-tab-panel=${toCssString(id)}]{display:block}`)
-    rules.push(`${active} [data-tab-title=${toCssString(id)}]{display:inline}`)
+    // `contents`: the title's children join `.enhanced-sidebar__panel-title`'s flex row
+    rules.push(`${active} [data-tab-title=${toCssString(id)}]{display:contents}`)
   }
   for (const id of tabViewIds) {
     const active = `${root}[data-active-tab=${toCssString(id)}]`
