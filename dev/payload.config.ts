@@ -656,9 +656,36 @@ export const createDevConfig = async ({ importMapFile }: { importMapFile?: strin
                 // access: only users whose email includes 'admin'
                 access: ({ req }) => Boolean(req.user?.email?.includes('admin')),
               },
+              // Opens the 'shop-customers' sub-level below
+              {
+                slug: 'open-shop-customers',
+                component: {
+                  clientProps: { target: 'shop-customers' },
+                  path: './components/CustomNavComponents#OpenLevelItem',
+                },
+              },
             ],
+            // Stays lit while its 'shop-customers' sub-level is open
+            buttonComponent: {
+              clientProps: { levels: ['shop-customers'] },
+              path: './components/CustomNavComponents#LevelParentTabButton',
+            },
             icon: 'ShoppingCart',
             label: { en: 'Shop', uk: 'Магазин' },
+          },
+          // A sub-level of 'shop': no rail button of its own, a back button in the panel
+          // header (`titleComponent`)
+          {
+            id: 'shop-customers',
+            type: 'tab',
+            buttonComponent: './components/CustomNavComponents#HiddenTabButton',
+            collections: ['customers', 'reviews'],
+            icon: 'Users',
+            label: { en: 'Customers', uk: 'Клієнти' },
+            titleComponent: {
+              clientProps: { parent: 'shop' },
+              path: './components/CustomNavComponents#BackTitle',
+            },
           },
           {
             id: 'marketing',

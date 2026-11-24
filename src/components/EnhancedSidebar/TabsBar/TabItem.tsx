@@ -27,6 +27,12 @@ const normalizePath = (href: string): string => {
 
 export type TabButtonProps = {
   /**
+   * Whether the tab is lit as the open one. Defaults to `activeTabId === id` — override it
+   * when the tab should stay lit while another (e.g. a sub-level of it) is open.
+   * Only used for `tab` items.
+   */
+  isActive?: boolean
+  /**
    * Whether the current route matches `href`. Computed from the pathname when omitted
    * (query string and trailing slash ignored).
    */
@@ -50,6 +56,7 @@ export const TabButton: React.FC<TabButtonProps> = ({
   badge,
   href,
   icon,
+  isActive: isActiveProp,
   isCurrentPage: isCurrentPageProp,
   isExternal,
   label,
@@ -59,6 +66,7 @@ export const TabButton: React.FC<TabButtonProps> = ({
   const { value } = useBadge(badge, id)
   const [hovered, setHovered] = useState(false)
 
+  const isActive = isActiveProp ?? activeTabId === id
   const isCurrentPage =
     isCurrentPageProp ??
     (href !== undefined && !isExternal && normalizePath(href) === normalizePath(pathname))
@@ -98,7 +106,7 @@ export const TabButton: React.FC<TabButtonProps> = ({
 
   const className = [
     `${tabsBaseClass}__tab`,
-    activeTabId === id && `${tabsBaseClass}__tab--active`,
+    isActive && `${tabsBaseClass}__tab--active`,
     // Route-match indicator, only ever set on a linked tab
     href !== undefined && isCurrentPage && `${tabsBaseClass}__tab--current`,
   ]

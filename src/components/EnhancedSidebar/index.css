@@ -37,14 +37,24 @@
     border-bottom: var(--stroke-width-small) solid var(--color-border);
   }
 
+  /* A flex row, so a tab's `titleComponent` can put a button beside its text. No
+     `overflow: hidden` here: it would clip that button's focus outline — the ellipsis is on
+     `__panel-title-text` instead. */
   .enhanced-sidebar__panel-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-1);
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
     font-size: var(--text-body-medium-bold-font-size);
     font-weight: var(--text-body-medium-bold-font-weight);
     line-height: var(--text-body-medium-bold-line-height);
+  }
+
+  .enhanced-sidebar__panel-title-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .enhanced-sidebar__content {

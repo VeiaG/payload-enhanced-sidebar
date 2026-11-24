@@ -660,6 +660,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
   const tabIcons: Record<string, React.ReactNode> = {}
   // tabButtons: per-id custom button nodes — from an item's buttonComponent or the global TabButton
   const tabButtons: Record<string, React.ReactNode> = {}
+  // tabTitles: per-id panel header titles from a tab's titleComponent
+  const tabTitles: Record<string, React.ReactNode> = {}
   // customTabComponents: server-rendered components for type:'custom' tab bar slots
   const customTabComponents: Record<string, React.ReactNode> = {}
 
@@ -684,6 +686,19 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
     const buttonComponent = item.buttonComponent ?? globalTabButton
 
     const label = getTranslation(item.label, i18n)
+
+    if (item.type === 'tab' && item.titleComponent) {
+      const { clientProps: titleExtraProps, path: titlePath } = resolveSidebarComponent(
+        item.titleComponent,
+      )
+      tabTitles[item.id] = RenderServerComponent({
+        clientProps: { id: item.id, label, ...titleExtraProps },
+        Component: titlePath,
+        importMap: payload.importMap,
+        key: `tab-title-${item.id}`,
+        serverProps,
+      })
+    }
 
     // Resolve icon: custom iconComponent > default Lucide. Always rendered here on the
     // server, so the Lucide icon map never reaches the client bundle — only the SVG does.
@@ -789,6 +804,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = async (props) => 
       tabButtons={Object.keys(tabButtons).length > 0 ? tabButtons : undefined}
       tabIcons={Object.keys(tabIcons).length > 0 ? tabIcons : undefined}
       tabsContent={tabsContent}
+      tabTitles={Object.keys(tabTitles).length > 0 ? tabTitles : undefined}
       tabViews={hasTabViews ? tabViews : undefined}
       userMenu={userMenu}
     />

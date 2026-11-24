@@ -64,6 +64,10 @@ import { UploadDropzoneWidget as UploadDropzoneWidget_ab83ff7e88da8d3530831f296e
 import { UploadDropzoneCollectionsField as UploadDropzoneCollectionsField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { KeepQueryTabButton as KeepQueryTabButton_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 import { CustomNavItemComponent as CustomNavItemComponent_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
+import { LevelParentTabButton as LevelParentTabButton_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
+import { OpenLevelItem as OpenLevelItem_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
+import { HiddenTabButton as HiddenTabButton_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
+import { BackTitle as BackTitle_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 import { ChatListPanel as ChatListPanel_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 import { TabSeparator as TabSeparator_2d6fad3ce4c2c7169593aaf3566963f3 } from '../../../components/CustomNavComponents'
 
@@ -135,6 +139,10 @@ export const importMap = {
   "@payloadcms/ui#UploadDropzoneCollectionsField": UploadDropzoneCollectionsField_3817bf644402e67bfe6577f60ef982de,
   "./components/CustomNavComponents#KeepQueryTabButton": KeepQueryTabButton_2d6fad3ce4c2c7169593aaf3566963f3,
   "./components/CustomNavComponents#CustomNavItemComponent": CustomNavItemComponent_2d6fad3ce4c2c7169593aaf3566963f3,
+  "./components/CustomNavComponents#LevelParentTabButton": LevelParentTabButton_2d6fad3ce4c2c7169593aaf3566963f3,
+  "./components/CustomNavComponents#OpenLevelItem": OpenLevelItem_2d6fad3ce4c2c7169593aaf3566963f3,
+  "./components/CustomNavComponents#HiddenTabButton": HiddenTabButton_2d6fad3ce4c2c7169593aaf3566963f3,
+  "./components/CustomNavComponents#BackTitle": BackTitle_2d6fad3ce4c2c7169593aaf3566963f3,
   "./components/CustomNavComponents#ChatListPanel": ChatListPanel_2d6fad3ce4c2c7169593aaf3566963f3,
   "./components/CustomNavComponents#TabSeparator": TabSeparator_2d6fad3ce4c2c7169593aaf3566963f3
 }

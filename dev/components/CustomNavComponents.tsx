@@ -9,9 +9,10 @@ import type {
   CustomTabContentProps,
   CustomTabIconProps,
   CustomTabsBarComponentProps,
+  CustomTabTitleProps,
 } from '@veiag/payload-enhanced-sidebar'
 
-import { Link, useSearchParams } from '@payloadcms/ui'
+import { Button, ChevronIcon, Link, useSearchParams } from '@payloadcms/ui'
 import {
   NavContentShell,
   TabButton,
@@ -383,3 +384,66 @@ export const ChatListPanel: React.FC<{ title?: string } & CustomTabContentProps>
     {content}
   </NavContentShell>
 )
+
+/**
+ * Per-tab `titleComponent` example: a back button before the label, for a tab that works
+ * as a sub-level of `parent`.
+ */
+export const BackTitle: React.FC<{ parent: string } & CustomTabTitleProps> = ({
+  label,
+  parent,
+}) => {
+  const { onTabChange } = useEnhancedSidebar()
+  return (
+    <>
+      <Button
+        aria-label="Back"
+        buttonStyle="ghost"
+        icon={<ChevronIcon direction="left" />}
+        margin={false}
+        onClick={() => onTabChange(parent)}
+        type="button"
+      />
+      <span className="enhanced-sidebar__panel-title-text">{label}</span>
+    </>
+  )
+}
+
+/** The parent tab's button: stays lit while one of its `levels` is open (`isActive`). */
+export const LevelParentTabButton: React.FC<{ levels: string[] } & CustomTabButtonProps> = ({
+  levels,
+  ...props
+}) => {
+  const { activeTabId } = useEnhancedSidebar()
+  return (
+    <TabButton {...props} isActive={activeTabId === props.id || levels.includes(activeTabId)} />
+  )
+}
+
+/** A sub-level tab has no rail button of its own */
+export const HiddenTabButton: React.FC<CustomTabButtonProps> = () => null
+
+/** A nav row that opens a sub-level tab */
+export const OpenLevelItem: React.FC<{ target: string } & CustomNavItemComponentProps> = ({
+  target,
+}) => {
+  const { onTabChange } = useEnhancedSidebar()
+  return (
+    <button
+      onClick={() => onTabChange(target)}
+      style={{
+        background: 'none',
+        border: 0,
+        cursor: 'pointer',
+        display: 'block',
+        font: 'inherit',
+        margin: '4px 12px',
+        padding: '6px 8px',
+        textAlign: 'left',
+      }}
+      type="button"
+    >
+      Customers →
+    </button>
+  )
+}

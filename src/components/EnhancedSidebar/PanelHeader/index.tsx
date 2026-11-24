@@ -35,44 +35,61 @@ const SidebarIcon: React.FC = () => (
  * Top of the panel: the open tab's name and the button that hides the sidebar. The button is
  * built exactly like the one that opens it in Payload's app header (`Button` ghost +
  * `.app-header__sidebar-toggle` + the sidebar icon), so open and close look the same.
+ *
+ * A tab's `titleComponent` (server-rendered, passed in `tabTitles`) replaces its default title.
  */
-export const PanelHeader: React.FC<{ tabs: SidebarTab[] }> = ({ tabs }) => {
+export const PanelHeader: React.FC<{
+  tabs: SidebarTab[]
+  tabTitles?: Record<string, React.ReactNode>
+}> = ({ tabs, tabTitles }) => {
   const { activeTabId, storage } = useEnhancedSidebar()
   const { navOpen, setNavOpen } = useNav()
   const { isEmbedded } = useEmbed()
   const { i18n, t } = useTranslation()
 
+  const renderTitle = (tab: SidebarTab) => {
+    if (tab.type !== 'tab') {
+      return null
+    }
+    if (tabTitles && tab.id in tabTitles) {
+      return tabTitles[tab.id]
+    }
+    // The ellipsis lives on this span, not on the title row, so the row doesn't clip a
+    // custom title's focus outlines
+    return (
+      <span className={`${baseClass}__panel-title-text`}>{getTranslation(tab.label, i18n)}</span>
+    )
+  }
+
   const activeTab = tabs.find((tab) => tab.type === 'tab' && tab.id === activeTabId)
-  const title =
-    activeTab?.type === 'tab' ? getTranslation(activeTab.label, i18n) : ''
 
   return (
     <div className={`${baseClass}__panel-header`}>
-      <span className={`${baseClass}__panel-title`}>
+      <div className={`${baseClass}__panel-title`}>
         {/* In `storage: 'session'` mode every title is rendered and CSS keyed off the root's
             `data-active-tab` shows the right one — correct before hydration, like the panels. */}
         {storage === 'session'
           ? tabs.map((tab) =>
               tab.type === 'tab' ? (
                 <span data-tab-title={tab.id} key={tab.id}>
-                  {getTranslation(tab.label, i18n)}
+                  {renderTitle(tab)}
                 </span>
               ) : null,
             )
-          : title}
-      </span>
+          : activeTab && renderTitle(activeTab)}
+      </div>
       {/* Embedded admin keeps the toggle in the app header, open or closed (as Payload's nav) */}
       {!isEmbedded && (
-      <Button
-        aria-expanded={navOpen}
-        aria-label={t('general:hideSidebar')}
-        buttonStyle="ghost"
-        className="app-header__sidebar-toggle"
-        icon={<SidebarIcon />}
-        // Second argument persists the closed state, like Payload's own toggles
-        onClick={() => setNavOpen(false, true)}
-        type="button"
-      />
+        <Button
+          aria-expanded={navOpen}
+          aria-label={t('general:hideSidebar')}
+          buttonStyle="ghost"
+          className="app-header__sidebar-toggle"
+          icon={<SidebarIcon />}
+          // Second argument persists the closed state, like Payload's own toggles
+          onClick={() => setNavOpen(false, true)}
+          type="button"
+        />
       )}
     </div>
   )

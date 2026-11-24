@@ -130,6 +130,14 @@ const definedPlugin = definePlugin<EnhancedSidebarConfig>({
         }
       }
 
+      if (tab.type === 'tab' && tab.titleComponent) {
+        const { path } = resolveSidebarComponent(tab.titleComponent)
+        config.admin.dependencies[`enhanced-sidebar-title-${tab.id}`] = {
+          type: 'component',
+          path,
+        }
+      }
+
       if (tab.type === 'tab' && tab.contentComponent) {
         const { path } = resolveSidebarComponent(tab.contentComponent)
         config.admin.dependencies[`enhanced-sidebar-content-${tab.id}`] = {
@@ -314,6 +322,7 @@ export type {
   CustomTabContentProps,
   CustomTabIconProps,
   CustomTabsBarComponentProps,
+  CustomTabTitleProps,
   EnhancedSidebarConfig,
   ExtendedEntity,
   ExtendedGroup,

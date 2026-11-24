@@ -178,6 +178,24 @@ describe('payloadEnhancedSidebar', () => {
     ])
   })
 
+  test("registers a tab's titleComponent in the import map", () => {
+    const config = run({
+      tabs: [
+        {
+          id: 'levels',
+          type: 'tab',
+          icon: 'Layers',
+          label: 'Levels',
+          titleComponent: { clientProps: { parent: 'main' }, path: './Title#BackTitle' },
+        },
+      ],
+    })
+    expect(config.admin?.dependencies?.['enhanced-sidebar-title-levels']).toEqual({
+      type: 'component',
+      path: './Title#BackTitle',
+    })
+  })
+
   test('registers a custom logo component in the import map, and nothing for the default', () => {
     expect(run().admin?.dependencies?.['enhanced-sidebar-logo']).toBeUndefined()
     expect(
